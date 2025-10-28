@@ -2,6 +2,8 @@ import type { Metadata } from 'next';
 import { Montserrat, DM_Sans } from 'next/font/google';
 import '@/styles/globals.css';
 import { Providers } from '@/providers';
+import { cn } from '@/lib/utils';
+import { autography, sharpGrotesk } from '@/fonts';
 
 const montserrat = Montserrat({
   variable: '--font-montserrat',
@@ -25,7 +27,15 @@ export default function RootLayout({
 }>) {
   return (
     <html lang='en'>
-      <body className={`${montserrat.variable} ${dmSans.variable} antialiased`}>
+      <body
+        className={cn(
+          montserrat.variable,
+          dmSans.variable,
+          autography.variable,
+          sharpGrotesk.variable,
+          'antialiased'
+        )}
+      >
         <Providers>{children}</Providers>
       </body>
     </html>
