@@ -1,11 +1,11 @@
-import { FC } from 'react';
-import { RecipeCard } from './recipe-card';
+import { FC } from 'react'
+import { RecipeCard } from './recipe-card'
 
 interface Recipe {
-  id: string;
-  title: string;
-  author: string;
-  image: string;
+  id: string
+  title: string
+  author: string
+  image: string
 }
 
 const FAKE_RECIPES: Recipe[] = [
@@ -57,20 +57,20 @@ const FAKE_RECIPES: Recipe[] = [
     author: '@french_kitchen',
     image: '/test.jpg',
   },
-];
+]
 
 interface RecipesSectionProps {
-  className?: string;
+  className?: string
 }
 
 export const RecipesSection: FC<RecipesSectionProps> = ({ className }) => {
   return (
     <section className={className}>
-      <div className='grid grid-cols-5 gap-2 px-4'>
-        {FAKE_RECIPES.map((recipe) => (
+      <div className="grid grid-cols-5 gap-2 px-4">
+        {FAKE_RECIPES.map(recipe => (
           <RecipeCard key={recipe.id} recipe={recipe} />
         ))}
       </div>
     </section>
-  );
-};
+  )
+}

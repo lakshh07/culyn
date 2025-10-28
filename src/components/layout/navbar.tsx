@@ -1,14 +1,14 @@
-'use client';
+'use client'
 
-import React, { useState, useEffect, FC, useMemo } from 'react';
-import Link from 'next/link';
-import { motion } from 'motion/react';
-import { ArrowIcon } from '@/components/icons';
-import { cn } from '@/lib/utils';
+import React, { useState, useEffect, FC, useMemo } from 'react'
+import Link from 'next/link'
+import { motion } from 'motion/react'
+import { ArrowIcon } from '@/components/icons'
+import { cn } from '@/lib/utils'
 
 interface NavItem {
-  label: string;
-  href: string;
+  label: string
+  href: string
 }
 
 const sideNavItems: NavItem[] = [
@@ -20,20 +20,20 @@ const sideNavItems: NavItem[] = [
     label: 'Login',
     href: '/login',
   },
-];
+]
 
-const MotionLink = motion.create(Link);
+const MotionLink = motion.create(Link)
 
 interface NavLinkProps {
-  item: NavItem;
+  item: NavItem
 }
 
 const NavLink: React.FC<NavLinkProps> = React.memo(({ item }) => (
   <MotionLink
     key={item.label}
-    initial='initial'
-    whileHover='hover'
-    whileTap='tap'
+    initial="initial"
+    whileHover="hover"
+    whileTap="tap"
     variants={{
       initial: { scale: 1 },
       tap: {
@@ -44,17 +44,13 @@ const NavLink: React.FC<NavLinkProps> = React.memo(({ item }) => (
     href={item.href}
     prefetch
     className={cn(
-      'relative flex items-center gap-3 font-normal text-sm cursor-pointer',
+      'relative flex cursor-pointer items-center gap-3 text-sm font-normal',
       'text-zinc-950'
-    )}
-  >
-    <span className='relative font-mono font-medium'>
+    )}>
+    <span className="relative font-mono font-medium">
       {item.label}
       <motion.span
-        className={cn(
-          'absolute -bottom-1 left-0 w-full h-px rounded-sm',
-          'bg-zinc-950'
-        )}
+        className={cn('absolute -bottom-1 left-0 h-px w-full rounded-sm', 'bg-zinc-950')}
         variants={{
           initial: {
             scaleX: 0,
@@ -69,49 +65,49 @@ const NavLink: React.FC<NavLinkProps> = React.memo(({ item }) => (
         }}
       />
     </span>
-    <ArrowIcon className='size-3' />
+    <ArrowIcon className="size-3" />
   </MotionLink>
-));
+))
 
-NavLink.displayName = 'NavLink';
+NavLink.displayName = 'NavLink'
 
 export const Navbar: FC = () => {
-  const [isScrolled, setIsScrolled] = useState(false);
-  const [showNavbar, setShowNavbar] = useState(true);
-  const [lastScrollY, setLastScrollY] = useState(0);
+  const [isScrolled, setIsScrolled] = useState(false)
+  const [showNavbar, setShowNavbar] = useState(true)
+  const [lastScrollY, setLastScrollY] = useState(0)
 
   useEffect(() => {
     const handleScroll = () => {
-      const currentScrollY = window.scrollY;
-      const windowHeight = window.innerHeight;
-      const documentHeight = document.documentElement.scrollHeight;
+      const currentScrollY = window.scrollY
+      const windowHeight = window.innerHeight
+      const documentHeight = document.documentElement.scrollHeight
 
-      const isAtBottom = currentScrollY + windowHeight >= documentHeight - 500;
+      const isAtBottom = currentScrollY + windowHeight >= documentHeight - 500
 
-      setIsScrolled(currentScrollY > 40);
+      setIsScrolled(currentScrollY > 40)
       if (currentScrollY <= 0) {
-        setShowNavbar(true);
+        setShowNavbar(true)
       } else if (currentScrollY > lastScrollY) {
-        setShowNavbar(false);
+        setShowNavbar(false)
       } else if (isAtBottom) {
-        setShowNavbar(false);
+        setShowNavbar(false)
       } else {
-        setShowNavbar(true);
+        setShowNavbar(true)
       }
-      setLastScrollY(currentScrollY);
-    };
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, [lastScrollY]);
+      setLastScrollY(currentScrollY)
+    }
+    window.addEventListener('scroll', handleScroll)
+    return () => window.removeEventListener('scroll', handleScroll)
+  }, [lastScrollY])
 
   const sideNavLinks = useMemo(
-    () => sideNavItems.map((item) => <NavLink key={item.label} item={item} />),
+    () => sideNavItems.map(item => <NavLink key={item.label} item={item} />),
     []
-  );
+  )
 
   return (
     <motion.div
-      className={cn('fixed left-0 w-full z-50', isScrolled ? 'top-6' : 'top-8')}
+      className={cn('fixed left-0 z-50 w-full', isScrolled ? 'top-6' : 'top-8')}
       initial={{ y: -100 }}
       animate={{
         y: showNavbar ? 0 : -100,
@@ -122,28 +118,25 @@ export const Navbar: FC = () => {
         stiffness: 300,
         damping: 30,
         duration: 0.3,
-      }}
-    >
+      }}>
       <motion.nav
         className={cn(
-          'mx-auto pl-6 pr-6 flex items-center justify-between bg-white/80 backdrop-blur-sm rounded-full py-2',
+          'mx-auto flex items-center justify-between rounded-full bg-white/80 py-2 pr-6 pl-6 backdrop-blur-sm',
           isScrolled ? 'max-w-3xl' : 'max-w-5xl'
         )}
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4 }}
-      >
+        transition={{ duration: 0.4 }}>
         <motion.div
-          className='flex items-center gap-2'
+          className="flex items-center gap-2"
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.3, delay: 0.3 }}
-        >
-          <h1 className='text-2xl font-autography'>Culina</h1>
+          transition={{ duration: 0.3, delay: 0.3 }}>
+          <h1 className="font-autography text-2xl">Culina</h1>
         </motion.div>
 
-        <div className='flex items-center space-x-8'>{sideNavLinks}</div>
+        <div className="flex items-center space-x-8">{sideNavLinks}</div>
       </motion.nav>
     </motion.div>
-  );
-};
+  )
+}

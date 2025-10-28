@@ -1,4 +1,4 @@
-import localFont from 'next/font/local';
+import localFont from 'next/font/local'
 
 export const sharpGrotesk = localFont({
   src: [
@@ -30,7 +30,7 @@ export const sharpGrotesk = localFont({
   ],
   variable: '--font-sharp-grotesk',
   display: 'swap',
-});
+})
 
 export const autography = localFont({
   src: [
@@ -42,4 +42,4 @@ export const autography = localFont({
   ],
   variable: '--font-autography',
   display: 'swap',
-});
+})
