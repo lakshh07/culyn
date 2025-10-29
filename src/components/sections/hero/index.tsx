@@ -3,6 +3,7 @@
 import { FC, useMemo } from 'react'
 import { Button } from '@/components/ui/button'
 import { motion } from 'motion/react'
+import { AuthModal } from '@/modals/auth'
 
 const getMealTypeByTime = (): string => {
   const hour = new Date().getHours()
@@ -44,23 +45,30 @@ export const HeroSection: FC = () => {
           </motion.p>
         </div>
 
-        <MotionButton
-          className="mt-6 transition-none"
+        <AuthModal
+          trigger={
+            <MotionButton
+              className="mt-6 transition-none"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.8 }}>
+              See more recipes
+            </MotionButton>
+          }
+          type="signUp"
+        />
+
+        <motion.div
+          className="-mt-4 flex items-center justify-center gap-1 font-mono text-xs text-gray-500"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.8 }}>
-          See more recipes
-        </MotionButton>
-
-        <div className="-mt-4">
-          <motion.p
-            className="font-mono text-xs text-gray-500"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 1 }}>
-            Already have an account? <span className="cursor-pointer underline">Log in</span>
-          </motion.p>
-        </div>
+          transition={{ duration: 0.6, delay: 1 }}>
+          <p className="">Already have an account?</p>
+          <AuthModal
+            trigger={<span className="cursor-pointer font-medium underline">Log in</span>}
+            type="signIn"
+          />
+        </motion.div>
       </div>
     </section>
   )

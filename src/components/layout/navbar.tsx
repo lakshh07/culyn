@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { motion } from 'motion/react'
 import { ArrowIcon } from '@/components/icons'
 import { cn } from '@/lib/utils'
+import { AuthModal } from '@/modals/auth'
 
 interface NavItem {
   label: string
@@ -15,10 +16,6 @@ const sideNavItems: NavItem[] = [
   {
     label: 'Discover',
     href: '/discover',
-  },
-  {
-    label: 'Login',
-    href: '/login',
   },
 ]
 
@@ -71,6 +68,44 @@ const NavLink: React.FC<NavLinkProps> = React.memo(({ item }) => (
 
 NavLink.displayName = 'NavLink'
 
+const LoginButton = () => (
+  <motion.button
+    initial="initial"
+    whileHover="hover"
+    whileTap="tap"
+    variants={{
+      initial: { scale: 1 },
+      tap: {
+        scale: 0.95,
+        transition: { duration: 0.2 },
+      },
+    }}
+    className={cn(
+      'relative flex cursor-pointer items-center gap-3 text-sm font-normal',
+      'text-zinc-950'
+    )}>
+    <span className="relative font-mono font-medium">
+      Login
+      <motion.span
+        className={cn('absolute -bottom-1 left-0 h-px w-full rounded-sm', 'bg-zinc-950')}
+        variants={{
+          initial: {
+            scaleX: 0,
+            transformOrigin: 'right',
+            transition: { duration: 0.3, ease: 'easeInOut' },
+          },
+          hover: {
+            scaleX: 1,
+            transformOrigin: 'left',
+            transition: { duration: 0.3, ease: 'easeInOut' },
+          },
+        }}
+      />
+    </span>
+    <ArrowIcon className="size-3" />
+  </motion.button>
+)
+
 export const Navbar: FC = () => {
   const [isScrolled, setIsScrolled] = useState(false)
   const [showNavbar, setShowNavbar] = useState(true)
@@ -107,7 +142,7 @@ export const Navbar: FC = () => {
 
   return (
     <motion.div
-      className={cn('fixed left-0 z-50 w-full', isScrolled ? 'top-6' : 'top-8')}
+      className={cn('fixed left-0 z-50 w-full select-none', isScrolled ? 'top-6' : 'top-8')}
       initial={{ y: -100 }}
       animate={{
         y: showNavbar ? 0 : -100,
@@ -135,7 +170,10 @@ export const Navbar: FC = () => {
           <h1 className="font-autography text-2xl">Culina</h1>
         </motion.div>
 
-        <div className="flex items-center space-x-8">{sideNavLinks}</div>
+        <div className="flex items-center space-x-8">
+          {sideNavLinks}
+          <AuthModal trigger={LoginButton()} type="signIn" />
+        </div>
       </motion.nav>
     </motion.div>
   )
