@@ -158,8 +158,7 @@ export const AuthModal: FC<AuthModalProps> = ({ trigger, type }) => {
                         control={form.control}
                         name="name"
                         render={({ field }) => {
-                          const nameValue = form.watch('name')
-                          const hasNameText = nameValue && nameValue.length > 0
+                          const hasNameText = field.value && field.value.length > 0
 
                           return (
                             <FormItem>
@@ -201,8 +200,7 @@ export const AuthModal: FC<AuthModalProps> = ({ trigger, type }) => {
                     control={form.control}
                     name="email"
                     render={({ field }) => {
-                      const emailValue = form.watch('email')
-                      const hasEmailText = emailValue && emailValue.length > 0
+                      const hasEmailText = field.value && field.value.length > 0
 
                       return (
                         <FormItem>
@@ -239,8 +237,7 @@ export const AuthModal: FC<AuthModalProps> = ({ trigger, type }) => {
                     control={form.control}
                     name="password"
                     render={({ field }) => {
-                      const passwordValue = form.watch('password')
-                      const hasPasswordText = passwordValue && passwordValue.length > 0
+                      const hasPasswordText = field.value && field.value.length > 0
 
                       return (
                         <FormItem>
@@ -287,9 +284,7 @@ export const AuthModal: FC<AuthModalProps> = ({ trigger, type }) => {
                         control={form.control}
                         name="confirmPassword"
                         render={({ field }) => {
-                          const confirmPasswordValue = form.watch('confirmPassword')
-                          const hasConfirmPasswordText =
-                            confirmPasswordValue && confirmPasswordValue.length > 0
+                          const hasConfirmPasswordText = field.value && field.value.length > 0
 
                           return (
                             <FormItem>
