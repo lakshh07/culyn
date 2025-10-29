@@ -28,10 +28,10 @@ export default function Home() {
   return (
     <>
       <main className="relative h-full w-full p-4">
-        <div className="rounded-lg bg-neutral-50/50">
+        <div className="rounded-lg bg-[#f1f1eeac]">
           <Navbar />
           <HeroSection />
-          <RecipesSection className="-mt-10" />
+          <RecipesSection className="-mt-10" bgColor="bg-[#fff]" />
         </div>
       </main>
     </>

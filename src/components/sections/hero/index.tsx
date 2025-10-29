@@ -29,19 +29,19 @@ export const HeroSection: FC = () => {
       <div className="mx-auto space-y-8 text-center">
         <div className="font-sharp-grotesk space-y-4">
           <motion.h1
-            className="bg-linear-to-b from-black to-gray-400 bg-clip-text text-4xl font-bold text-transparent"
+            className="bg-linear-to-b from-black to-neutral-400 bg-clip-text text-[3vw] leading-[1.1] font-bold text-transparent"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.4 }}>
             Discover & save the latest trending recipes.
           </motion.h1>
           <motion.p
-            className="text-4xl text-gray-600"
+            className="text-[3vw] leading-none text-neutral-700"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.6 }}>
             Here&apos;s what others are making for{' '}
-            <em className="pr-0.5 text-gray-950 italic">{currentMeal}</em> today.
+            <em className="pr-0.5 text-neutral-900 italic">{currentMeal}</em> today.
           </motion.p>
         </div>
 
@@ -59,7 +59,7 @@ export const HeroSection: FC = () => {
         />
 
         <motion.div
-          className="-mt-4 flex items-center justify-center gap-1 font-mono text-xs text-gray-500"
+          className="-mt-4 flex items-center justify-center gap-1 font-mono text-xs text-neutral-500"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 1 }}>

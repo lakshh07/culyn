@@ -61,14 +61,15 @@ const FAKE_RECIPES: Recipe[] = [
 
 interface RecipesSectionProps {
   className?: string
+  bgColor?: string
 }
 
-export const RecipesSection: FC<RecipesSectionProps> = ({ className }) => {
+export const RecipesSection: FC<RecipesSectionProps> = ({ className, bgColor }) => {
   return (
     <section className={className}>
       <div className="grid grid-cols-5 gap-2 px-4">
         {FAKE_RECIPES.map(recipe => (
-          <RecipeCard key={recipe.id} recipe={recipe} />
+          <RecipeCard key={recipe.id} recipe={recipe} className={bgColor} />
         ))}
       </div>
     </section>

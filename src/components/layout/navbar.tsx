@@ -156,8 +156,8 @@ export const Navbar: FC = () => {
       }}>
       <motion.nav
         className={cn(
-          'mx-auto flex items-center justify-between rounded-full bg-white/80 py-2 pr-6 pl-6 backdrop-blur-sm',
-          isScrolled ? 'max-w-3xl' : 'max-w-5xl'
+          'flex items-center justify-between rounded-md bg-white/80 py-2 pr-6 pl-6 backdrop-blur-sm',
+          isScrolled ? 'mx-auto max-w-3xl' : 'mx-8 max-w-full'
         )}
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
