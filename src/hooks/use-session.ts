@@ -1,7 +1,7 @@
 'use client'
 
 import { authClient } from '@/lib/auth-client'
-import { useEffect, useState, useTransition } from 'react'
+import { useEffect, useState } from 'react'
 
 export type Session = {
   user: {
@@ -18,18 +18,19 @@ export type Session = {
 
 export function useSession() {
   const [session, setSession] = useState<Session>(null)
-  const [isLoading, startLoading] = useTransition()
+  const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
     const fetchSession = async () => {
       try {
-        startLoading(async () => {
-          const { data } = await authClient.getSession()
-          setSession(data as Session)
-        })
+        setIsLoading(true)
+        const { data } = await authClient.getSession()
+        setSession(data as Session)
       } catch (error) {
         console.error('Failed to fetch session:', error)
         setSession(null)
+      } finally {
+        setIsLoading(false)
       }
     }
 
