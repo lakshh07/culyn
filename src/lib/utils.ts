@@ -1,5 +1,6 @@
 import { clsx, type ClassValue } from 'clsx'
 import { twMerge } from 'tailwind-merge'
+import { DateTime } from 'luxon'
 
 export const cn = (...inputs: ClassValue[]) => {
   return twMerge(clsx(inputs))
@@ -23,4 +24,25 @@ export const getMealTypeByTime = ({
   } else {
     return `${prefix}late night snacks${suffix}`
   }
+}
+
+export const getCurrentDate = () => {
+  const now = DateTime.now()
+  const day = now.day
+
+  const getOrdinalSuffix = (num: number) => {
+    const b = num % 10
+    return ~~((num % 100) / 10) === 1
+      ? 'th'
+      : b === 1
+        ? 'st'
+        : b === 2
+          ? 'nd'
+          : b === 3
+            ? 'rd'
+            : 'th'
+  }
+
+  const suffix = getOrdinalSuffix(day)
+  return now.toFormat(`cccc, MMMM d'${suffix}'`)
 }
