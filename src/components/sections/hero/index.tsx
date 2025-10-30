@@ -4,25 +4,12 @@ import { FC, useMemo } from 'react'
 import { Button } from '@/components/ui/button'
 import { motion } from 'motion/react'
 import { AuthModal } from '@/modals/auth'
-
-const getMealTypeByTime = (): string => {
-  const hour = new Date().getHours()
-
-  if (hour >= 5 && hour < 11) {
-    return 'breakfast'
-  } else if (hour >= 11 && hour < 16) {
-    return 'lunch'
-  } else if (hour >= 16 && hour < 21) {
-    return 'dinner'
-  } else {
-    return 'late night snacks'
-  }
-}
+import { getMealTypeByTime } from '@/lib/utils'
 
 const MotionButton = motion.create(Button)
 
 export const HeroSection: FC = () => {
-  const currentMeal = useMemo(() => getMealTypeByTime(), [])
+  const currentMeal = useMemo(() => getMealTypeByTime({}), [])
 
   return (
     <section className="relative flex min-h-[80vh] items-center justify-center px-4">
