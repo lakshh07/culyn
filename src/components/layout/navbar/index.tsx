@@ -107,33 +107,18 @@ const LoginButton = () => (
 )
 
 export const Navbar: FC = () => {
-  const [isScrolled, setIsScrolled] = useState(false)
   const [showNavbar, setShowNavbar] = useState(true)
-  const [lastScrollY, setLastScrollY] = useState(0)
 
   useEffect(() => {
     const handleScroll = () => {
       const currentScrollY = window.scrollY
-      const windowHeight = window.innerHeight
-      const documentHeight = document.documentElement.scrollHeight
+      const isAtTop = currentScrollY <= 0
 
-      const isAtBottom = currentScrollY + windowHeight >= documentHeight - 500
-
-      setIsScrolled(currentScrollY > 40)
-      if (currentScrollY <= 0) {
-        setShowNavbar(true)
-      } else if (currentScrollY > lastScrollY) {
-        setShowNavbar(false)
-      } else if (isAtBottom) {
-        setShowNavbar(false)
-      } else {
-        setShowNavbar(true)
-      }
-      setLastScrollY(currentScrollY)
+      setShowNavbar(isAtTop)
     }
     window.addEventListener('scroll', handleScroll)
     return () => window.removeEventListener('scroll', handleScroll)
-  }, [lastScrollY])
+  }, [])
 
   const sideNavLinks = useMemo(
     () => sideNavItems.map(item => <NavLink key={item.label} item={item} />),
@@ -142,11 +127,11 @@ export const Navbar: FC = () => {
 
   return (
     <motion.div
-      className={cn('fixed left-0 z-50 w-full select-none', isScrolled ? 'top-6' : 'top-8')}
+      className={cn('fixed left-0 z-50 w-full select-none', 'top-8')}
       initial={{ y: -100 }}
       animate={{
-        y: showNavbar ? 0 : -100,
-        opacity: showNavbar ? 1 : 0,
+        y: showNavbar ? 0 : -15,
+        opacity: 1,
       }}
       transition={{
         type: 'spring',
@@ -157,7 +142,7 @@ export const Navbar: FC = () => {
       <motion.nav
         className={cn(
           'flex items-center justify-between rounded-md bg-white/80 py-2 pr-6 pl-6 backdrop-blur-sm',
-          isScrolled ? 'mx-auto max-w-3xl' : 'mx-8 max-w-full'
+          'mx-8 max-w-full'
         )}
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
