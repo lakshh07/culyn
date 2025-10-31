@@ -2,6 +2,7 @@ import { betterAuth } from 'better-auth'
 import prisma from '@/lib/prisma'
 import { prismaAdapter } from 'better-auth/adapters/prisma'
 import { passkey } from 'better-auth/plugins/passkey'
+import { organization } from 'better-auth/plugins/organization'
 
 export const auth = betterAuth({
   database: prismaAdapter(prisma, {
@@ -18,5 +19,62 @@ export const auth = betterAuth({
     },
   },
   secret: process.env.BETTER_AUTH_SECRET as string,
-  plugins: [passkey()],
+  plugins: [passkey(), organization()],
+  databaseHooks: {
+    user: {
+      create: {
+        after: async user => {
+          try {
+            await prisma.$transaction(async tx => {
+              const organization = await tx.organization.create({
+                data: {
+                  name: user.name ? `${user.name}'s Organization` : 'My Organization',
+                  slug: `${user.id}-org-${Math.random().toString(36).substring(2, 8)}`,
+                  ownerId: user.id,
+                },
+              })
+
+              const subscription = await tx.subscription.create({
+                data: {
+                  plan: 'FREE',
+                  status: 'ACTIVE',
+                  maxRecipes: 50,
+                  maxUsers: 1,
+                  maxLists: 5,
+                  aiCreditsLimit: 100,
+                  aiCreditsUsed: 0,
+                },
+              })
+
+              await tx.organization.update({
+                where: { id: organization.id },
+                data: { subscriptionId: subscription.id },
+              })
+
+              await tx.userOrganization.create({
+                data: {
+                  userId: user.id,
+                  orgId: organization.id,
+                  role: 'OWNER',
+                },
+              })
+
+              await tx.user.update({
+                where: { id: user.id },
+                data: { defaultOrgId: organization.id },
+              })
+            })
+          } catch (error) {
+            if (error instanceof Error) {
+              console.error(`[AUTH] Error details:`, {
+                name: error.name,
+                message: error.message,
+                stack: error.stack,
+              })
+            }
+          }
+        },
+      },
+    },
+  },
 })
