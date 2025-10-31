@@ -9,7 +9,7 @@ datasource db {
 }
 
 model User {
-  id                 String              @id @default(cuid())
+  id                 String              @id @default(cuid(2))
   email              String              @unique
   name               String?
   image              String?
@@ -24,6 +24,7 @@ model User {
   sessions           Session[]
   accounts           Account[]
   passkeys           Passkey[]
+  organizationsOwned Organization[]
   organizations      UserOrganization[]
   dietaryPreferences DietaryPreference[]
   chatConversations  ChatConversation[]
@@ -102,12 +103,14 @@ model Passkey {
 }
 
 model Organization {
-  id             String    @id @default(cuid())
+  id             String    @id @default(cuid(2))
   name           String
   slug           String    @unique
   logo           String?
   description    String?
   subscriptionId String?   @unique
+  ownerId        String
+  owner          User      @relation(fields: [ownerId], references: [id], onDelete: Cascade)
   createdAt      DateTime  @default(now())
   updatedAt      DateTime  @updatedAt
   deletedAt      DateTime?
@@ -123,7 +126,7 @@ model Organization {
 }
 
 model UserOrganization {
-  id        String       @id @default(cuid())
+  id        String       @id @default(cuid(2))
   userId    String
   orgId     String
   role      OrgRole      @default(MEMBER)
@@ -141,7 +144,7 @@ model UserOrganization {
 }
 
 model Subscription {
-  id                     String             @id @default(cuid())
+  id                     String             @id @default(cuid(2))
   plan                   SubscriptionPlan   @default(FREE)
   status                 SubscriptionStatus @default(ACTIVE)
   stripeCustomerId       String?            @unique
@@ -169,7 +172,7 @@ model Subscription {
 // ============================================
 
 model Recipe {
-  id              String             @id @default(cuid())
+  id              String             @id @default(cuid(2))
   title           String
   description     String?
   imageUrl        String?
@@ -212,7 +215,7 @@ model Recipe {
 }
 
 model Ingredient {
-  id          String              @id @default(cuid())
+  id          String              @id @default(cuid(2))
   name        String              @unique
   category    IngredientCategory?
   calories    Int?
@@ -233,7 +236,7 @@ model Ingredient {
 }
 
 model RecipeIngredient {
-  id           String     @id @default(cuid())
+  id           String     @id @default(cuid(2))
   recipeId     String
   ingredientId String
   amount       Decimal?   @db.Decimal(10, 2)
@@ -254,7 +257,7 @@ model RecipeIngredient {
 }
 
 model RecipeTag {
-  id        String    @id @default(cuid())
+  id        String    @id @default(cuid(2))
   recipeId  String
   tag       String // "vegetarian", "keto", "italian", "dinner", etc.
   type      TagType   @default(CUSTOM)
@@ -272,7 +275,7 @@ model RecipeTag {
 }
 
 model RecipeRating {
-  id        String    @id @default(cuid())
+  id        String    @id @default(cuid(2))
   recipeId  String
   userId    String
   rating    Int // 1-5
@@ -292,7 +295,7 @@ model RecipeRating {
 }
 
 model RecipeFavorite {
-  id        String    @id @default(cuid())
+  id        String    @id @default(cuid(2))
   recipeId  String
   userId    String
   createdAt DateTime  @default(now())
@@ -309,7 +312,7 @@ model RecipeFavorite {
 }
 
 model GroceryList {
-  id           String        @id @default(cuid())
+  id           String        @id @default(cuid(2))
   name         String
   description  String?
   userId       String
@@ -330,7 +333,7 @@ model GroceryList {
 }
 
 model ListItem {
-  id           String              @id @default(cuid())
+  id           String              @id @default(cuid(2))
   listId       String
   ingredientId String?
   recipeId     String? // Track which recipe this came from
@@ -356,7 +359,7 @@ model ListItem {
 }
 
 model DietaryPreference {
-  id          String    @id @default(cuid())
+  id          String    @id @default(cuid(2))
   userId      String
   type        DietType
   allergens   Json? // Array of allergen strings
@@ -375,7 +378,7 @@ model DietaryPreference {
 }
 
 model ChatConversation {
-  id        String        @id @default(cuid())
+  id        String        @id @default(cuid(2))
   userId    String
   title     String?
   recipeId  String? // If chat is about a specific recipe
@@ -393,7 +396,7 @@ model ChatConversation {
 }
 
 model ChatMessage {
-  id             String           @id @default(cuid())
+  id             String           @id @default(cuid(2))
   conversationId String
   role           ChatRole
   content        String           @db.Text
@@ -411,7 +414,7 @@ model ChatMessage {
 }
 
 model RecipeSuggestion {
-  id        String    @id @default(cuid())
+  id        String    @id @default(cuid(2))
   userId    String
   recipeId  String
   reason    String? // Why this was suggested
@@ -432,7 +435,7 @@ model RecipeSuggestion {
 }
 
 model MealPlan {
-  id        String           @id @default(cuid())
+  id        String           @id @default(cuid(2))
   userId    String
   name      String
   startDate DateTime
@@ -451,7 +454,7 @@ model MealPlan {
 }
 
 model MealPlanRecipe {
-  id         String    @id @default(cuid())
+  id         String    @id @default(cuid(2))
   mealPlanId String
   recipeId   String
   date       DateTime
