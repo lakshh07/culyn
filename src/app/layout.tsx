@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import { Montserrat, DM_Sans } from 'next/font/google'
+import { Montserrat, DM_Sans, Syne } from 'next/font/google'
 import '@/styles/globals.css'
 import { Providers } from '@/providers'
 import { cn } from '@/lib/utils'
@@ -13,6 +13,12 @@ const montserrat = Montserrat({
 const dmSans = DM_Sans({
   variable: '--font-dm-sans',
   subsets: ['latin'],
+})
+
+const syne = Syne({
+  variable: '--font-syne',
+  subsets: ['latin'],
+  weight: ['400', '500', '600', '700', '800'],
 })
 
 export const metadata: Metadata = {
@@ -33,6 +39,7 @@ export default function RootLayout({
           dmSans.variable,
           autography.variable,
           sharpGrotesk.variable,
+          syne.variable,
           'antialiased'
         )}>
         <Providers>{children}</Providers>
