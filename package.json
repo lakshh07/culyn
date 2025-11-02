@@ -8,8 +8,7 @@
     "start": "next start",
     "lint": "eslint",
     "queue": "tsx bull/workers/index.ts",
-    "queue:events": "tsx bull/events/index.ts",
-    "queue:worker": "concurrently \"bun run queue\" \"bun run queue:events\""
+    "queue:worker": "concurrently \"bun run queue\""
   },
   "dependencies": {
     "@ai-sdk/google": "^2.0.25",
