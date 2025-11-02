@@ -47,6 +47,7 @@ export async function POST(req: NextRequest) {
     const payload = await z
       .object({
         url: z.url().describe('The URL of the recipe to generate'),
+        sourceType: z.nativeEnum(RecipeSourceType).describe('The type of the recipe source'),
       })
       .parseAsync(await req.json())
 
