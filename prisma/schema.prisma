@@ -207,6 +207,7 @@ model Job {
 model Recipe {
   id             String            @id @default(cuid(2))
   title          String?
+  shortTitle     String?
   description    String?
   tagline        String?
   imageUrl       String? //
@@ -293,20 +294,36 @@ model RecipeIngredient {
   @@map("recipe_ingredients")
 }
 
+// Reusable tags that can be shared across recipes
+model Tag {
+  id        String      @id @default(cuid(2))
+  name      String      @unique // "vegetarian", "keto", "italian", "dinner", etc.
+  type      TagType     @default(CUSTOM)
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+  deletedAt DateTime?
+  recipes   RecipeTag[] // Many-to-many relationship
+
+  @@index([name])
+  @@index([type])
+  @@index([deletedAt])
+  @@map("tags")
+}
+
+// Junction table for many-to-many relationship between Recipe and Tag
 model RecipeTag {
   id        String    @id @default(cuid(2))
   recipeId  String
-  tag       String // "vegetarian", "keto", "italian", "dinner", etc.
-  type      TagType   @default(CUSTOM)
+  tagId     String
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
   deletedAt DateTime?
   recipe    Recipe    @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+  tag       Tag       @relation(fields: [tagId], references: [id], onDelete: Cascade)
 
-  @@unique([recipeId, tag])
+  @@unique([recipeId, tagId])
   @@index([recipeId])
-  @@index([tag])
-  @@index([type])
+  @@index([tagId])
   @@index([deletedAt])
   @@map("recipe_tags")
 }
