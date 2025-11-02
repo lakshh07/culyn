@@ -11,6 +11,7 @@ import { GoogleGenAI } from '@google/genai'
 import { s3 } from '@/lib/aws/s3'
 import { PutObjectCommand } from '@aws-sdk/client-s3'
 import { JobStatus, RecipeDifficulty, RecipeSourceType, TagType } from '@/generated/prisma/enums'
+import { parseQuantity } from '@/lib/recipe/ingredient-parser'
 
 new Worker<RecipeGenerationJobData, RecipeGenerationJobResult>(
   QUEUE_NAMES.RECIPE_GENERATION,
@@ -68,6 +69,7 @@ new Worker<RecipeGenerationJobData, RecipeGenerationJobResult>(
 
         Your role:
         You carefully read recipe captions, text, or video descriptions and transform them into clean, well-structured JSON data that home cooks and food enthusiasts can use.
+        Also, generate a short and catchy title for the recipe (3–7 words max). If the original title is too long or includes unnecessary details, simplify it while keeping the essence.
 
         Return only valid JSON (no markdown, no explanations outside the JSON structure).
 
@@ -97,6 +99,11 @@ new Worker<RecipeGenerationJobData, RecipeGenerationJobResult>(
       schema: z
         .object({
           title: z.string().describe('The title of the recipe'),
+          short_title: z
+            .string()
+            .describe(
+              'A concise and catchy version of the recipe title (3–7 words, no hyphens or long descriptors)'
+            ),
           description: z.string().describe('A brief, appetizing description of the recipe'),
           calories: z.number().describe('Total calories per serving'),
           carbs_g: z.number().describe('Total carbohydrates in grams per serving'),
@@ -176,44 +183,115 @@ new Worker<RecipeGenerationJobData, RecipeGenerationJobResult>(
       throw new Error('Recipe data not found')
     }
 
-    await job.updateProgress(74)
+    await job.updateProgress(68)
 
-    await db.$transaction([
-      db.recipe.update({
-        where: { id: recipe.id },
-        data: {
-          title: recipeData.title,
-          description: recipeData.description,
-          tagline: recipeData.tagline,
-          cookTime: recipeData.cook_time_minutes,
-          servings: recipeData.servings,
-          difficulty: recipeData.difficulty as RecipeDifficulty,
-          calories: recipeData.calories,
-          protein: recipeData.protein_g,
-          carbs: recipeData.carbs_g,
-          fat: recipeData.fat_g,
-          cookingSteps: recipeData.cooking_steps,
-          ingredients: recipeData.ingredients,
-          sourceMetadata: sourceData,
-          sourceType: RecipeSourceType.INSTAGRAM_REEL,
-          sourceUrl: job.data.url,
-          sourceName: sourceData.ownerUsername,
-        },
-      }),
-      db.recipeTag.createMany({
-        data: recipeData.tags.map(tag => ({
-          recipeId: recipe.id,
-          tag: tag.value,
-          type: tag.type as TagType,
-        })),
-        skipDuplicates: true,
-      }),
-    ])
+    await db.recipe.update({
+      where: { id: recipe.id },
+      data: {
+        title: recipeData.title,
+        shortTitle: recipeData.short_title,
+        description: recipeData.description,
+        tagline: recipeData.tagline,
+        cookTime: recipeData.cook_time_minutes,
+        servings: recipeData.servings,
+        difficulty: recipeData.difficulty as RecipeDifficulty,
+        calories: recipeData.calories,
+        protein: recipeData.protein_g,
+        carbs: recipeData.carbs_g,
+        fat: recipeData.fat_g,
+        cookingSteps: recipeData.cooking_steps,
+        ingredients: recipeData.ingredients,
+        sourceMetadata: sourceData,
+        sourceType: RecipeSourceType.INSTAGRAM_REEL,
+        sourceUrl: job.data.url,
+        sourceName: sourceData.ownerUsername,
+      },
+    })
+
+    await Promise.all(
+      recipeData.tags.map(async tagData => {
+        const tag = await db.tag.upsert({
+          where: { name: tagData.value },
+          update: {},
+          create: {
+            name: tagData.value,
+            type: tagData.type as TagType,
+          },
+        })
+
+        return db.recipeTag.upsert({
+          where: {
+            recipeId_tagId: {
+              recipeId: recipe.id,
+              tagId: tag.id,
+            },
+          },
+          update: {},
+          create: {
+            recipeId: recipe.id,
+            tagId: tag.id,
+          },
+        })
+      })
+    )
+
+    const ingredientPromises = recipeData.ingredients.map(async ingredientData => {
+      try {
+        const { amount, unit } = parseQuantity(ingredientData.quantity)
+
+        const normalizedName = ingredientData.name.toLowerCase().trim()
+
+        const ingredient = await db.ingredient.upsert({
+          where: { name: normalizedName },
+          update: {},
+          create: { name: normalizedName },
+        })
+
+        const decimalAmount = amount !== null ? amount : null
+
+        return await db.recipeIngredient.upsert({
+          where: {
+            recipeId_ingredientId: {
+              recipeId: recipe.id,
+              ingredientId: ingredient.id,
+            },
+          },
+          update: {},
+          create: {
+            recipeId: recipe.id,
+            ingredientId: ingredient.id,
+            amount: decimalAmount,
+            unit: unit,
+          },
+        })
+      } catch (error) {
+        console.error(`Failed to process ingredient "${ingredientData.name}":`, error)
+        return null
+      }
+    })
+
+    const ingredientResults = await Promise.all(ingredientPromises)
+    const successfulIngredients = ingredientResults.filter(Boolean)
+
+    if (successfulIngredients.length === 0) {
+      throw new Error('Failed to process any ingredients')
+    }
+
+    if (successfulIngredients.length < recipeData.ingredients.length) {
+      console.warn(
+        `Only ${successfulIngredients.length}/${recipeData.ingredients.length} ingredients processed successfully`
+      )
+    }
 
     await job.updateProgress(80)
 
-    const IMAGE_PROMPT = `A high-resolution, top-down food photograph of ${recipeData.title}, featuring ${recipeData.ingredients.map(ingredient => ingredient.name).join(', ')}, served on a matte blue ceramic plate with speckled texture, placed on a clean white background. Bright natural lighting from top, soft shadows, and minimal styling. Professional editorial food photo — appetizing, detailed, and realistic.`
-
+    const IMAGE_PROMPT = `
+    A high-resolution, top-down food photograph of ${recipeData.title}, showing only the plated dish centered on a circular ceramic plate. 
+    No table, surface, or background — just the plate isolated on a pure white or transparent background. 
+    Include ${recipeData.ingredients.map(ingredient => ingredient.name).join(', ')} clearly visible as part of the dish. 
+    Soft natural lighting, realistic textures, minimal shadows, and appetizing presentation. 
+    Professional studio-style food image, isolated product photo composition.
+    `
     const imageResponse = await imageAi.models.generateContent({
       model: 'gemini-2.5-flash-image',
       contents: IMAGE_PROMPT,
