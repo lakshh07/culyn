@@ -34,6 +34,7 @@ model User {
   mealPlans          MealPlan[]
   Recipe             Recipe[]
   GroceryList        GroceryList[]
+  jobs               Job[]
 
   @@index([email, id])
   @@index([deletedAt])
@@ -119,6 +120,7 @@ model Organization {
   subscription Subscription?      @relation(fields: [subscriptionId], references: [id])
   recipes      Recipe[]
   lists        GroceryList[]
+  jobs         Job[]
 
   @@index([slug])
   @@index([deletedAt])
@@ -167,43 +169,78 @@ model Subscription {
   @@map("subscriptions")
 }
 
+model Job {
+  id           String        @id @default(cuid(2))
+  bullJobId    String?       @unique
+  type         JobType
+  status       JobStatus     @default(QUEUED)
+  progress     Int           @default(0)
+  jobData      Json?
+  resultData   Json?
+  errorData    Json?
+  metadata     Json?
+  userId       String?
+  orgId        String?
+  user         User?         @relation(fields: [userId], references: [id], onDelete: SetNull)
+  organization Organization? @relation(fields: [orgId], references: [id], onDelete: SetNull)
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  failedAt     DateTime?
+  startedAt    DateTime?
+  completedAt  DateTime?
+
+  @@index([id, type, status])
+  @@index([id, type])
+  @@index([userId])
+  @@index([orgId])
+  @@index([type])
+  @@index([status])
+  @@index([bullJobId])
+  @@index([createdAt])
+  @@map("jobs")
+}
+
 // ============================================
 // RECIPE MODELS
 // ============================================
 
 model Recipe {
-  id              String             @id @default(cuid(2))
-  title           String
-  description     String?
-  imageUrl        String?
-  prepTime        Int?
-  cookTime        Int?
-  servings        Int?
-  difficulty      RecipeDifficulty?
-  instructions    Json // Array of steps
-  notes           String?
-  sourceType      RecipeSourceType   @default(MANUAL)
-  sourceUrl       String?
-  sourceName      String?
-  calories        Int?
-  protein         Decimal?           @db.Decimal(10, 2)
-  carbs           Decimal?           @db.Decimal(10, 2)
-  fat             Decimal?           @db.Decimal(10, 2)
-  userId          String?
-  orgId           String?
-  isPublic        Boolean            @default(false)
-  createdAt       DateTime           @default(now())
-  updatedAt       DateTime           @updatedAt
-  deletedAt       DateTime?
-  user            User?              @relation(fields: [userId], references: [id], onDelete: SetNull)
-  organization    Organization?      @relation(fields: [orgId], references: [id], onDelete: SetNull)
-  ingredients     RecipeIngredient[]
-  tags            RecipeTag[]
-  ratings         RecipeRating[]
-  favorites       RecipeFavorite[]
-  suggestions     RecipeSuggestion[]
-  mealPlanRecipes MealPlanRecipe[]
-  listItems       ListItem[]
+  id             String            @id @default(cuid(2))
+  title          String?
+  description    String?
+  tagline        String?
+  imageUrl       String? //
+  cookTime       Int?
+  servings       Int?
+  difficulty     RecipeDifficulty?
+  cookingSteps   Json? // Array of steps
+  ingredients    Json?
+  notes          String?
+  sourceMetadata Json?
+  sourceType     RecipeSourceType  @default(MANUAL)
+  sourceUrl      String?
+  sourceName     String?
+  calories       Int?
+  protein        Decimal?          @db.Decimal(10, 2)
+  carbs          Decimal?          @db.Decimal(10, 2)
+  fat            Decimal?          @db.Decimal(10, 2)
+
+  userId String?
+  orgId  String?
+
+  isPublic         Boolean            @default(false)
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime           @updatedAt
+  deletedAt        DateTime?
+  user             User?              @relation(fields: [userId], references: [id], onDelete: SetNull)
+  organization     Organization?      @relation(fields: [orgId], references: [id], onDelete: SetNull)
+  tags             RecipeTag[]
+  listItems        ListItem[]
+  RecipeIngredient RecipeIngredient[]
+  RecipeRating     RecipeRating[]
+  RecipeFavorite   RecipeFavorite[]
+  RecipeSuggestion RecipeSuggestion[]
+  MealPlanRecipe   MealPlanRecipe[]
 
   @@index([userId])
   @@index([orgId])
@@ -505,10 +542,11 @@ enum RecipeDifficulty {
 }
 
 enum RecipeSourceType {
-  MANUAL // User created
-  IMPORTED // Imported from URL
-  AI_GENERATED
-  COMMUNITY // From public recipes
+  MANUAL
+  INSTAGRAM_REEL
+  INSTAGRAM_POST
+  INSTAGRAM_VIDEO
+  TIKTOK
 }
 
 enum IngredientCategory {
@@ -560,4 +598,18 @@ enum MealType {
   DINNER
   SNACK
   DESSERT
+}
+
+enum JobType {
+  RECIPE_GENERATION
+}
+
+enum JobStatus {
+  QUEUED
+  PENDING // Job created but not started
+  RUNNING // Job is currently being processed
+  COMPLETED // Job finished successfully
+  FAILED // Job failed with error
+  CANCELLED // Job was cancelled by user or system
+  PAUSED // Job is temporarily paused
 }
