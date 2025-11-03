@@ -12,6 +12,7 @@ import { s3 } from '@/lib/aws/s3'
 import { PutObjectCommand } from '@aws-sdk/client-s3'
 import { JobStatus, RecipeDifficulty, RecipeSourceType, TagType } from '@/generated/prisma/enums'
 import { parseQuantity } from '@/lib/recipe/ingredient-parser'
+import slugify from 'slugify'
 
 new Worker<RecipeGenerationJobData, RecipeGenerationJobResult>(
   QUEUE_NAMES.RECIPE_GENERATION,
@@ -190,6 +191,7 @@ new Worker<RecipeGenerationJobData, RecipeGenerationJobResult>(
       data: {
         title: recipeData.title,
         shortTitle: recipeData.short_title,
+        slug: slugify(recipeData.short_title, { lower: true, strict: true }),
         description: recipeData.description,
         tagline: recipeData.tagline,
         cookTime: recipeData.cook_time_minutes,
@@ -210,11 +212,13 @@ new Worker<RecipeGenerationJobData, RecipeGenerationJobResult>(
 
     await Promise.all(
       recipeData.tags.map(async tagData => {
+        const slug = slugify(tagData.value, { lower: true, strict: true })
         const tag = await db.tag.upsert({
-          where: { name: tagData.value },
+          where: { slug },
           update: {},
           create: {
             name: tagData.value,
+            slug,
             type: tagData.type as TagType,
           },
         })
@@ -238,13 +242,16 @@ new Worker<RecipeGenerationJobData, RecipeGenerationJobResult>(
     const ingredientPromises = recipeData.ingredients.map(async ingredientData => {
       try {
         const { amount, unit } = parseQuantity(ingredientData.quantity)
-
         const normalizedName = ingredientData.name.toLowerCase().trim()
+        const slug = slugify(normalizedName, { lower: true, strict: true })
 
         const ingredient = await db.ingredient.upsert({
-          where: { name: normalizedName },
+          where: { slug },
           update: {},
-          create: { name: normalizedName },
+          create: {
+            name: normalizedName,
+            slug,
+          },
         })
 
         const decimalAmount = amount !== null ? amount : null

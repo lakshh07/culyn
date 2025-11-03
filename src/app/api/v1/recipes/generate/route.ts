@@ -2,7 +2,7 @@ import { ErrorResponse } from '@/lib/http'
 import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@/lib/auth'
 import { HttpException } from '@/exceptions/http-exceptions'
-import { z } from 'zod'
+import { uuidv4, z } from 'zod'
 import db from '@/lib/prisma'
 import { JobType, RecipeSourceType } from '@/generated/prisma/enums'
 import { generateRecipesQueue } from '@/bull/queues'
@@ -54,6 +54,7 @@ export async function POST(req: NextRequest) {
     const { recipe, bullJob, job } = await db.$transaction(async tx => {
       const recipe = await tx.recipe.create({
         data: {
+          slug: uuidv4().toString(),
           user: {
             connect: {
               id: session.user.id,

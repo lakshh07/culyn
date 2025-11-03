@@ -206,6 +206,7 @@ model Job {
 
 model Recipe {
   id             String            @id @default(cuid(2))
+  slug           String            @unique
   title          String?
   shortTitle     String?
   description    String?
@@ -254,6 +255,7 @@ model Recipe {
 
 model Ingredient {
   id          String              @id @default(cuid(2))
+  slug        String              @unique
   name        String              @unique
   category    IngredientCategory?
   calories    Int?
@@ -297,6 +299,7 @@ model RecipeIngredient {
 // Reusable tags that can be shared across recipes
 model Tag {
   id        String      @id @default(cuid(2))
+  slug      String      @unique
   name      String      @unique // "vegetarian", "keto", "italian", "dinner", etc.
   type      TagType     @default(CUSTOM)
   createdAt DateTime    @default(now())
