@@ -10,6 +10,7 @@ import { BookmarkIcon } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
+import { useRouter } from 'next/navigation'
 
 type RecipeWithTags = Prisma.RecipeGetPayload<{
   include: {
@@ -100,8 +101,11 @@ interface RecipeCardProps {
 }
 
 const RecipeCard: FC<RecipeCardProps> = ({ recipe, className }) => {
+  const router = useRouter()
+
   return (
     <Card
+      onClick={() => router.push(`/recipes/${recipe.slug}`)}
       className={cn(
         'group relative flex min-h-[350px] flex-col justify-between rounded-lg border-none bg-[#f6f6f6] px-5 py-4 shadow-none',
         className
