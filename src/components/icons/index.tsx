@@ -137,6 +137,25 @@ const PlusIcon: FC<ComponentProps<'svg'>> = props => {
   )
 }
 
+const MinusIcon: FC<ComponentProps<'svg'>> = props => {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      {...props}>
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M5 12l14 0" />
+    </svg>
+  )
+}
+
 const InstagramIcon: FC<ComponentProps<'svg'>> = props => {
   return (
     <svg
@@ -179,6 +198,65 @@ const LinkIcon: FC<ComponentProps<'svg'>> = props => {
   )
 }
 
+const ChefHatIcon: FC<ComponentProps<'svg'>> = props => {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      {...props}>
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M12 3c1.918 0 3.52 1.35 3.91 3.151a4 4 0 0 1 2.09 7.723l0 7.126h-12v-7.126a4 4 0 1 1 2.092 -7.723a4 4 0 0 1 3.908 -3.151z" />
+      <path d="M6.161 17.009l11.839 -.009" />
+    </svg>
+  )
+}
+
+const PlayIcon: FC<ComponentProps<'svg'>> = props => {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      {...props}>
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M7 4v16l13 -8z" />
+    </svg>
+  )
+}
+
+const PauseIcon: FC<ComponentProps<'svg'>> = props => {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      {...props}>
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M6 5m0 1a1 1 0 0 1 1 -1h2a1 1 0 0 1 1 1v12a1 1 0 0 1 -1 1h-2a1 1 0 0 1 -1 -1z" />
+      <path d="M14 5m0 1a1 1 0 0 1 1 -1h2a1 1 0 0 1 1 1v12a1 1 0 0 1 -1 1h-2a1 1 0 0 1 -1 -1z" />
+    </svg>
+  )
+}
+
 export {
   GithubIcon,
   ArrowIcon,
@@ -187,6 +265,10 @@ export {
   GoogleIcon,
   PasskeyIcon,
   PlusIcon,
+  MinusIcon,
   InstagramIcon,
   LinkIcon,
+  ChefHatIcon,
+  PlayIcon,
+  PauseIcon,
 }
