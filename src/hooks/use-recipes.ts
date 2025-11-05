@@ -1,6 +1,6 @@
 import { Recipe } from '@/generated/prisma/client'
 import { Api } from '@/lib/api'
-import { RecipeWithIngredients } from '@/types/recipes'
+import { FullRecipe } from '@/types/recipes'
 import { useQuery } from '@tanstack/react-query'
 
 export const useRecipes = () => {
@@ -23,7 +23,7 @@ export const useRecipeBySlug = (slug: string) => {
   } = useQuery({
     queryKey: ['v1', 'recipes', slug],
     queryFn: async () => {
-      const response = await Api.v1.get<RecipeWithIngredients>(`/recipes/${slug}`)
+      const response = await Api.v1.get<FullRecipe>(`/recipes/${slug}`)
       return response.data
     },
     enabled: !!slug,

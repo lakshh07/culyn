@@ -1,7 +1,7 @@
 import { FC, useMemo } from 'react'
-import { keepPreviousData, useQuery } from '@tanstack/react-query'
+import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Api } from '@/lib/api'
-import { Prisma, Tag } from '@/generated/prisma/client'
+import { Tag } from '@/generated/prisma/client'
 import { Card, CardTitle } from '@/components/ui/card'
 import { useQueryState } from 'nuqs'
 import { Skeleton } from '@/components/ui/skeleton'
@@ -11,17 +11,11 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { useRouter } from 'next/navigation'
-
-type RecipeWithTags = Prisma.RecipeGetPayload<{
-  include: {
-    tags: {
-      include: {
-        tag: true
-      }
-    }
-  }
-}>
-
+import { toast } from 'sonner'
+import { ClientErrorHandler } from '@/lib/errors'
+import { FullRecipe } from '@/types/recipes'
+import { motion } from 'motion/react'
+import { LoadingIcon } from '@/components/icons'
 interface RecipesSectionProps {
   className?: string
   bgColor?: string
@@ -43,7 +37,7 @@ export const RecipesSection: FC<RecipesSectionProps> = ({ className, bgColor }) 
   const { data: recipes, isLoading: isLoadingRecipes } = useQuery({
     queryKey: ['v1', 'recipes', selectedTag],
     queryFn: async ({ signal }) => {
-      const response = await Api.v1.get<RecipeWithTags[]>('/recipes', {
+      const response = await Api.v1.get<FullRecipe[]>('/recipes', {
         signal,
         params: {
           ...(selectedTag && tagId && { tagId }),
@@ -96,18 +90,42 @@ export const RecipesSection: FC<RecipesSectionProps> = ({ className, bgColor }) 
 }
 
 interface RecipeCardProps {
-  recipe: RecipeWithTags
+  recipe: FullRecipe
   className?: string
 }
 
 const RecipeCard: FC<RecipeCardProps> = ({ recipe, className }) => {
   const router = useRouter()
+  const queryClient = useQueryClient()
+  const favoriteId = recipe.RecipeFavorite[0]?.id ?? null
+
+  const { mutate: addToFavorite, isPending: isAddingToFavorite } = useMutation({
+    mutationFn: async () => {
+      await Api.v1.post(`/recipes/${recipe.slug}/favorite`)
+    },
+    onSuccess: () => {
+      toast.success('Recipe added to favorites')
+      queryClient.invalidateQueries({ queryKey: ['v1', 'recipes'] })
+    },
+    onError: error => new ClientErrorHandler().toast().handle(error),
+  })
+
+  const { mutate: removeFromFavorite, isPending: isRemovingFromFavorite } = useMutation({
+    mutationFn: async () => {
+      await Api.v1.delete(`/recipes/${recipe.slug}/favorite/${favoriteId}`)
+    },
+    onSuccess: () => {
+      toast.success('Recipe removed from favorites')
+      queryClient.invalidateQueries({ queryKey: ['v1', 'recipes'] })
+    },
+    onError: error => new ClientErrorHandler().toast().handle(error),
+  })
 
   return (
     <Card
       onClick={() => router.push(`/recipes/${recipe.slug}`)}
       className={cn(
-        'group relative flex min-h-[350px] flex-col justify-between rounded-lg border-none bg-[#f6f6f6] px-5 py-4 shadow-none',
+        'group relative flex min-h-[350px] cursor-pointer flex-col justify-between rounded-lg border-none bg-[#f6f6f6] px-5 py-4 shadow-none select-none',
         className
       )}>
       <div className="flex items-center justify-between">
@@ -115,9 +133,28 @@ const RecipeCard: FC<RecipeCardProps> = ({ recipe, className }) => {
           {recipe.shortTitle ?? recipe.title}
         </CardTitle>
 
-        <div className="absolute top-3 right-3 flex shrink-0 cursor-pointer items-center gap-2 rounded-full bg-white p-1">
-          <BookmarkIcon className="size-4 text-neutral-500" />
-        </div>
+        <motion.div
+          whileTap={{ scale: 0.95 }}
+          onClick={e => {
+            e.stopPropagation()
+            if (favoriteId) {
+              removeFromFavorite()
+            } else {
+              addToFavorite()
+            }
+          }}
+          className={cn(
+            'absolute top-3 right-3 flex shrink-0 cursor-pointer items-center gap-2 rounded-full bg-white p-1',
+            (isRemovingFromFavorite || isAddingToFavorite) && 'pointer-events-none opacity-50'
+          )}>
+          {isRemovingFromFavorite || isAddingToFavorite ? (
+            <LoadingIcon className="size-4 animate-spin" />
+          ) : favoriteId ? (
+            <BookmarkIcon className="size-4 fill-neutral-900" />
+          ) : (
+            <BookmarkIcon className="size-4 text-neutral-500" />
+          )}
+        </motion.div>
       </div>
       <div className="pointer-events-none mx-auto flex items-center justify-center overflow-hidden rounded-full border border-neutral-200 transition-transform duration-300 select-none group-hover:scale-105">
         <Image

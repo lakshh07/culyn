@@ -10,7 +10,16 @@ export type CookingStep = {
   }[]
 }
 
-export type RecipeWithIngredients = Recipe & {
+export type FullRecipe = Recipe & {
+  RecipeTag: {
+    tag: {
+      name: string
+      slug: string
+    }
+  }[]
+  RecipeFavorite: {
+    id: string
+  }[]
   RecipeIngredient: {
     ingredient: {
       name: string

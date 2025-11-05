@@ -260,7 +260,12 @@ export default function RecipePage({ params }: { params: Promise<{ slug: string 
         </div>
       </div>
 
-      <FloatingActionButton slug={slug} servings={servings} setServings={setServings} />
+      <FloatingActionButton
+        slug={slug}
+        servings={servings}
+        setServings={setServings}
+        recipeFavoritesIds={recipe.RecipeFavorite.map(rf => rf.id)}
+      />
     </>
   )
 }
