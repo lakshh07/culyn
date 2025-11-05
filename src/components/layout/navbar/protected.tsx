@@ -1,12 +1,22 @@
 'use client'
 
-import React, { useState, useEffect, FC, useMemo } from 'react'
+import React, { FC, useMemo } from 'react'
 import Link from 'next/link'
 import { motion } from 'motion/react'
 import { ArrowIcon } from '@/components/icons'
 import { cn } from '@/lib/utils'
 import { usePathname, useRouter } from 'next/navigation'
 import { authClient } from '@/lib/auth-client'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
+import { useSession } from '@/hooks/use-session'
+import { Skeleton } from '@/components/ui/skeleton'
 
 interface NavItem {
   label: string
@@ -17,6 +27,10 @@ const sideNavItems: NavItem[] = [
   {
     label: 'Discover',
     href: '/discover',
+  },
+  {
+    label: 'Cookbook',
+    href: '/cookbook',
   },
 ]
 
@@ -50,7 +64,7 @@ const NavLink: React.FC<NavLinkProps> = React.memo(({ item }) => {
         'relative flex cursor-pointer items-center gap-3 text-sm font-normal',
         'text-zinc-950'
       )}>
-      <span className={cn('relative font-mono font-medium')}>
+      <span className={cn('relative font-mono font-semibold')}>
         {item.label}
         <motion.span
           className={cn('absolute -bottom-1 left-0 h-px w-full rounded-sm', 'bg-zinc-950')}
@@ -61,7 +75,7 @@ const NavLink: React.FC<NavLinkProps> = React.memo(({ item }) => {
               transition: { duration: 0.3, ease: 'easeInOut' },
             },
             hover: {
-              scaleX: isActive(item.href) ? 1 : 0,
+              scaleX: isActive(item.href) ? 1 : 1,
               transformOrigin: 'left',
               transition: { duration: 0.3, ease: 'easeInOut' },
             },
@@ -77,6 +91,7 @@ NavLink.displayName = 'NavLink'
 
 export const ProtectedNavbar: FC = () => {
   const router = useRouter()
+  const { session, isLoading } = useSession()
 
   const sideNavLinks = useMemo(
     () => sideNavItems.map(item => <NavLink key={item.label} item={item} />),
@@ -90,7 +105,7 @@ export const ProtectedNavbar: FC = () => {
 
   return (
     <motion.div
-      className={cn('fixed top-5 left-0 z-50 w-full select-none')}
+      className={cn('fixed top-3 left-0 z-50 w-full select-none')}
       initial={{ y: -100 }}
       animate={{
         y: 0,
@@ -104,8 +119,8 @@ export const ProtectedNavbar: FC = () => {
       }}>
       <motion.nav
         className={cn(
-          'flex items-center justify-between rounded-md bg-neutral-50/80 py-2 pr-6 pl-6 backdrop-blur-sm',
-          'mx-5 max-w-full'
+          'flex items-center justify-between rounded-md bg-neutral-50/60 py-2 pr-6 pl-6 backdrop-blur-xs',
+          'mx-3 max-w-full'
         )}
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -121,42 +136,64 @@ export const ProtectedNavbar: FC = () => {
         <div className="flex items-center space-x-8">
           {sideNavLinks}
 
-          <motion.button
-            onClick={handleSignOut}
-            initial="initial"
-            whileHover="hover"
-            whileTap="tap"
-            variants={{
-              initial: { scale: 1 },
-              tap: {
-                scale: 0.95,
-                transition: { duration: 0.2 },
-              },
-            }}
-            className={cn(
-              'relative flex cursor-pointer items-center gap-3 text-sm font-normal',
-              'text-zinc-950'
-            )}>
-            <span className="relative font-mono font-medium">
-              Logout
-              <motion.span
-                className={cn('absolute -bottom-1 left-0 h-px w-full rounded-sm', 'bg-zinc-950')}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <motion.button
+                initial="initial"
+                whileHover="hover"
+                whileTap="tap"
+                disabled={isLoading}
                 variants={{
-                  initial: {
-                    scaleX: 0,
-                    transformOrigin: 'right',
-                    transition: { duration: 0.3, ease: 'easeInOut' },
-                  },
-                  hover: {
-                    scaleX: 1,
-                    transformOrigin: 'left',
-                    transition: { duration: 0.3, ease: 'easeInOut' },
+                  initial: { scale: 1 },
+                  tap: {
+                    scale: 0.95,
+                    transition: { duration: 0.2 },
                   },
                 }}
-              />
-            </span>
-            <ArrowIcon className="size-3" />
-          </motion.button>
+                className={cn(
+                  'relative flex cursor-pointer items-center gap-3 text-sm font-normal focus-visible:outline-none',
+                  'text-zinc-950'
+                )}>
+                <span className="relative font-mono font-semibold">
+                  {isLoading ? (
+                    <Skeleton className="h-5 w-26 rounded-lg bg-white" />
+                  ) : (
+                    `Hi, ${session?.user.name}`
+                  )}
+                  <motion.span
+                    className={cn(
+                      'absolute -bottom-1 left-0 h-px w-full rounded-sm',
+                      'bg-zinc-950'
+                    )}
+                    variants={{
+                      initial: {
+                        scaleX: 0,
+                        transformOrigin: 'right',
+                        transition: { duration: 0.3, ease: 'easeInOut' },
+                      },
+                      hover: {
+                        scaleX: 1,
+                        transformOrigin: 'left',
+                        transition: { duration: 0.3, ease: 'easeInOut' },
+                      },
+                    }}
+                  />
+                </span>
+              </motion.button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="w-56" align="end">
+              <DropdownMenuGroup>
+                <DropdownMenuItem>Shopping List</DropdownMenuItem>
+              </DropdownMenuGroup>
+              <DropdownMenuSeparator />
+              <DropdownMenuGroup>
+                <DropdownMenuItem>Profile</DropdownMenuItem>
+                <DropdownMenuItem>Subscription</DropdownMenuItem>
+              </DropdownMenuGroup>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={handleSignOut}>Logout</DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </motion.nav>
     </motion.div>
