@@ -52,6 +52,14 @@ export async function GET(req: NextRequest, ctx: NextRequestContext) {
             },
           },
         },
+        RecipeFavorite: {
+          where: {
+            deletedAt: null,
+          },
+          select: {
+            id: true,
+          },
+        },
       },
     })
 

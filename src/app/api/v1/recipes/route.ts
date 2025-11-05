@@ -36,18 +36,28 @@ export async function GET(req: NextRequest) {
         }),
       },
       include: {
-        tags: {
+        ...(filters.tagId && {
+          tags: {
+            where: {
+              deletedAt: null,
+            },
+            include: {
+              tag: {
+                select: {
+                  id: true,
+                  name: true,
+                  type: true,
+                },
+              },
+            },
+          },
+        }),
+        RecipeFavorite: {
           where: {
             deletedAt: null,
           },
-          include: {
-            tag: {
-              select: {
-                id: true,
-                name: true,
-                type: true,
-              },
-            },
+          select: {
+            id: true,
           },
         },
       },
