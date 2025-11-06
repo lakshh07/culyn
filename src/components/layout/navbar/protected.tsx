@@ -3,9 +3,9 @@
 import React, { FC, useMemo } from 'react'
 import Link from 'next/link'
 import { motion } from 'motion/react'
-import { ArrowIcon } from '@/components/icons'
+import { ArrowIcon, MobileIcon } from '@/components/icons'
 import { cn } from '@/lib/utils'
-import { usePathname, useRouter } from 'next/navigation'
+import { useRouter } from 'next/navigation'
 import { authClient } from '@/lib/auth-client'
 import {
   DropdownMenu,
@@ -17,6 +17,7 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { useSession } from '@/hooks/use-session'
 import { Skeleton } from '@/components/ui/skeleton'
+import { Button } from '@/components/ui/button'
 
 interface NavItem {
   label: string
@@ -41,10 +42,6 @@ interface NavLinkProps {
 }
 
 const NavLink: React.FC<NavLinkProps> = React.memo(({ item }) => {
-  const pathname = usePathname()
-
-  const isActive = (href: string) => pathname.replace(/\/$/, '') === href
-
   return (
     <MotionLink
       key={item.label}
@@ -70,12 +67,12 @@ const NavLink: React.FC<NavLinkProps> = React.memo(({ item }) => {
           className={cn('absolute -bottom-1 left-0 h-px w-full rounded-sm', 'bg-zinc-950')}
           variants={{
             initial: {
-              scaleX: isActive(item.href) ? 1 : 0,
+              scaleX: 0,
               transformOrigin: 'right',
               transition: { duration: 0.3, ease: 'easeInOut' },
             },
             hover: {
-              scaleX: isActive(item.href) ? 1 : 1,
+              scaleX: 1,
               transformOrigin: 'left',
               transition: { duration: 0.3, ease: 'easeInOut' },
             },
@@ -194,6 +191,15 @@ export const ProtectedNavbar: FC = () => {
               <DropdownMenuItem onClick={handleSignOut}>Logout</DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
+
+          <div className="flex items-center gap-4">
+            <Button variant="outline" size="sm" className="flex items-center gap-2">
+              <MobileIcon className="size-4" />
+              App
+            </Button>
+
+            <Button size="sm">Try Culina Pro</Button>
+          </div>
         </div>
       </motion.nav>
     </motion.div>
