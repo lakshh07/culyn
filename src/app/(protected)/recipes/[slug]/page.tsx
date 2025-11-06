@@ -9,6 +9,7 @@ import { CookingStep } from '@/types/recipes'
 import { FloatingActionButton } from '@/components/sections/recipes/floating-action-button'
 import NumberFlow from '@number-flow/react'
 import { DIFFICULTY_MAP, scaleIngredientQuantity } from '@/lib/utils'
+import { DetailRecipeSkeleton } from '@/components/sections/recipes/detail-recipe-skeleton'
 
 export default function RecipePage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = React.use(params)
@@ -55,13 +56,7 @@ export default function RecipePage({ params }: { params: Promise<{ slug: string 
   )
 
   if (isLoadingRecipe) {
-    return (
-      <div className="flex min-h-screen items-center justify-center">
-        <div className="text-center">
-          <div className="text-4xl font-bold">Loading your recipe...</div>
-        </div>
-      </div>
-    )
+    return <DetailRecipeSkeleton />
   }
 
   if (!recipe) {
