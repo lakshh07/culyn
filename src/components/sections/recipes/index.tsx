@@ -106,6 +106,7 @@ const RecipeCard: FC<RecipeCardProps> = ({ recipe, className }) => {
     onSuccess: () => {
       toast.success('Recipe added to favorites')
       queryClient.invalidateQueries({ queryKey: ['v1', 'recipes'] })
+      queryClient.invalidateQueries({ queryKey: ['v1', 'favorites'] })
     },
     onError: error => new ClientErrorHandler().toast().handle(error),
   })
@@ -117,6 +118,7 @@ const RecipeCard: FC<RecipeCardProps> = ({ recipe, className }) => {
     onSuccess: () => {
       toast.success('Recipe removed from favorites')
       queryClient.invalidateQueries({ queryKey: ['v1', 'recipes'] })
+      queryClient.invalidateQueries({ queryKey: ['v1', 'favorites'] })
     },
     onError: error => new ClientErrorHandler().toast().handle(error),
   })

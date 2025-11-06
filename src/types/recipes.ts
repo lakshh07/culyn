@@ -29,3 +29,16 @@ export type FullRecipe = Recipe & {
     unit: string
   }[]
 }
+
+export type RecipeFavorite = {
+  id: string
+  recipe: {
+    id: string
+    slug: string
+    title: string
+    shortTitle: string
+    imageUrl: string
+    sourceName: string
+    cookTime: number
+  }
+}
