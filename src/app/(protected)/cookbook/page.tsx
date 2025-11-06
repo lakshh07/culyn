@@ -15,6 +15,7 @@ import { ClientErrorHandler } from '@/lib/errors'
 import { RecipeFavorite } from '@/types/recipes'
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import Image from 'next/image'
+import { useRouter } from 'next/navigation'
 import { FC } from 'react'
 import { toast } from 'sonner'
 
@@ -79,6 +80,7 @@ interface FavoriteCardProps {
 
 const FavoriteCard: FC<FavoriteCardProps> = ({ favorite }) => {
   const queryClient = useQueryClient()
+  const router = useRouter()
 
   const { mutate: removeFromFavorite, isPending: isRemovingFromFavorite } = useMutation({
     mutationFn: async ({ slug, favoriteId }: { slug: string; favoriteId: string }) => {
@@ -95,7 +97,8 @@ const FavoriteCard: FC<FavoriteCardProps> = ({ favorite }) => {
   return (
     <div
       key={favorite.id}
-      className="relative grid min-h-[150px] grid-cols-[100px_1fr] items-center gap-3 rounded-lg bg-neutral-100 p-4">
+      onClick={() => router.push(`/recipes/${favorite.recipe.slug}`)}
+      className="relative grid min-h-[150px] cursor-pointer grid-cols-[100px_1fr] items-center gap-3 rounded-lg bg-neutral-100 p-4">
       <div className="pointer-events-none mx-auto flex items-center justify-center overflow-hidden rounded-full border border-neutral-200 transition-transform duration-300 select-none group-hover:scale-105">
         <Image
           src={favorite.recipe.imageUrl ?? ''}
