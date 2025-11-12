@@ -43,9 +43,12 @@ export async function GET(req: NextRequest, ctx: NextRequestContext) {
       },
       include: {
         RecipeIngredient: {
-          include: {
+          select: {
+            amount: true,
+            unit: true,
             ingredient: {
               select: {
+                id: true,
                 name: true,
                 slug: true,
               },

@@ -22,6 +22,7 @@ export type FullRecipe = Recipe & {
   }[]
   RecipeIngredient: {
     ingredient: {
+      id: string
       name: string
       slug: string
     }
