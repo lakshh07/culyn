@@ -18,6 +18,7 @@ import {
 import { useSession } from '@/hooks/use-session'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Button } from '@/components/ui/button'
+import { ShoppingListDrawer } from '@/components/sections/lists/shopping-list-drawer'
 
 interface NavItem {
   label: string
@@ -133,6 +134,50 @@ export const ProtectedNavbar: FC = () => {
         <div className="flex items-center space-x-8">
           {sideNavLinks}
 
+          <ShoppingListDrawer
+            trigger={
+              <motion.button
+                initial="initial"
+                whileHover="hover"
+                whileTap="tap"
+                disabled={isLoading}
+                variants={{
+                  initial: { scale: 1 },
+                  tap: {
+                    scale: 0.95,
+                    transition: { duration: 0.2 },
+                  },
+                }}
+                className={cn(
+                  'relative flex cursor-pointer items-center gap-3 text-sm font-normal focus-visible:outline-none',
+                  'text-zinc-950'
+                )}>
+                <span className="relative font-mono font-semibold">
+                  Shopping List
+                  <motion.span
+                    className={cn(
+                      'absolute -bottom-1 left-0 h-px w-full rounded-sm',
+                      'bg-zinc-950'
+                    )}
+                    variants={{
+                      initial: {
+                        scaleX: 0,
+                        transformOrigin: 'right',
+                        transition: { duration: 0.3, ease: 'easeInOut' },
+                      },
+                      hover: {
+                        scaleX: 1,
+                        transformOrigin: 'left',
+                        transition: { duration: 0.3, ease: 'easeInOut' },
+                      },
+                    }}
+                  />
+                </span>
+                <ArrowIcon className="size-3" />
+              </motion.button>
+            }
+          />
+
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <motion.button
@@ -179,10 +224,6 @@ export const ProtectedNavbar: FC = () => {
               </motion.button>
             </DropdownMenuTrigger>
             <DropdownMenuContent className="w-56" align="end">
-              <DropdownMenuGroup>
-                <DropdownMenuItem>Shopping List</DropdownMenuItem>
-              </DropdownMenuGroup>
-              <DropdownMenuSeparator />
               <DropdownMenuGroup>
                 <DropdownMenuItem>Profile</DropdownMenuItem>
                 <DropdownMenuItem>Subscription</DropdownMenuItem>

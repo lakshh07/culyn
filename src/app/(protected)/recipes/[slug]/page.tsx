@@ -1,21 +1,43 @@
 'use client'
+
 import { useRecipeBySlug } from '@/hooks/use-recipes'
-import React, { useState, useMemo } from 'react'
+import React, { useState, useMemo, useEffect } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { InstagramIcon, LinkIcon } from '@/components/icons'
+import { InstagramIcon, LinkIcon, LoadingIcon, PlaylistAddIcon } from '@/components/icons'
 import { CookingStep } from '@/types/recipes'
 import { FloatingActionButton } from '@/components/sections/recipes/floating-action-button'
 import NumberFlow from '@number-flow/react'
-import { DIFFICULTY_MAP, scaleIngredientQuantity } from '@/lib/utils'
+import { DIFFICULTY_MAP, cn, scaleIngredientQuantity } from '@/lib/utils'
 import { DetailRecipeSkeleton } from '@/components/sections/recipes/detail-recipe-skeleton'
+import { Button } from '@/components/ui/button'
+import { Checkbox } from '@/components/ui/checkbox'
+import { Api } from '@/lib/api'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { ClientErrorHandler } from '@/lib/errors'
+import { toast } from 'sonner'
+import { GroceryList } from '@/types/lists'
 
 export default function RecipePage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = React.use(params)
   const { recipe, isLoadingRecipe } = useRecipeBySlug(slug)
   const originalServings = recipe?.servings || 2
   const [servings, setServings] = useState(originalServings)
+  const [selectedIngredients, setSelectedIngredients] = useState<Set<string>>(() => new Set())
+  const [shoppingListDialogOpen, setShoppingListDialogOpen] = useState(false)
+
+  const queryClient = useQueryClient()
 
   React.useEffect(() => {
     if (recipe?.servings && servings === originalServings) {
@@ -54,6 +76,50 @@ export default function RecipePage({ params }: { params: Promise<{ slug: string 
     }),
     [recipe?.calories, recipe?.protein, recipe?.carbs, recipe?.fat]
   )
+
+  const { data: groceryLists } = useQuery({
+    queryKey: ['v1', 'lists', recipe?.id],
+    queryFn: async () => {
+      const response = await Api.v1.get<GroceryList[]>(`/lists?recipeId=${recipe?.id}`)
+      return response.data
+    },
+    enabled: !!recipe?.id,
+  })
+
+  const { mutate: addToGroceryList, isPending: isAddingToGroceryList } = useMutation({
+    mutationFn: async () => {
+      await Api.v1.post('/lists', {
+        recipeSlug: slug,
+        ingredientIds: Array.from(selectedIngredients),
+        ...(groceryLists?.[0]?.id && { groceryListId: groceryLists?.[0]?.id }),
+      })
+    },
+    onSuccess: () => {
+      toast.success('Ingredients added to grocery list')
+      queryClient.invalidateQueries({ queryKey: ['v1', 'lists'] })
+      resetToDefaults()
+      setShoppingListDialogOpen(false)
+    },
+    onError: error => {
+      new ClientErrorHandler().toast().handle(error)
+    },
+  })
+
+  const getDefaultSelectedIngredients = () => {
+    if (!groceryLists) return new Set<string>()
+    return new Set(groceryLists.map(list => list.items.map(item => item.ingredientId)).flat())
+  }
+
+  const resetToDefaults = () => {
+    setSelectedIngredients(getDefaultSelectedIngredients())
+  }
+
+  useEffect(() => {
+    if (groceryLists) {
+      setSelectedIngredients(getDefaultSelectedIngredients())
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [groceryLists])
 
   if (isLoadingRecipe) {
     return <DetailRecipeSkeleton />
@@ -188,7 +254,118 @@ export default function RecipePage({ params }: { params: Promise<{ slug: string 
           </div>
 
           <div className="mt-10 space-y-3">
-            <h2 className="font-mono text-2xl font-medium">Ingredients</h2>
+            <div className="flex items-center justify-between">
+              <h2 className="font-mono text-2xl font-medium">Ingredients</h2>
+
+              <Dialog
+                open={shoppingListDialogOpen}
+                onOpenChange={open => {
+                  if (!open) {
+                    resetToDefaults()
+                  }
+                  setShoppingListDialogOpen(open)
+                }}>
+                <DialogTrigger asChild>
+                  <Button variant={'ghost'} size={'sm'} className="active:scale-95">
+                    <PlaylistAddIcon className="size-4" />
+                    Add to list
+                  </Button>
+                </DialogTrigger>
+                <DialogContent showCloseButton={false} className="lg:max-w-3xl">
+                  <DialogHeader>
+                    <DialogTitle>Add to Shopping List</DialogTitle>
+                    <DialogDescription>
+                      Select ingredients from this recipe to add to your shopping list for easy
+                      grocery planning.
+                    </DialogDescription>
+
+                    <div className="mt-6 grid grid-cols-2 gap-x-2 gap-y-2 overflow-y-auto lg:max-h-[50vh]">
+                      {scaledIngredients.map(ri => (
+                        <div
+                          className={cn(
+                            'mr-4 flex cursor-pointer items-center justify-between gap-2 rounded-lg border border-transparent px-4 py-2 transition-all duration-300 hover:border-neutral-700',
+                            selectedIngredients.has(ri.ingredient.id) &&
+                              'border-neutral-700 bg-neutral-100'
+                          )}
+                          key={ri.ingredient.id}
+                          onClick={() =>
+                            setSelectedIngredients(prev => {
+                              const next = new Set(prev)
+                              if (next.has(ri.ingredient.id)) {
+                                next.delete(ri.ingredient.id)
+                              } else {
+                                next.add(ri.ingredient.id)
+                              }
+                              return next
+                            })
+                          }>
+                          <div className="relative flex items-center gap-2">
+                            <Avatar className="size-12 rounded-xl object-cover">
+                              <AvatarImage src={``} />
+                              <AvatarFallback className="size-full rounded-xl bg-amber-100 object-cover">
+                                {ri.ingredient.name.charAt(0)}
+                              </AvatarFallback>
+                            </Avatar>
+
+                            <div>
+                              <p className="font-mono text-sm font-medium text-neutral-900 capitalize">
+                                {ri.ingredient.name}
+                              </p>
+                              <div className="font-mono text-sm text-neutral-500">
+                                {ri.scaledAmount && (
+                                  <NumberFlow
+                                    value={Number(ri.scaledAmount)}
+                                    className="font-mono text-sm"
+                                  />
+                                )}
+                                <span className="ps-0.5 text-neutral-500">{ri.unit}</span>
+                              </div>
+                            </div>
+                          </div>
+
+                          <div className="flex items-center justify-end">
+                            <Checkbox
+                              id={`add-to-list-${ri.ingredient.id}`}
+                              checked={selectedIngredients.has(ri.ingredient.id)}
+                            />
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+
+                    <DialogFooter>
+                      <DialogClose asChild>
+                        <Button
+                          variant={'outline'}
+                          size={'sm'}
+                          className="active:scale-95"
+                          disabled={isAddingToGroceryList}>
+                          Cancel
+                        </Button>
+                      </DialogClose>
+
+                      <Button
+                        variant={'default'}
+                        size={'sm'}
+                        className="w-22 active:scale-95"
+                        disabled={
+                          (!groceryLists?.[0]?.id && selectedIngredients.size === 0) ||
+                          isAddingToGroceryList
+                        }
+                        onClick={() => addToGroceryList()}>
+                        {isAddingToGroceryList ? (
+                          <LoadingIcon className="size-4 animate-spin" />
+                        ) : !groceryLists?.[0]?.id ? (
+                          'Add'
+                        ) : (
+                          'Update'
+                        )}
+                      </Button>
+                    </DialogFooter>
+                  </DialogHeader>
+                </DialogContent>
+              </Dialog>
+            </div>
 
             <div className="xs:grid-cols-2 grid grid-cols-3 gap-x-2 gap-y-4 lg:grid-cols-5 xl:grid-cols-7">
               {scaledIngredients.map(ri => (
