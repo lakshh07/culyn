@@ -10,10 +10,10 @@ export const connectionOptions: ConnectionOptions = {
 }
 
 export const defaultJobOptions = {
-  attempts: 3,
+  attempts: 2,
   backoff: {
     type: 'exponential' as const,
-    delay: 2000,
+    delay: 4000,
   },
   removeOnComplete: {
     age: 24 * 3600, // Keep completed jobs for 24 hours
