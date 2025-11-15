@@ -1,5 +1,7 @@
 import { GoogleGenAI } from '@google/genai'
 import { CreateRecipeRequest } from '@/schema/create-recipe'
+import { trackAiUsage } from '@/lib/ai/usage'
+import { AiProvider } from '@/lib/ai/types'
 
 /**
  * Configuration for image generation
@@ -14,6 +16,8 @@ const IMAGE_CONFIG = Object.freeze({
  */
 export interface GenerateRecipeImageOptions {
   recipe: CreateRecipeRequest
+  userId: string
+  recipeId: string
 }
 
 /**
@@ -78,7 +82,7 @@ export class RecipeImageService {
    * @returns Image buffer
    */
   async generateRecipeImage(options: GenerateRecipeImageOptions): Promise<Buffer> {
-    const { recipe } = options
+    const { recipe, userId, recipeId } = options
 
     const prompt = this.generateImagePrompt(recipe)
 
@@ -95,6 +99,21 @@ export class RecipeImageService {
     if (!imageResponse.candidates) {
       throw new Error('No image response from AI')
     }
+
+    await trackAiUsage(
+      {
+        input_tokens: imageResponse.usageMetadata?.promptTokenCount ?? 0,
+        output_tokens: imageResponse.usageMetadata?.candidatesTokenCount ?? 0,
+      },
+      {
+        provider: AiProvider.Google,
+        model: IMAGE_CONFIG.MODEL,
+        feature: 'recipe:generate-image',
+        initiator: 'worker:generate-recipe',
+        user_id: userId,
+        recipe_id: recipeId,
+      }
+    )
 
     // Extract image buffer from response
     for (const part of imageResponse.candidates?.[0]?.content?.parts ?? []) {

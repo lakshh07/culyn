@@ -66,11 +66,11 @@ new Worker<RecipeGenerationJobData, RecipeGenerationJobResult>(
       videoBuffer: media.video.buffer,
       caption: sourceData.caption,
       recipeId: recipe.id,
+      userId: user.id,
     })
 
     await job.updateProgress(68)
 
-    // Step 6: Save recipe data to database
     await recipePersistenceService.saveRecipe({
       recipeId: recipe.id,
       recipeData,
@@ -84,6 +84,8 @@ new Worker<RecipeGenerationJobData, RecipeGenerationJobResult>(
 
     const imageBuffer = await recipeImageService.generateRecipeImage({
       recipe: recipeData,
+      userId: user.id,
+      recipeId: recipe.id,
     })
 
     const imageUpload = await uploadRecipeImage(

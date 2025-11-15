@@ -4,6 +4,8 @@ import { CreateRecipeRequestSchema, CreateRecipeRequest } from '@/schema/create-
 import fs from 'fs'
 import path from 'path'
 import os from 'os'
+import { withAiUsageTracking } from '@/lib/ai/usage'
+import { AiProvider } from '@/lib/ai/types'
 
 const AI_CONFIG = Object.freeze({
   MODEL: 'gemini-2.5-flash',
@@ -115,6 +117,7 @@ export interface GenerateRecipeFromVideoOptions {
   videoBuffer: Buffer
   caption: string
   recipeId: string
+  userId: string
 }
 
 /**
@@ -127,7 +130,7 @@ export class RecipeAIService {
    * @returns Parsed recipe data
    */
   async generateFromVideo(options: GenerateRecipeFromVideoOptions): Promise<CreateRecipeRequest> {
-    const { videoBuffer, caption, recipeId } = options
+    const { videoBuffer, caption, recipeId, userId } = options
 
     // Save buffer to temporary file for upload
     const tempVideoPath = path.join(os.tmpdir(), `video-${recipeId}-${Date.now()}.mp4`)
@@ -135,28 +138,42 @@ export class RecipeAIService {
     try {
       fs.writeFileSync(tempVideoPath, videoBuffer)
 
-      const { object: recipeData } = await generateObject({
-        model: google(AI_CONFIG.MODEL),
-        schema: CreateRecipeRequestSchema,
-        messages: [
-          { role: 'system', content: RECIPE_PROMPTS.SYSTEM },
-          {
-            role: 'user',
-            content: [
-              {
-                type: 'text',
-                text: RECIPE_PROMPTS.USER(caption),
-              },
-              {
-                type: 'file',
-                mediaType: 'video/mp4',
-                data: fs.readFileSync(tempVideoPath),
-              },
-            ],
-          },
-        ],
-        temperature: AI_CONFIG.TEMPERATURE,
-      })
+      const { object: recipeData } = await withAiUsageTracking(
+        generateObject({
+          model: google(AI_CONFIG.MODEL),
+          schema: CreateRecipeRequestSchema,
+          messages: [
+            { role: 'system', content: RECIPE_PROMPTS.SYSTEM },
+            {
+              role: 'user',
+              content: [
+                {
+                  type: 'text',
+                  text: RECIPE_PROMPTS.USER(caption),
+                },
+                {
+                  type: 'file',
+                  mediaType: 'video/mp4',
+                  data: fs.readFileSync(tempVideoPath),
+                },
+              ],
+            },
+          ],
+          temperature: AI_CONFIG.TEMPERATURE,
+        }),
+        async data => ({
+          input_tokens: data.usage.inputTokens ?? 0,
+          output_tokens: data.usage.outputTokens ?? 0,
+        }),
+        {
+          provider: AiProvider.Google,
+          model: AI_CONFIG.MODEL,
+          feature: 'recipe:generate-from-video',
+          initiator: 'worker:generate-recipe',
+          user_id: userId,
+          recipe_id: recipeId,
+        }
+      )
 
       if (!recipeData) {
         throw new Error('Failed to generate recipe data from AI')
