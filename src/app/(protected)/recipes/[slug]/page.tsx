@@ -1,7 +1,7 @@
 'use client'
 
 import { useRecipeBySlug } from '@/hooks/use-recipes'
-import React, { useState, useMemo, useEffect } from 'react'
+import React, { useState, useMemo, useEffect, useRef, useCallback } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import {
@@ -28,14 +28,22 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { ClientErrorHandler } from '@/lib/errors'
 import { toast } from 'sonner'
 import { GroceryList } from '@/types/lists'
+import VideoPlayer, { VideoPlayerRef } from '@/components/ui/video-player'
 
 export default function RecipePage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = React.use(params)
   const { recipe, isLoadingRecipe } = useRecipeBySlug(slug)
+
   const originalServings = recipe?.servings || 2
   const [servings, setServings] = useState(originalServings)
   const [selectedIngredients, setSelectedIngredients] = useState<Set<string>>(() => new Set())
   const [shoppingListDialogOpen, setShoppingListDialogOpen] = useState(false)
+  const [videoState, setVideoState] = useState({ isPlaying: false, isExpanded: false })
+  const videoPlayerRef = useRef<VideoPlayerRef>(null)
+
+  const handleVideoStateChange = useCallback((isPlaying: boolean, isExpanded: boolean) => {
+    setVideoState({ isPlaying, isExpanded })
+  }, [])
 
   const queryClient = useQueryClient()
 
@@ -437,7 +445,19 @@ export default function RecipePage({ params }: { params: Promise<{ slug: string 
         servings={servings}
         setServings={setServings}
         recipeFavoritesIds={recipe.RecipeFavorite.map(rf => rf.id)}
+        videoPlayerRef={videoPlayerRef}
+        videoState={videoState}
+        hasVideo={!!recipe.sourceVideoUrl && !!recipe.sourceThumbnailUrl}
       />
+
+      {recipe.sourceVideoUrl && recipe.sourceThumbnailUrl && (
+        <VideoPlayer
+          ref={videoPlayerRef}
+          videoUrl={recipe.sourceVideoUrl}
+          thumbnailUrl={recipe.sourceThumbnailUrl}
+          onStateChange={handleVideoStateChange}
+        />
+      )}
     </>
   )
 }

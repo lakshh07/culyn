@@ -4,23 +4,28 @@ import {
   LoadingIcon,
   MinusIcon,
   PlayIcon,
+  PauseIcon,
   PlusIcon,
 } from '@/components/icons'
 import { Button } from '@/components/ui/button'
 import { motion } from 'motion/react'
 import NumberFlow from '@number-flow/react'
-import { FC } from 'react'
+import { FC, RefObject } from 'react'
 import { useRouter } from 'next/navigation'
 import { Api } from '@/lib/api'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { ClientErrorHandler } from '@/lib/errors'
+import { VideoPlayerRef } from '@/components/ui/video-player'
 
 interface FloatingActionButtonProps {
   slug: string
   servings: number
   setServings: (servings: number) => void
   recipeFavoritesIds: string[]
+  videoPlayerRef?: RefObject<VideoPlayerRef | null>
+  videoState?: { isPlaying: boolean; isExpanded: boolean }
+  hasVideo: boolean
 }
 
 export const FloatingActionButton: FC<FloatingActionButtonProps> = ({
@@ -28,9 +33,18 @@ export const FloatingActionButton: FC<FloatingActionButtonProps> = ({
   servings,
   setServings,
   recipeFavoritesIds,
+  videoPlayerRef,
+  videoState,
+  hasVideo,
 }) => {
   const router = useRouter()
   const queryClient = useQueryClient()
+
+  const handleVideoToggle = () => {
+    if (videoPlayerRef?.current) {
+      videoPlayerRef.current.togglePlay()
+    }
+  }
 
   const { mutate: addToFavorite, isPending: isAddingToFavorite } = useMutation({
     mutationFn: async () => {
@@ -101,10 +115,25 @@ export const FloatingActionButton: FC<FloatingActionButtonProps> = ({
         {recipeFavoritesIds.length > 0 ? 'Saved' : 'Save'}
       </Button>
 
-      <Button variant={'outline'} size={'sm'} className="active:scale-95">
-        <PlayIcon className="size-4" />
-        Watch
-      </Button>
+      {hasVideo && videoPlayerRef && (
+        <Button
+          variant={'outline'}
+          size={'sm'}
+          className="active:scale-95"
+          onClick={handleVideoToggle}>
+          {videoState?.isPlaying ? (
+            <>
+              <PauseIcon className="size-4" />
+              Pause
+            </>
+          ) : (
+            <>
+              <PlayIcon className="size-4" />
+              Watch
+            </>
+          )}
+        </Button>
+      )}
 
       <Button
         size={'sm'}
