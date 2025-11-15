@@ -149,7 +149,7 @@ const VideoPlayer = forwardRef<VideoPlayerRef, VideoPlayerProps>(
               animate={{ scale: 1 }}
               exit={{ scale: 0.98 }}
               transition={{ duration: 0.2 }}
-              className={cn('pointer-events-auto absolute bottom-5 left-5')}>
+              className={cn('pointer-events-auto absolute bottom-5 left-5 flex gap-2')}>
               <motion.div
                 layoutId="video-player-panel"
                 layout
@@ -181,6 +181,14 @@ const VideoPlayer = forwardRef<VideoPlayerRef, VideoPlayerProps>(
                   </div>
                 </div>
               </motion.div>
+
+              <div className="flex items-end justify-center pb-2 select-none">
+                <p className="font-mono text-xs font-semibold text-neutral-600 mix-blend-difference">
+                  Watch the
+                  <br />
+                  original video!
+                </p>
+              </div>
             </motion.div>
           </div>
         )}
