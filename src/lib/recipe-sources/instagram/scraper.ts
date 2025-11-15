@@ -3,7 +3,8 @@
  * Extracts caption, display URL, and owner username from Instagram posts/reels
  */
 
-import { RecipeSourceData as InstagramPostData } from '@/types/recipe-source-data'
+import { RecipeSourceType } from '@/generated/prisma/enums'
+import { InstagramRecipeSourceData } from '@/lib/recipe-sources/types'
 
 const USER_AGENT = process.env.USER_AGENT
 const X_IG_APP_ID = process.env.X_IG_APP_ID
@@ -25,7 +26,7 @@ function extractPostId(url: string): string | null {
  * @returns Object containing caption, displayUrl, and ownerUsername
  * @throws Error if URL is invalid or fetch fails
  */
-export async function getInstagramPostData(url: string): Promise<InstagramPostData> {
+export async function getInstagramPostData(url: string): Promise<InstagramRecipeSourceData> {
   const postId = extractPostId(url)
 
   if (!postId) {
@@ -71,11 +72,14 @@ export async function getInstagramPostData(url: string): Promise<InstagramPostDa
     const caption = media?.edge_media_to_caption?.edges?.[0]?.node?.text || null
     const displayUrl = media?.display_url || null
     const ownerUsername = media?.owner?.username || null
+    const videoUrl = media?.video_url || null
 
     return {
       caption,
       displayUrl,
       ownerUsername,
+      videoUrl,
+      sourceType: RecipeSourceType.INSTAGRAM_REEL,
     }
   } catch (error) {
     if (error instanceof Error) {
