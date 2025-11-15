@@ -1,36 +1,28 @@
 import { Job, JobProgress, Worker } from 'bullmq'
-import { generateObject } from 'ai'
-import { google } from '@ai-sdk/google'
-import { z } from 'zod'
 import { connectionOptions, QUEUE_NAMES, workerOptions } from '@/bull/config'
 import { RecipeGenerationJobData, RecipeGenerationJobResult } from '@/bull/types'
 import db from '@/lib/prisma'
-import { getInstagramPostData } from '@/lib/instagram-scraper'
-import { RecipeSourceData } from '@/types/recipe-source-data'
-import { GoogleGenAI } from '@google/genai'
-import { s3 } from '@/lib/aws/s3'
-import { PutObjectCommand } from '@aws-sdk/client-s3'
-import { JobStatus, RecipeDifficulty, RecipeSourceType, TagType } from '@/generated/prisma/enums'
-import { parseQuantity } from '@/lib/recipe/ingredient-parser'
-import slugify from 'slugify'
+import { JobStatus } from '@/generated/prisma/enums'
+import { recipeSourceRegistry } from '@/lib/recipe-sources'
+import {
+  fetchAndUploadRecipeVideo,
+  fetchAndUploadRecipeImage,
+  uploadRecipeImage,
+  S3_CONFIG,
+} from '@/lib/aws/s3-helpers'
+import { recipeAIService, recipeImageService, recipePersistenceService } from '@/lib/services'
 
 new Worker<RecipeGenerationJobData, RecipeGenerationJobResult>(
   QUEUE_NAMES.RECIPE_GENERATION,
   async job => {
     await job.updateProgress(0)
 
-    const imageAi = new GoogleGenAI({})
-
     const [user, organization] = await Promise.all([
       db.user.findUnique({
-        where: {
-          id: job.data.userId,
-        },
+        where: { id: job.data.userId },
       }),
       db.organization.findUnique({
-        where: {
-          id: job.data.organizationId,
-        },
+        where: { id: job.data.organizationId },
       }),
     ])
 
@@ -50,291 +42,67 @@ new Worker<RecipeGenerationJobData, RecipeGenerationJobResult>(
 
     await job.updateProgress(20)
 
-    let sourceData: RecipeSourceData | null = null
+    const sourceHandler = recipeSourceRegistry.getHandler(job.data.sourceType)
+    const { sourceData, media } = await sourceHandler.fetchSourceData(job.data.url)
 
-    switch (job.data.sourceType) {
-      case RecipeSourceType.INSTAGRAM_REEL:
-        sourceData = await getInstagramPostData(job.data.url)
-        break
+    if (!sourceData.caption || !media.video || !media.thumbnail) {
+      throw new Error('Incomplete source data: missing caption, video, or thumbnail')
     }
 
-    if (!sourceData || !sourceData.caption) {
-      throw new Error('Source data not found')
-    }
+    await job.updateProgress(35)
+
+    const [videoUpload, thumbnailUpload] = await Promise.all([
+      fetchAndUploadRecipeVideo(media.video.url, recipe.id),
+      fetchAndUploadRecipeImage(
+        media.thumbnail.url,
+        recipe.id,
+        S3_CONFIG.FOLDERS.RECIPE_THUMBNAILS
+      ),
+    ])
 
     await job.updateProgress(45)
 
-    const PROMPTS = {
-      SYSTEM_PROMPT: `
-        You are an AI chef assistant that analyzes recipes and extracts structured cooking data.
-
-        Your role:
-        You carefully read recipe captions, text, or video descriptions and transform them into clean, well-structured JSON data that home cooks and food enthusiasts can use.
-        Also, generate a short and catchy title for the recipe (3–7 words max). If the original title is too long or includes unnecessary details, simplify it while keeping the essence.
-
-        Return only valid JSON (no markdown, no explanations outside the JSON structure).
-
-        Guidelines for extracting recipe data:
-        - Clean up any emojis, special characters, and formatting artifacts from the text
-        - Standardize ingredient quantities and units (e.g., "tbsp", "cup", "oz", "g")
-        - Convert nutritional macros to numbers without units
-        - ALL fields are required - make your best estimate if information is missing
-        - Infer cook time and servings from the recipe complexity and ingredient amounts
-        - Estimate nutritional values (calories, carbs, protein, fat) based on ingredients if not explicitly stated
-        - For "tagline", describe the nutritional profile concisely (e.g., "High protein, low fat", "Balanced meal", "Low carbs, high fat")
-        - List only physical kitchen tools needed (e.g., "knife", "mixing bowl", "oven", "pan")
-        - Add relevant tags that help categorize the recipe (cuisine type, meal type, dietary preferences, season, occasion)
-        `,
-      USER_PROMPT: `Extract and return the recipe JSON for this recipe from the caption and video:
-      
-        Video URL: ${job.data.url}
-        Caption: ${sourceData.caption}
-
-        Infer details from the video caption. Follow the output JSON format strictly.`,
-    }
-
-    await job.updateProgress(52)
-
-    const { object: recipeData } = await generateObject({
-      model: google('gemini-2.5-flash'),
-      schema: z
-        .object({
-          title: z.string().describe('The title of the recipe'),
-          short_title: z
-            .string()
-            .describe(
-              'A concise and catchy version of the recipe title (3–7 words, no hyphens or long descriptors)'
-            ),
-          description: z.string().describe('A brief, appetizing description of the recipe'),
-          calories: z.number().describe('Total calories per serving'),
-          carbs_g: z.number().describe('Total carbohydrates in grams per serving'),
-          protein_g: z.number().describe('Total protein in grams per serving'),
-          fat_g: z.number().describe('Total fat in grams per serving'),
-          tagline: z
-            .string()
-            .describe(
-              'A brief nutritional summary like "High protein, low fat", "Balanced meal", or "Low carbs, high fat"'
-            ),
-          cook_time_minutes: z.number().describe('Total cooking time in minutes'),
-          servings: z.number().describe('Number of servings the recipe makes'),
-          difficulty: z
-            .enum(['EASY', 'MEDIUM', 'HARD'])
-            .describe('The difficulty level of preparing this recipe'),
-          ingredients: z
-            .array(
-              z.object({
-                name: z.string().describe('The name of the ingredient (standardized and clean)'),
-                quantity: z
-                  .string()
-                  .describe('The quantity with unit (e.g., "2 tbsp", "1 cup", "1/2 tsp")'),
-              })
-            )
-            .describe('List of all ingredients needed for the recipe'),
-          cooking_steps: z
-            .array(
-              z.object({
-                step_number: z.number().describe('The sequential step number (1, 2, 3, etc.)'),
-                step_description: z
-                  .string()
-                  .describe('Clear, concise instruction for this cooking step'),
-                tools_required: z
-                  .array(z.string())
-                  .describe(
-                    'Physical kitchen tools needed for this step (e.g., "knife", "mixing bowl", "oven", "pan")'
-                  ),
-                ingredients_used: z
-                  .array(
-                    z.object({
-                      name: z.string().describe('Name of the ingredient used in this step'),
-                      quantity: z
-                        .string()
-                        .describe(
-                          'Quantity of this ingredient used in this step (e.g., "1 cup", "2 tbsp")'
-                        ),
-                    })
-                  )
-                  .describe('Ingredients used specifically in this cooking step'),
-              })
-            )
-            .describe('Step-by-step cooking instructions'),
-          tags: z
-            .array(
-              z.object({
-                type: z
-                  .enum(['CUISINE', 'MEAL_TYPE', 'DIET', 'SEASON', 'OCCASION', 'CUSTOM'])
-                  .describe('The category type of this tag'),
-                value: z
-                  .string()
-                  .describe(
-                    'The tag value (e.g., "Italian", "Dinner", "Vegetarian", "Summer", "Holiday", "Quick & Easy")'
-                  ),
-              })
-            )
-            .describe('Tags that categorize and describe the recipe'),
-        })
-        .describe('Complete structured recipe data extracted from the input'),
-      messages: [
-        { role: 'system', content: PROMPTS.SYSTEM_PROMPT },
-        { role: 'user', content: PROMPTS.USER_PROMPT },
-      ],
-      temperature: 0.7,
+    const recipeData = await recipeAIService.generateFromVideo({
+      videoBuffer: media.video.buffer,
+      caption: sourceData.caption,
+      recipeId: recipe.id,
     })
-
-    if (!recipeData) {
-      throw new Error('Recipe data not found')
-    }
 
     await job.updateProgress(68)
 
-    await db.recipe.update({
-      where: { id: recipe.id },
-      data: {
-        title: recipeData.title,
-        shortTitle: recipeData.short_title,
-        slug: slugify(recipeData.short_title, { lower: true, strict: true }),
-        description: recipeData.description,
-        tagline: recipeData.tagline,
-        cookTime: recipeData.cook_time_minutes,
-        servings: recipeData.servings,
-        difficulty: recipeData.difficulty as RecipeDifficulty,
-        calories: recipeData.calories,
-        protein: recipeData.protein_g,
-        carbs: recipeData.carbs_g,
-        fat: recipeData.fat_g,
-        cookingSteps: recipeData.cooking_steps,
-        ingredients: recipeData.ingredients,
-        sourceMetadata: sourceData,
-        sourceType: RecipeSourceType.INSTAGRAM_REEL,
-        sourceUrl: job.data.url,
-        sourceName: sourceData.ownerUsername,
-      },
+    // Step 6: Save recipe data to database
+    await recipePersistenceService.saveRecipe({
+      recipeId: recipe.id,
+      recipeData,
+      sourceData,
+      sourceUrl: job.data.url,
+      videoUrl: videoUpload.url,
+      thumbnailUrl: thumbnailUpload.url,
     })
 
-    await Promise.all(
-      recipeData.tags.map(async tagData => {
-        const slug = slugify(tagData.value, { lower: true, strict: true })
-        const tag = await db.tag.upsert({
-          where: { slug },
-          update: {},
-          create: {
-            name: tagData.value,
-            slug,
-            type: tagData.type as TagType,
-          },
-        })
+    await job.updateProgress(75)
 
-        return db.recipeTag.upsert({
-          where: {
-            recipeId_tagId: {
-              recipeId: recipe.id,
-              tagId: tag.id,
-            },
-          },
-          update: {},
-          create: {
-            recipeId: recipe.id,
-            tagId: tag.id,
-          },
-        })
-      })
-    )
-
-    const ingredientPromises = recipeData.ingredients.map(async ingredientData => {
-      try {
-        const { amount, unit } = parseQuantity(ingredientData.quantity)
-        const normalizedName = ingredientData.name.toLowerCase().trim()
-        const slug = slugify(normalizedName, { lower: true, strict: true })
-
-        const ingredient = await db.ingredient.upsert({
-          where: { slug },
-          update: {},
-          create: {
-            name: normalizedName,
-            slug,
-          },
-        })
-
-        const decimalAmount = amount !== null ? amount : null
-
-        return await db.recipeIngredient.upsert({
-          where: {
-            recipeId_ingredientId: {
-              recipeId: recipe.id,
-              ingredientId: ingredient.id,
-            },
-          },
-          update: {},
-          create: {
-            recipeId: recipe.id,
-            ingredientId: ingredient.id,
-            amount: decimalAmount,
-            unit: unit,
-          },
-        })
-      } catch (error) {
-        console.error(`Failed to process ingredient "${ingredientData.name}":`, error)
-        return null
-      }
+    const imageBuffer = await recipeImageService.generateRecipeImage({
+      recipe: recipeData,
     })
 
-    const ingredientResults = await Promise.all(ingredientPromises)
-    const successfulIngredients = ingredientResults.filter(Boolean)
-
-    if (successfulIngredients.length === 0) {
-      throw new Error('Failed to process any ingredients')
-    }
-
-    if (successfulIngredients.length < recipeData.ingredients.length) {
-      console.warn(
-        `Only ${successfulIngredients.length}/${recipeData.ingredients.length} ingredients processed successfully`
-      )
-    }
-
-    await job.updateProgress(80)
-
-    const IMAGE_PROMPT = `
-    A high-resolution, top-down food photograph of ${recipeData.title}, showing only the plated dish centered on a circular ceramic plate. 
-    No table, surface, or background — just the plate isolated on a pure white or transparent background. 
-    Include ${recipeData.ingredients.map(ingredient => ingredient.name).join(', ')} clearly visible as part of the dish. 
-    Soft natural lighting, realistic textures, minimal shadows, and appetizing presentation. 
-    Professional studio-style food image, isolated product photo composition.
-    `
-    const imageResponse = await imageAi.models.generateContent({
-      model: 'gemini-2.5-flash-image',
-      contents: IMAGE_PROMPT,
-    })
-
-    if (!imageResponse.candidates) {
-      throw new Error('No image response from AI')
-    }
-
-    let imageBuffer: Buffer | undefined = undefined
-    for (const part of imageResponse.candidates?.[0]?.content?.parts ?? []) {
-      if (part.inlineData) {
-        const imageData = part.inlineData.data
-        imageBuffer = Buffer.from(imageData ?? '', 'base64')
-      }
-    }
-
-    const imageKey = `recipe-images/${recipe.id}-${Date.now()}.png`
-
-    await s3.send(
-      new PutObjectCommand({
-        Bucket: 'culina-ai',
-        Key: imageKey,
-        Body: imageBuffer,
-        ContentType: 'image/png',
-      })
+    const imageUpload = await uploadRecipeImage(
+      imageBuffer,
+      recipe.id,
+      S3_CONFIG.FOLDERS.RECIPE_IMAGES,
+      'png'
     )
 
     await job.updateProgress(90)
 
-    await db.recipe.update({
-      where: { id: recipe.id },
-      data: {
-        imageUrl: `${process.env.AWS_PUBLIC_URL_BASE}/${imageKey}`,
-      },
+    await recipePersistenceService.updateRecipeImage(recipe.id, imageUpload.url)
+
+    await recipePersistenceService.favoriteRecipe({
+      recipeId: recipe.id,
+      userId: user.id,
     })
+
+    await job.updateProgress(100)
 
     return {
       recipeId: recipe.id,
