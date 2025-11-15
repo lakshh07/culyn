@@ -205,27 +205,29 @@ model Job {
 // ============================================
 
 model Recipe {
-  id             String            @id @default(cuid(2))
-  slug           String            @unique
-  title          String?
-  shortTitle     String?
-  description    String?
-  tagline        String?
-  imageUrl       String? //
-  cookTime       Int?
-  servings       Int?
-  difficulty     RecipeDifficulty?
-  cookingSteps   Json? // Array of steps
-  ingredients    Json?
-  notes          String?
-  sourceMetadata Json?
-  sourceType     RecipeSourceType  @default(MANUAL)
-  sourceUrl      String?
-  sourceName     String?
-  calories       Int?
-  protein        Decimal?          @db.Decimal(10, 2)
-  carbs          Decimal?          @db.Decimal(10, 2)
-  fat            Decimal?          @db.Decimal(10, 2)
+  id                   String            @id @default(cuid(2))
+  slug                 String            @unique
+  title                String?
+  shortTitle           String?
+  description          String?
+  tagline              String?
+  imageUrl             String? //
+  cookTime             Int?
+  servings             Int?
+  difficulty           RecipeDifficulty?
+  cookingSteps         Json? // Array of steps
+  ingredients          Json?
+  notes                String?
+  sourceMetadata       Json?
+  sourceType           RecipeSourceType  @default(MANUAL)
+  sourceUrl            String?
+  sourceName           String?
+  sourceVideoUrl       String?
+  sourceThumbnailUrl   String?
+  calories             Int?
+  protein              Decimal?          @db.Decimal(10, 2)
+  carbs                Decimal?          @db.Decimal(10, 2)
+  fat                  Decimal?          @db.Decimal(10, 2)
 
   userId String?
   orgId  String?
