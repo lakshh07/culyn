@@ -444,7 +444,7 @@ export default function RecipePage({ params }: { params: Promise<{ slug: string 
         slug={slug}
         servings={servings}
         setServings={setServings}
-        recipeFavoritesIds={recipe.RecipeFavorite.map(rf => rf.id)}
+        recipeCookbookIds={recipe.RecipeFavorite.map(rf => rf.id)}
         videoPlayerRef={videoPlayerRef}
         videoState={videoState}
         hasVideo={!!recipe.sourceVideoUrl && !!recipe.sourceThumbnailUrl}

@@ -97,28 +97,28 @@ interface RecipeCardProps {
 const RecipeCard: FC<RecipeCardProps> = ({ recipe, className }) => {
   const router = useRouter()
   const queryClient = useQueryClient()
-  const favoriteId = recipe.RecipeFavorite[0]?.id ?? null
+  const cookbookId = recipe.RecipeFavorite[0]?.id ?? null
 
-  const { mutate: addToFavorite, isPending: isAddingToFavorite } = useMutation({
+  const { mutate: addToCookbook, isPending: isAddingToCookbook } = useMutation({
     mutationFn: async () => {
-      await Api.v1.post(`/recipes/${recipe.slug}/favorite`)
+      await Api.v1.post(`/recipes/${recipe.slug}/cookbook`)
     },
     onSuccess: () => {
-      toast.success('Recipe added to favorites')
+      toast.success('Recipe added to cookbook')
       queryClient.invalidateQueries({ queryKey: ['v1', 'recipes'] })
-      queryClient.invalidateQueries({ queryKey: ['v1', 'favorites'] })
+      queryClient.invalidateQueries({ queryKey: ['v1', 'cookbook'] })
     },
     onError: error => new ClientErrorHandler().toast().handle(error),
   })
 
-  const { mutate: removeFromFavorite, isPending: isRemovingFromFavorite } = useMutation({
+  const { mutate: removeFromCookbook, isPending: isRemovingFromCookbook } = useMutation({
     mutationFn: async () => {
-      await Api.v1.delete(`/recipes/${recipe.slug}/favorite/${favoriteId}`)
+      await Api.v1.delete(`/recipes/${recipe.slug}/cookbook/${cookbookId}`)
     },
     onSuccess: () => {
-      toast.success('Recipe removed from favorites')
+      toast.success('Recipe removed from cookbook')
       queryClient.invalidateQueries({ queryKey: ['v1', 'recipes'] })
-      queryClient.invalidateQueries({ queryKey: ['v1', 'favorites'] })
+      queryClient.invalidateQueries({ queryKey: ['v1', 'cookbook'] })
     },
     onError: error => new ClientErrorHandler().toast().handle(error),
   })
@@ -139,19 +139,19 @@ const RecipeCard: FC<RecipeCardProps> = ({ recipe, className }) => {
           whileTap={{ scale: 0.95 }}
           onClick={e => {
             e.stopPropagation()
-            if (favoriteId) {
-              removeFromFavorite()
+            if (cookbookId) {
+              removeFromCookbook()
             } else {
-              addToFavorite()
+              addToCookbook()
             }
           }}
           className={cn(
             'absolute top-3 right-3 flex shrink-0 cursor-pointer items-center gap-2 rounded-full bg-white p-1',
-            (isRemovingFromFavorite || isAddingToFavorite) && 'pointer-events-none opacity-50'
+            (isRemovingFromCookbook || isAddingToCookbook) && 'pointer-events-none opacity-50'
           )}>
-          {isRemovingFromFavorite || isAddingToFavorite ? (
+          {isRemovingFromCookbook || isAddingToCookbook ? (
             <LoadingIcon className="size-4 animate-spin" />
-          ) : favoriteId ? (
+          ) : cookbookId ? (
             <BookmarkIcon className="size-4 fill-neutral-900" />
           ) : (
             <BookmarkIcon className="size-4 text-neutral-500" />

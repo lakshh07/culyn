@@ -5,7 +5,7 @@ import { HttpException } from '@/exceptions/http-exceptions'
 import db from '@/lib/prisma'
 
 interface NextRequestContext {
-  params: Promise<{ slug: string; favoriteId: string }>
+  params: Promise<{ slug: string; cookbookId: string }>
 }
 
 export async function DELETE(req: NextRequest, ctx: NextRequestContext) {
@@ -37,6 +37,7 @@ export async function DELETE(req: NextRequest, ctx: NextRequestContext) {
 
     const existingFavorite = await db.recipeFavorite.findUnique({
       where: {
+        id: params.cookbookId,
         recipeId_userId: {
           recipeId: recipe.id,
           userId: session.user.id,

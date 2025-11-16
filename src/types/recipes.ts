@@ -31,7 +31,7 @@ export type FullRecipe = Recipe & {
   }[]
 }
 
-export type RecipeFavorite = {
+export type RecipeCookbook = {
   id: string
   recipe: {
     id: string

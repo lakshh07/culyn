@@ -22,7 +22,7 @@ interface FloatingActionButtonProps {
   slug: string
   servings: number
   setServings: (servings: number) => void
-  recipeFavoritesIds: string[]
+  recipeCookbookIds: string[]
   videoPlayerRef?: RefObject<VideoPlayerRef | null>
   videoState?: { isPlaying: boolean; isExpanded: boolean }
   hasVideo: boolean
@@ -32,7 +32,7 @@ export const FloatingActionButton: FC<FloatingActionButtonProps> = ({
   slug,
   servings,
   setServings,
-  recipeFavoritesIds,
+  recipeCookbookIds,
   videoPlayerRef,
   videoState,
   hasVideo,
@@ -46,26 +46,26 @@ export const FloatingActionButton: FC<FloatingActionButtonProps> = ({
     }
   }
 
-  const { mutate: addToFavorite, isPending: isAddingToFavorite } = useMutation({
+  const { mutate: addToCookbook, isPending: isAddingToCookbook } = useMutation({
     mutationFn: async () => {
-      await Api.v1.post(`/recipes/${slug}/favorite`)
+      await Api.v1.post(`/recipes/${slug}/cookbook`)
     },
     onSuccess: () => {
-      toast.success('Recipe added to favorites')
+      toast.success('Recipe added to cookbook')
       queryClient.invalidateQueries({ queryKey: ['v1', 'recipes'] })
-      queryClient.invalidateQueries({ queryKey: ['v1', 'favorites'] })
+      queryClient.invalidateQueries({ queryKey: ['v1', 'cookbook'] })
     },
     onError: error => new ClientErrorHandler().toast().handle(error),
   })
 
-  const { mutate: removeFromFavorite, isPending: isRemovingFromFavorite } = useMutation({
+  const { mutate: removeFromCookbook, isPending: isRemovingFromCookbook } = useMutation({
     mutationFn: async () => {
-      await Api.v1.delete(`/recipes/${slug}/favorite/${recipeFavoritesIds[0]}`)
+      await Api.v1.delete(`/recipes/${slug}/cookbook/${recipeCookbookIds[0]}`)
     },
     onSuccess: () => {
-      toast.success('Recipe removed from favorites')
+      toast.success('Recipe removed from cookbook')
       queryClient.invalidateQueries({ queryKey: ['v1', 'recipes'] })
-      queryClient.invalidateQueries({ queryKey: ['v1', 'favorites'] })
+      queryClient.invalidateQueries({ queryKey: ['v1', 'cookbook'] })
     },
     onError: error => new ClientErrorHandler().toast().handle(error),
   })
@@ -103,16 +103,16 @@ export const FloatingActionButton: FC<FloatingActionButtonProps> = ({
         variant={'outline'}
         size={'sm'}
         className="active:scale-95"
-        disabled={isAddingToFavorite || isRemovingFromFavorite}
-        onClick={() => (recipeFavoritesIds.length > 0 ? removeFromFavorite() : addToFavorite())}>
-        {isAddingToFavorite || isRemovingFromFavorite ? (
+        disabled={isAddingToCookbook || isRemovingFromCookbook}
+        onClick={() => (recipeCookbookIds.length > 0 ? removeFromCookbook() : addToCookbook())}>
+        {isAddingToCookbook || isRemovingFromCookbook ? (
           <LoadingIcon className="size-4 animate-spin" />
-        ) : recipeFavoritesIds.length > 0 ? (
+        ) : recipeCookbookIds.length > 0 ? (
           <BookmarkIcon className="size-4 fill-neutral-900" />
         ) : (
           <BookmarkIcon className="size-4" />
         )}
-        {recipeFavoritesIds.length > 0 ? 'Saved' : 'Save'}
+        {recipeCookbookIds.length > 0 ? 'Saved' : 'Save'}
       </Button>
 
       {hasVideo && videoPlayerRef && (
