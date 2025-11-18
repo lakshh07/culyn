@@ -38,7 +38,7 @@ export const auth = betterAuth({
                 data: {
                   plan: 'FREE',
                   status: 'ACTIVE',
-                  maxRecipes: 50,
+                  maxRecipes: 12,
                   maxUsers: 1,
                   maxLists: 5,
                   aiCreditsLimit: 100,

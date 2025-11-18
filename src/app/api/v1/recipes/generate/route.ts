@@ -2,11 +2,13 @@ import { ErrorResponse } from '@/lib/http'
 import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@/lib/auth'
 import { HttpException } from '@/exceptions/http-exceptions'
-import { uuidv4, z } from 'zod'
+import { z } from 'zod'
+import { randomUUID } from 'crypto'
 import db from '@/lib/prisma'
 import { JobType, RecipeSourceType } from '@/generated/prisma/enums'
 import { generateRecipesQueue } from '@/bull/queues'
 import { QUEUE_NAMES } from '@/bull/config'
+import { SubscriptionService } from '@/lib/services/subscription'
 
 export async function POST(req: NextRequest) {
   try {
@@ -20,6 +22,8 @@ export async function POST(req: NextRequest) {
         message: 'You are not authenticated, please login',
       })
     }
+
+    await SubscriptionService.enforceRecipeLimit(session.user.id)
 
     const { user, org } = await db.$transaction(async tx => {
       const user = await tx.user.findUnique({
@@ -47,14 +51,14 @@ export async function POST(req: NextRequest) {
     const payload = await z
       .object({
         url: z.url().describe('The URL of the recipe to generate'),
-        sourceType: z.nativeEnum(RecipeSourceType).describe('The type of the recipe source'),
+        sourceType: z.enum(RecipeSourceType).describe('The type of the recipe source'),
       })
       .parseAsync(await req.json())
 
     const { recipe, bullJob, job } = await db.$transaction(async tx => {
       const recipe = await tx.recipe.create({
         data: {
-          slug: uuidv4().toString(),
+          slug: randomUUID(),
           user: {
             connect: {
               id: session.user.id,
@@ -65,6 +69,15 @@ export async function POST(req: NextRequest) {
               id: org.id,
             },
           },
+          sourceType: payload.sourceType,
+          sourceUrl: payload.url,
+        },
+      })
+
+      await tx.recipeFavorite.create({
+        data: {
+          recipeId: recipe.id,
+          userId: session.user.id,
         },
       })
 
@@ -73,7 +86,7 @@ export async function POST(req: NextRequest) {
         organizationId: org.id,
         recipeId: recipe.id,
         url: payload.url,
-        sourceType: RecipeSourceType.INSTAGRAM_REEL,
+        sourceType: payload.sourceType,
       })
 
       const job = await tx.job.create({
@@ -89,6 +102,16 @@ export async function POST(req: NextRequest) {
             connect: {
               id: org.id,
             },
+          },
+          jobData: { url: payload.url, sourceType: payload.sourceType, recipeId: recipe.id },
+        },
+      })
+
+      await tx.recipe.update({
+        where: { id: recipe.id },
+        data: {
+          metadata: {
+            jobId: job.id,
           },
         },
       })

@@ -4,6 +4,7 @@ import { ErrorResponse } from '@/lib/http'
 import { HttpException } from '@/exceptions/http-exceptions'
 import { auth } from '@/lib/auth'
 import { z } from 'zod'
+import { SubscriptionService } from '@/lib/services/subscription'
 
 interface NextRequestContext {
   params: Promise<{ slug: string }>
@@ -25,6 +26,8 @@ export async function POST(req: NextRequest, ctx: NextRequestContext) {
         message: 'You are not authenticated, please login',
       })
     }
+
+    await SubscriptionService.enforceCookbookLimit(session.user.id)
 
     const params = await ctx.params
     const { slug } = await favoriteParamsSchema.parseAsync(params)

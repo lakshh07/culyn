@@ -33,8 +33,12 @@ export async function GET(req: NextRequest) {
             imageUrl: true,
             sourceName: true,
             cookTime: true,
+            metadata: true,
           },
         },
+      },
+      orderBy: {
+        createdAt: 'desc',
       },
     })
 

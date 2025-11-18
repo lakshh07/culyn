@@ -41,5 +41,8 @@ export type RecipeCookbook = {
     imageUrl: string
     sourceName: string
     cookTime: number
+    metadata: {
+      jobId: string
+    }
   }
 }
