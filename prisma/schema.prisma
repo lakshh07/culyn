@@ -153,7 +153,7 @@ model Subscription {
   stripeSubscriptionId   String?            @unique
   stripePriceId          String?
   stripeCurrentPeriodEnd DateTime?
-  maxRecipes             Int                @default(50)
+  maxRecipes             Int                @default(12)
   maxUsers               Int                @default(1)
   maxLists               Int                @default(5)
   aiCreditsLimit         Int                @default(100)
@@ -228,6 +228,7 @@ model Recipe {
   protein            Decimal?          @db.Decimal(10, 2)
   carbs              Decimal?          @db.Decimal(10, 2)
   fat                Decimal?          @db.Decimal(10, 2)
+  metadata           Json?
 
   userId String?
   orgId  String?
