@@ -146,15 +146,15 @@ export default function RecipePage({ params }: { params: Promise<{ slug: string 
   return (
     <>
       <div className="grid min-h-screen lg:grid-cols-2">
-        <div className="sticky top-0 flex h-screen items-center justify-center bg-[#E8E3DA] p-16">
-          <div className="pointer-events-none relative top-6 mx-auto flex items-center justify-center overflow-hidden rounded-full border border-neutral-200 transition-transform duration-300 select-none group-hover:scale-105">
+        <div className="sticky top-0 flex h-screen items-center justify-center bg-[#E8E3DA] p-16 shadow-inner">
+          <div className="pointer-events-none relative mx-auto flex items-center justify-center overflow-hidden rounded-full shadow-xl transition-transform duration-300 select-none group-hover:scale-105">
             {recipe.imageUrl ? (
               <Image
                 src={recipe.imageUrl}
                 alt={recipe.title || 'Recipe image'}
                 width={640}
                 height={640}
-                className="size-[35vw] scale-115 object-cover"
+                className="size-[35vw] scale-120 object-cover"
                 priority
               />
             ) : (

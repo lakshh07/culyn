@@ -81,9 +81,9 @@ export const RecipesSection: FC<RecipesSectionProps> = ({ className, bgColor }) 
           ? Array.from({ length: 8 }).map((_, index) => (
               <RecipeCardSkeleton key={index} className={bgColor} />
             ))
-          : recipes?.map(recipe => (
-              <RecipeCard key={recipe.id} recipe={recipe} className={bgColor} />
-            ))}
+          : recipes
+              ?.filter(r => r.cookingSteps && r.ingredients)
+              .map(recipe => <RecipeCard key={recipe.id} recipe={recipe} className={bgColor} />)}
       </div>
     </section>
   )
@@ -158,13 +158,13 @@ const RecipeCard: FC<RecipeCardProps> = ({ recipe, className }) => {
           )}
         </motion.div>
       </div>
-      <div className="pointer-events-none mx-auto flex items-center justify-center overflow-hidden rounded-full border border-neutral-200 transition-transform duration-300 select-none group-hover:scale-105">
+      <div className="pointer-events-none mx-auto flex items-center justify-center overflow-hidden rounded-full shadow-xl transition-transform duration-300 select-none group-hover:scale-105">
         <Image
           src={recipe?.imageUrl ?? ''}
           alt={recipe?.title ?? ''}
           width={640}
           height={640}
-          className="size-48 scale-115 object-cover"
+          className="size-48 scale-120 object-cover"
         />
       </div>
       <div>
