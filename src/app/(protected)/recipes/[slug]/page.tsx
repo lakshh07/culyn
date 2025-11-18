@@ -29,6 +29,7 @@ import { ClientErrorHandler } from '@/lib/errors'
 import { toast } from 'sonner'
 import { GroceryList } from '@/types/lists'
 import VideoPlayer, { VideoPlayerRef } from '@/components/ui/video-player'
+import { getIngredientImageUrl } from '@/lib/recipe/ingredient-assets'
 
 export default function RecipePage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = React.use(params)
@@ -309,7 +310,7 @@ export default function RecipePage({ params }: { params: Promise<{ slug: string 
                           }>
                           <div className="relative flex items-center gap-2">
                             <Avatar className="size-12 rounded-xl object-cover">
-                              <AvatarImage src={``} />
+                              <AvatarImage src={getIngredientImageUrl(ri.ingredient.name)} />
                               <AvatarFallback className="size-full rounded-xl bg-amber-100 object-cover">
                                 {ri.ingredient.name.charAt(0)}
                               </AvatarFallback>
@@ -380,7 +381,7 @@ export default function RecipePage({ params }: { params: Promise<{ slug: string 
                 <div className="flex flex-col gap-2" key={ri.ingredient.slug}>
                   <div className="relative size-20 overflow-hidden">
                     <Avatar className="size-full rounded-xl object-cover">
-                      <AvatarImage src={``} />
+                      <AvatarImage src={getIngredientImageUrl(ri.ingredient.name)} />
                       <AvatarFallback className="size-full rounded-xl object-cover">
                         {ri.ingredient.name.charAt(0)}
                       </AvatarFallback>
@@ -413,7 +414,7 @@ export default function RecipePage({ params }: { params: Promise<{ slug: string 
                       {step.step_number.toString().padStart(2, '0')}
                     </p>
                     <div className="flex flex-col space-y-6">
-                      <p className="font-mono text-xl font-semibold tracking-wide text-neutral-700">
+                      <p className="font-mono text-xl font-semibold tracking-wider text-neutral-700">
                         {step.step_description}
                       </p>
 

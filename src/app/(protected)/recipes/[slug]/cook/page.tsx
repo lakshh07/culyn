@@ -8,6 +8,7 @@ import { scaleIngredientQuantity } from '@/lib/utils'
 import { motion, AnimatePresence } from 'motion/react'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import Image from 'next/image'
+import { getIngredientImageUrl } from '@/lib/recipe/ingredient-assets'
 
 export default function RecipeCookingPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = React.use(params)
@@ -247,7 +248,7 @@ export default function RecipeCookingPage({ params }: { params: Promise<{ slug: 
                       <div className="flex items-center gap-4">
                         <div className="relative size-16 overflow-hidden">
                           <Avatar className="size-full rounded-xl object-cover">
-                            <AvatarImage src={``} />
+                            <AvatarImage src={getIngredientImageUrl(ingredient.name)} />
                             <AvatarFallback className="size-full rounded-xl object-cover">
                               {ingredient.name.charAt(0)}
                             </AvatarFallback>
