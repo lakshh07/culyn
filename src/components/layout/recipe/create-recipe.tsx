@@ -20,7 +20,8 @@ import { RecipeSourceType } from '@/generated/prisma/enums'
 import { Api } from '@/lib/api'
 import { ClientErrorHandler } from '@/lib/errors'
 import { getCurrentDate, getMealTypeByTime } from '@/lib/utils'
-import { useMutation } from '@tanstack/react-query'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { useRouter } from 'next/navigation'
 import React, { useState } from 'react'
 import { toast } from 'sonner'
 
@@ -29,6 +30,9 @@ export const CreateRecipe = () => {
   const [recipeSource, setRecipeSource] = useState<RecipeSourceType>(
     RecipeSourceType.INSTAGRAM_REEL
   )
+
+  const queryClient = useQueryClient()
+  const router = useRouter()
 
   const handleCreateRecipe = () => {
     if (!recipeInput.trim()) return
@@ -50,11 +54,13 @@ export const CreateRecipe = () => {
       return response.data
     },
     onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['v1', 'cookbook'] })
       setRecipeInput('')
       setRecipeSource(RecipeSourceType.INSTAGRAM_REEL)
       toast.success('Recipe created successfully', {
         description: 'The recipe will be available in your recipes section shortly.',
       })
+      router.push('/cookbook')
     },
     onError: error => new ClientErrorHandler().toast().handle(error),
   })
