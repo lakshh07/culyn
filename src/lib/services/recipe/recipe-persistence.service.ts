@@ -78,7 +78,7 @@ export class RecipePersistenceService {
   async updateRecipeImage(recipeId: string, imageUrl: string): Promise<void> {
     await db.recipe.update({
       where: { id: recipeId },
-      data: { imageUrl },
+      data: { imageUrl, metadata: {} },
     })
   }
 

@@ -10,7 +10,11 @@ import {
   uploadRecipeImage,
   S3_CONFIG,
 } from '@/lib/aws/s3-helpers'
-import { recipeAIService, recipeImageService, recipePersistenceService } from '@/lib/services'
+import {
+  recipeAIService,
+  recipeImageService,
+  recipePersistenceService,
+} from '@/lib/services/recipe'
 
 new Worker<RecipeGenerationJobData, RecipeGenerationJobResult>(
   QUEUE_NAMES.RECIPE_GENERATION,
@@ -98,11 +102,6 @@ new Worker<RecipeGenerationJobData, RecipeGenerationJobResult>(
     await job.updateProgress(90)
 
     await recipePersistenceService.updateRecipeImage(recipe.id, imageUpload.url)
-
-    await recipePersistenceService.favoriteRecipe({
-      recipeId: recipe.id,
-      userId: user.id,
-    })
 
     await job.updateProgress(100)
 

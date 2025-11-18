@@ -51,24 +51,26 @@ const RECIPE_PROMPTS = Object.freeze({
         - **Ingredients used per step**
 
     4. **Step-by-step Cooking Instructions**
-      - Each step must combine closely related actions into one clear, concise instruction
-      - Prefer 1-2 related actions per step (e.g., “Heat pan and oil it”, “Flip chicken and lower heat”)
-      - Steps should NOT be overly short or atomic; avoid single-verb micro steps
-      - Aim for 1 short sentence or 2 connected actions per step (ideal length: 14-28 words)
-      - If the caption/description already contains steps, merge and simplify them into clean, logically grouped steps
-      - Split long paragraphs into 3-6 well-structured steps that are easy to follow
+      - Keep steps short, clear, and actionable (8-15 words ideal)
+      - Each step should be a single action or 2 closely related quick actions
+      - Examples: "Heat oil in pan", "Add garlic and sauté for 1 minute", "Flip chicken and lower heat"
+      - Avoid overly atomic single-verb steps (e.g., "Stir") AND avoid long multi-action paragraphs
+      - If the caption/description contains long paragraphs, break them into clear, logical steps
       - Include in each step:
-        - 'step_description' (concise combined instruction)
+        - 'step_description' (brief, actionable instruction)
         - 'tools_required' (physical kitchen tools)
         - 'ingredients_used' (ingredients and quantities used in this step)
 
     5. **Generate Tags Automatically**
-      - CUISINE (Italian, Mexican, Asian, etc.)
-      - MEAL_TYPE (Breakfast, Dinner, Snack)
-      - DIET (Vegan, High Protein, Gluten-Free)
-      - SEASON (Summer, Winter, etc.)
-      - OCCASION (Holiday, Quick, Comfort Food)
-      - CUSTOM (Trends, viral themes)
+      - Select only 2-3 most relevant tags that best describe the recipe
+      - Choose tags from these categories based on what truly aligns with the dish:
+        - CUISINE (Italian, Mexican, Asian, etc.)
+        - MEAL_TYPE (Breakfast, Dinner, Snack)
+        - DIET (Vegan, High Protein, Gluten-Free)
+        - SEASON (Summer, Winter, etc.)
+        - OCCASION (Holiday, Quick, Comfort Food)
+        - CUSTOM (Trends, viral themes)
+      - Do NOT add all categories; only pick the most fitting 2-3 tags
 
     6. **Short & Catchy Title**
       - 3-7 words  
@@ -78,7 +80,7 @@ const RECIPE_PROMPTS = Object.freeze({
     7. **Text & Nutrition Cleanup Requirements**
       - Clean up any emojis, special characters, and formatting artifacts from the text
       - Convert nutritional macros to plain numbers without units (e.g., "25g protein" → 25)
-      - For "tagline", describe the nutritional profile concisely (e.g., "#HighProtein, #LowFat", "#Balanced", "#LowCarbs, #HighFat")
+      - For "tagline", use (2-3) hashtags to describe the nutritional profile concisely (e.g., "#HighProtein, #LowFat", "#Balanced", "#LowCarbs, #HighFat")
 
     ---
 

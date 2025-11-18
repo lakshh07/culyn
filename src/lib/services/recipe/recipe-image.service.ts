@@ -59,20 +59,21 @@ export class RecipeImageService {
     const ingredientsList = recipe.ingredients.map(ingredient => ingredient.name).join(', ')
 
     return `
-    A high-resolution, top-down food photograph of ${recipe.title}, centered perfectly on a ${servingVessel} of consistent size (all recipes use identical size and scale).
+    Create a high-resolution, top-down food photograph of "${recipe.title}" on a single, luxurious ${servingVessel}.
 
-    The dish should be presented neatly on the plate with ${ingredientsList} clearly visible as part of the meal. 
-    
+    Composition & presentation:
+    - There is exactly ONE ${servingVessel}, placed **perfectly in the center** of the square frame.
+    - The ${servingVessel} is fully visible and not cropped; the rim is complete and symmetrical on all sides.
+    - The ${servingVessel} should occupy roughly 80% of the image width and height
+    - The dish is arranged neatly with ${ingredientsList} clearly visible as part of the meal.
+
     Composition & style guidelines:
-    - Uniform 1:1 square aspect ratio (1024x1024)
-    - The dish must be on a **perfectly circular ${servingVessel}**, captured from a pure 90° top-down angle only — no tilt or perspective.
-    - The ${servingVessel} must be a perfect circle with no perspective distortion.
-    - The ${servingVessel} should be centered and occupy roughly 80-85% of the frame with even padding around it.
-    - Same ${servingVessel} size and camera distance for all images
-    - Pure white or transparent background (no table, shadows, or props)
-    - Soft natural lighting, realistic textures, vivid but natural colors, and appetizing presentation
-    - Professional studio-style food photography with consistent framing
-    - Isolated product photo composition suitable for a visual catalog
+    - Pure 90° top-down angle only — no tilt or perspective.
+    - No perspective distortion; the ${servingVessel} appears as a perfect circle/oval, not an ellipse caused by camera angle.
+    - Same ${servingVessel} size, framing, and camera distance for all images to keep scale consistent.
+    - The background should be pure white.
+    - Soft natural lighting, realistic textures, vivid but natural colors, and appetizing presentation.
+    - Professional studio-style food photography with clean, catalog-like composition.
     `
   }
 
