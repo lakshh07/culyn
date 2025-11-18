@@ -24,6 +24,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useRouter } from 'next/navigation'
 import React, { useState } from 'react'
 import { toast } from 'sonner'
+import { Highlighter } from '@/components/ui/highlighter'
 
 export const CreateRecipe = () => {
   const [recipeInput, setRecipeInput] = useState('')
@@ -72,7 +73,10 @@ export const CreateRecipe = () => {
           Welcome back, <span className="text-neutral-950">It&apos;s {getCurrentDate()}.</span>
         </h1>
         <p>
-          What are we making for <em className="italic">{getMealTypeByTime({ suffix: '?' })}</em>
+          What are we making for{' '}
+          <Highlighter action="underline" color="#FF9800" isView>
+            <em className="italic">{getMealTypeByTime({ suffix: '?' })}</em>
+          </Highlighter>
         </p>
       </div>
       <div className="mx-auto max-w-5xl">
