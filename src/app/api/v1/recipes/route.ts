@@ -21,8 +21,31 @@ export async function GET(req: NextRequest) {
     const filters = await z
       .object({
         tagId: z.string().optional(),
+        sortBy: z.enum(['newest', 'oldest', 'popular', 'random']).optional().default('newest'),
+        q: z.string().optional(),
       })
       .parseAsync(Object.fromEntries(req.nextUrl.searchParams))
+
+    let orderBy:
+      | { createdAt?: 'asc' | 'desc'; RecipeFavorite?: { _count: 'desc' } }[]
+      | { createdAt: 'asc' | 'desc' } = { createdAt: 'desc' } // default to newest
+
+    switch (filters.sortBy) {
+      case 'oldest':
+        orderBy = { createdAt: 'asc' }
+        break
+      case 'popular':
+        orderBy = [{ RecipeFavorite: { _count: 'desc' } }, { createdAt: 'desc' }]
+        break
+      case 'random':
+        // For random, we'll use a different approach after the query
+        orderBy = { createdAt: 'desc' }
+        break
+      case 'newest':
+      default:
+        orderBy = { createdAt: 'desc' }
+        break
+    }
 
     const recipes = await db.recipe.findMany({
       where: {
@@ -34,24 +57,75 @@ export async function GET(req: NextRequest) {
             },
           },
         }),
-      },
-      include: {
-        ...(filters.tagId && {
-          tags: {
-            where: {
-              deletedAt: null,
+        ...(filters.q && {
+          OR: [
+            {
+              title: {
+                contains: filters.q,
+                mode: 'insensitive',
+              },
             },
-            include: {
-              tag: {
-                select: {
-                  id: true,
-                  name: true,
-                  type: true,
+            {
+              shortTitle: {
+                contains: filters.q,
+                mode: 'insensitive',
+              },
+            },
+            {
+              RecipeIngredient: {
+                some: {
+                  ingredient: {
+                    name: {
+                      contains: filters.q,
+                      mode: 'insensitive',
+                    },
+                  },
                 },
               },
             },
-          },
+            {
+              tags: {
+                some: {
+                  tag: {
+                    name: {
+                      contains: filters.q,
+                      mode: 'insensitive',
+                    },
+                  },
+                },
+              },
+            },
+          ],
         }),
+      },
+      include: {
+        tags: {
+          where: {
+            deletedAt: null,
+          },
+          include: {
+            tag: {
+              select: {
+                id: true,
+                name: true,
+                type: true,
+              },
+            },
+          },
+        },
+        RecipeIngredient: {
+          where: {
+            deletedAt: null,
+          },
+          include: {
+            ingredient: {
+              select: {
+                id: true,
+                name: true,
+              },
+            },
+          },
+        },
         RecipeFavorite: {
           where: {
             deletedAt: null,
@@ -60,13 +134,22 @@ export async function GET(req: NextRequest) {
             id: true,
           },
         },
+        _count: {
+          select: {
+            RecipeFavorite: true,
+          },
+        },
       },
-      orderBy: {
-        createdAt: 'desc',
-      },
+      orderBy,
     })
 
-    return NextResponse.json(recipes)
+    // Handle random sorting after query execution
+    let finalRecipes = recipes
+    if (filters.sortBy === 'random') {
+      finalRecipes = recipes.sort(() => Math.random() - 0.5)
+    }
+
+    return NextResponse.json(finalRecipes)
   } catch (error) {
     return new ErrorResponse().from(error)
   }
