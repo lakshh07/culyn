@@ -10,7 +10,7 @@ export default function DiscoverPage() {
         <div className="relative top-24 space-y-16">
           <CreateRecipe />
 
-          <RecipesSection className="mt-32" bgColor="bg-secondary" />
+          <RecipesSection className="mt-12" bgColor="bg-secondary" />
         </div>
       </div>
     </section>

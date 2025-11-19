@@ -364,6 +364,100 @@ const CircleMinusIcon: FC<ComponentProps<'svg'>> = props => {
   )
 }
 
+const SearchIcon: FC<ComponentProps<'svg'>> = props => {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      {...props}>
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M10 10m-7 0a7 7 0 1 0 14 0a7 7 0 1 0 -14 0" />
+      <path d="M21 21l-6 -6" />
+    </svg>
+  )
+}
+
+const SortIcon: FC<ComponentProps<'svg'>> = props => {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      {...props}>
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M3 9l4 -4l4 4m-4 -4v14" />
+      <path d="M21 15l-4 4l-4 -4m4 4v-14" />
+    </svg>
+  )
+}
+
+const FilterIcon: FC<ComponentProps<'svg'>> = props => {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      {...props}>
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M4 10a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" />
+      <path d="M6 4v4" />
+      <path d="M6 12v8" />
+      <path d="M10 16a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" />
+      <path d="M12 4v10" />
+      <path d="M12 18v2" />
+      <path d="M16 7a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" />
+      <path d="M18 4v1" />
+      <path d="M18 9v11" />
+    </svg>
+  )
+}
+
+const XDashedIcon: FC<ComponentProps<'svg'>> = props => {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      {...props}>
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M8.56 3.69a9 9 0 0 0 -2.92 1.95" />
+      <path d="M3.69 8.56a9 9 0 0 0 -.69 3.44" />
+      <path d="M3.69 15.44a9 9 0 0 0 1.95 2.92" />
+      <path d="M8.56 20.31a9 9 0 0 0 3.44 .69" />
+      <path d="M15.44 20.31a9 9 0 0 0 2.92 -1.95" />
+      <path d="M20.31 15.44a9 9 0 0 0 .69 -3.44" />
+      <path d="M20.31 8.56a9 9 0 0 0 -1.95 -2.92" />
+      <path d="M15.44 3.69a9 9 0 0 0 -3.44 -.69" />
+      <path d="M14 14l-4 -4" />
+      <path d="M10 14l4 -4" />
+    </svg>
+  )
+}
 export {
   GithubIcon,
   ArrowIcon,
@@ -383,4 +477,8 @@ export {
   MobileIcon,
   PlaylistAddIcon,
   CircleMinusIcon,
+  SearchIcon,
+  SortIcon,
+  FilterIcon,
+  XDashedIcon,
 }
