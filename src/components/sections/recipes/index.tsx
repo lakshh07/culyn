@@ -1,12 +1,11 @@
 import { FC, useMemo, useState, useEffect } from 'react'
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Api } from '@/lib/api'
-import { Tag } from '@/generated/prisma/client'
+import { Ingredient, Tag } from '@/generated/prisma/client'
 import { Card, CardTitle } from '@/components/ui/card'
 import { useQueryState } from 'nuqs'
 import { Skeleton } from '@/components/ui/skeleton'
 import { cn } from '@/lib/utils'
-import { BookmarkIcon } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
@@ -16,7 +15,15 @@ import { ClientErrorHandler } from '@/lib/errors'
 import { FullRecipe } from '@/types/recipes'
 import { AnimatePresence, motion } from 'motion/react'
 import { inView } from 'motion'
-import { FilterIcon, LoadingIcon, SearchIcon, SortIcon, XDashedIcon } from '@/components/icons'
+import {
+  FilterIcon,
+  LoadingIcon,
+  SearchIcon,
+  SortIcon,
+  XDashedIcon,
+  BookmarkIcon,
+  XIcon,
+} from '@/components/icons'
 import {
   Select,
   SelectContent,
@@ -24,9 +31,22 @@ import {
   SelectItem,
   SelectLabel,
   SelectTrigger,
+  SelectValue,
 } from '@/components/ui/select'
+import {
+  Drawer,
+  DrawerClose,
+  DrawerContent,
+  DrawerDescription,
+  DrawerFooter,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerTrigger,
+} from '@/components/ui/drawer'
 import { InputGroup, InputGroupAddon, InputGroupInput } from '@/components/ui/input-group'
 import { useDebounceCallback } from 'usehooks-ts'
+import { Badge } from '@/components/ui/badge'
+import { Separator } from '@/components/ui/separator'
 
 interface RecipesSectionProps {
   className?: string
@@ -38,6 +58,11 @@ export const RecipesSection: FC<RecipesSectionProps> = ({ className, bgColor }) 
   const [selectedTag, setSelectedTag] = useQueryState('tag')
   const [selectedSort, setSelectedSort] = useQueryState('sortBy')
   const [searchQuery, setSearchQuery] = useQueryState('q')
+  const [cookTimeRange, setCookTimeRange] = useQueryState('cookTime')
+  const [caloriesRange, setCaloriesRange] = useQueryState('calories')
+  const [proteinRange, setProteinRange] = useQueryState('protein')
+  const [selectedIngredients, setSelectedIngredients] = useQueryState('ingredients')
+
   const setQuery = useDebounceCallback(value => {
     setSearchQuery(value || null)
   }, 50)
@@ -50,10 +75,52 @@ export const RecipesSection: FC<RecipesSectionProps> = ({ className, bgColor }) 
     },
   })
 
+  const { data: ingredients, isLoading: isLoadingIngredients } = useQuery({
+    queryKey: ['v1', 'ingredients'],
+    queryFn: async () => {
+      const response = await Api.v1.get<Ingredient[]>('/ingredients')
+      return response.data
+    },
+  })
+
   const tagId = useMemo(() => tags?.find(tag => tag.name === selectedTag)?.id, [tags, selectedTag])
 
+  // Parse filter ranges
+  const cookTimeFilter = useMemo(() => {
+    if (!cookTimeRange) return null
+    const [min, max] = cookTimeRange.split('-').map(v => (v === 'max' ? undefined : parseInt(v)))
+    return { min, max }
+  }, [cookTimeRange])
+
+  const caloriesFilter = useMemo(() => {
+    if (!caloriesRange) return null
+    const [min, max] = caloriesRange.split('-').map(v => (v === 'max' ? undefined : parseInt(v)))
+    return { min, max }
+  }, [caloriesRange])
+
+  const proteinFilter = useMemo(() => {
+    if (!proteinRange) return null
+    const [min, max] = proteinRange.split('-').map(v => (v === 'max' ? undefined : parseInt(v)))
+    return { min, max }
+  }, [proteinRange])
+
+  const selectedIngredientsArray = useMemo(
+    () => (selectedIngredients ? selectedIngredients.split(',') : []),
+    [selectedIngredients]
+  )
+
   const { data: recipes, isLoading: isLoadingRecipes } = useQuery({
-    queryKey: ['v1', 'recipes', selectedTag, selectedSort, searchQuery],
+    queryKey: [
+      'v1',
+      'recipes',
+      selectedTag,
+      selectedSort,
+      searchQuery,
+      cookTimeRange,
+      caloriesRange,
+      proteinRange,
+      selectedIngredients,
+    ],
     queryFn: async ({ signal }) => {
       const response = await Api.v1.get<FullRecipe[]>('/recipes', {
         signal,
@@ -61,6 +128,15 @@ export const RecipesSection: FC<RecipesSectionProps> = ({ className, bgColor }) 
           ...(selectedTag && tagId && { tagId }),
           ...(selectedSort && { sortBy: selectedSort }),
           ...(searchQuery && { q: searchQuery }),
+          ...(cookTimeFilter?.min !== undefined && { cookTimeMin: cookTimeFilter.min }),
+          ...(cookTimeFilter?.max !== undefined && { cookTimeMax: cookTimeFilter.max }),
+          ...(caloriesFilter?.min !== undefined && { caloriesMin: caloriesFilter.min }),
+          ...(caloriesFilter?.max !== undefined && { caloriesMax: caloriesFilter.max }),
+          ...(proteinFilter?.min !== undefined && { proteinMin: proteinFilter.min }),
+          ...(proteinFilter?.max !== undefined && { proteinMax: proteinFilter.max }),
+          ...(selectedIngredientsArray.length > 0 && {
+            ingredientIds: selectedIngredientsArray.join(','),
+          }),
         },
       })
       return response.data
@@ -127,16 +203,247 @@ export const RecipesSection: FC<RecipesSectionProps> = ({ className, bgColor }) 
           </SelectContent>
         </Select>
 
-        <Button
-          variant="outline"
-          className="h-[44px] rounded-full bg-neutral-50/60 px-6! backdrop-blur-xs">
-          <FilterIcon className="size-4" />
-          Filter
-        </Button>
+        <Drawer direction="right" disablePreventScroll>
+          <DrawerTrigger asChild>
+            <Button
+              variant="outline"
+              className={cn(
+                'h-[44px] rounded-full bg-neutral-50/60 px-6! backdrop-blur-xs',
+                (cookTimeRange || caloriesRange || proteinRange || selectedIngredients) &&
+                  'border-dashed border-neutral-900!'
+              )}>
+              <FilterIcon className="size-4" />
+              Filter
+              {(cookTimeRange || caloriesRange || proteinRange || selectedIngredients) && (
+                <Badge className="ml-2 h-5 min-w-5 rounded-full px-1.5 text-xs">
+                  {
+                    [cookTimeRange, caloriesRange, proteinRange, selectedIngredients].filter(
+                      Boolean
+                    ).length
+                  }
+                </Badge>
+              )}
+            </Button>
+          </DrawerTrigger>
+          <DrawerContent className="m-2 max-w-lg! rounded-l-lg">
+            <DrawerHeader>
+              <DrawerTitle>Filter Recipes</DrawerTitle>
+              <DrawerDescription>
+                Narrow down recipes by cooking time, nutrition, and ingredients
+              </DrawerDescription>
+            </DrawerHeader>
+
+            <div className="scrollbar-hide mt-4 space-y-6 overflow-y-auto px-4 pb-6">
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <label className="font-mono text-sm font-semibold text-neutral-700">
+                    Cooking Time
+                  </label>
+                  {cookTimeRange && (
+                    <Button
+                      variant="link"
+                      size="sm"
+                      className="h-auto p-0 text-xs text-neutral-500 hover:text-neutral-900"
+                      onClick={() => setCookTimeRange(null)}>
+                      clear
+                    </Button>
+                  )}
+                </div>
+                <Select
+                  value={cookTimeRange ?? ''}
+                  onValueChange={v => setCookTimeRange(v || null)}>
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Select cooking time" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectGroup>
+                      <SelectLabel>Minutes</SelectLabel>
+                      <SelectItem value="0-15">0-15 mins</SelectItem>
+                      <SelectItem value="15-30">15-30 mins</SelectItem>
+                      <SelectItem value="30-60">30-60 mins</SelectItem>
+                      <SelectItem value="60-120">60-120 mins</SelectItem>
+                      <SelectItem value="120-max">Over 120 mins</SelectItem>
+                    </SelectGroup>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <label className="font-mono text-sm font-semibold text-neutral-700">
+                    Calories
+                  </label>
+                  {caloriesRange && (
+                    <Button
+                      variant="link"
+                      size="sm"
+                      className="h-auto p-0 text-xs text-neutral-500 hover:text-neutral-900"
+                      onClick={() => setCaloriesRange(null)}>
+                      clear
+                    </Button>
+                  )}
+                </div>
+                <Select
+                  value={caloriesRange ?? ''}
+                  onValueChange={v => setCaloriesRange(v || null)}>
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Select calorie range" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectGroup>
+                      <SelectLabel>Calories</SelectLabel>
+                      <SelectItem value="0-300">0-300 cal</SelectItem>
+                      <SelectItem value="300-600">300-600 cal</SelectItem>
+                      <SelectItem value="600-900">600-900 cal</SelectItem>
+                      <SelectItem value="900-1200">900-1200 cal</SelectItem>
+                      <SelectItem value="1200-max">Over 1200 cal</SelectItem>
+                    </SelectGroup>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <label className="font-mono text-sm font-semibold text-neutral-700">
+                    Protein
+                  </label>
+                  {proteinRange && (
+                    <Button
+                      variant="link"
+                      size="sm"
+                      className="h-auto p-0 text-xs text-neutral-500 hover:text-neutral-900"
+                      onClick={() => setProteinRange(null)}>
+                      clear
+                    </Button>
+                  )}
+                </div>
+                <Select value={proteinRange ?? ''} onValueChange={v => setProteinRange(v || null)}>
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Select protein range" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectGroup>
+                      <SelectLabel>Grams of Protein</SelectLabel>
+                      <SelectItem value="0-10">0-10g</SelectItem>
+                      <SelectItem value="10-20">10-20g</SelectItem>
+                      <SelectItem value="20-30">20-30g</SelectItem>
+                      <SelectItem value="30-50">30-50g</SelectItem>
+                      <SelectItem value="50-max">Over 50g</SelectItem>
+                    </SelectGroup>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <label className="font-mono text-sm font-semibold text-neutral-700">
+                    Ingredients
+                  </label>
+                  {selectedIngredientsArray.length > 0 && (
+                    <Button
+                      variant="link"
+                      size="sm"
+                      className="h-auto p-0 text-xs text-neutral-500 hover:text-neutral-900"
+                      onClick={() => setSelectedIngredients(null)}>
+                      clear all
+                    </Button>
+                  )}
+                </div>
+
+                {selectedIngredientsArray.length > 0 && (
+                  <div className="flex flex-wrap gap-2">
+                    {selectedIngredientsArray.map(ingredientId => {
+                      const ingredient = ingredients?.find(i => i.id === ingredientId)
+                      if (!ingredient) return null
+                      return (
+                        <Badge
+                          key={ingredientId}
+                          variant="secondary"
+                          className="cursor-pointer gap-1 pr-2 pl-3"
+                          onClick={() => {
+                            const newIngredients = selectedIngredientsArray.filter(
+                              id => id !== ingredientId
+                            )
+                            setSelectedIngredients(
+                              newIngredients.length > 0 ? newIngredients.join(',') : null
+                            )
+                          }}>
+                          {ingredient.name}
+                          <XIcon className="size-3" />
+                        </Badge>
+                      )
+                    })}
+                  </div>
+                )}
+
+                <Select
+                  value=""
+                  onValueChange={ingredientId => {
+                    if (!selectedIngredientsArray.includes(ingredientId)) {
+                      setSelectedIngredients(
+                        selectedIngredientsArray.length > 0
+                          ? [...selectedIngredientsArray, ingredientId].join(',')
+                          : ingredientId
+                      )
+                    }
+                  }}>
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Select ingredients" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectGroup>
+                      <SelectLabel>Available Ingredients</SelectLabel>
+                      {isLoadingIngredients ? (
+                        <SelectItem value="loading" disabled>
+                          Loading...
+                        </SelectItem>
+                      ) : (
+                        ingredients
+                          ?.filter(i => !selectedIngredientsArray.includes(i.id))
+                          .map(ingredient => (
+                            <SelectItem key={ingredient.id} value={ingredient.id}>
+                              {ingredient.name}
+                            </SelectItem>
+                          ))
+                      )}
+                    </SelectGroup>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            <DrawerFooter className="ms-2">
+              <div className="flex gap-4">
+                <DrawerClose asChild>
+                  <Button variant="outline" className="flex-1">
+                    Close
+                  </Button>
+                </DrawerClose>
+                <Button
+                  variant="default"
+                  className="flex-1"
+                  onClick={() => {
+                    setCookTimeRange(null)
+                    setCaloriesRange(null)
+                    setProteinRange(null)
+                    setSelectedIngredients(null)
+                  }}>
+                  Reset All Filters
+                </Button>
+              </div>
+            </DrawerFooter>
+          </DrawerContent>
+        </Drawer>
       </div>
 
       <AnimatePresence>
-        {(searchQuery || selectedTag || selectedSort) && (
+        {(searchQuery ||
+          selectedTag ||
+          selectedSort ||
+          cookTimeRange ||
+          caloriesRange ||
+          proteinRange ||
+          selectedIngredients) && (
           <motion.div
             key="filter-info"
             initial={{ opacity: 0, y: 20 }}
@@ -144,20 +451,44 @@ export const RecipesSection: FC<RecipesSectionProps> = ({ className, bgColor }) 
             exit={{ opacity: 0, y: -20 }}
             transition={{ duration: 0.3 }}
             className="-mt-3 flex items-center justify-between px-4 font-mono text-sm font-semibold text-neutral-500">
-            <p className="">
-              showing results for: {searchQuery} {selectedTag && `by ${selectedTag}`}{' '}
-              {selectedSort && `sorted by ${selectedSort}`}
-            </p>
+            <div className="flex flex-wrap items-center gap-2">
+              <p>showing results for:</p>
+              {searchQuery && <Badge variant="secondary">&quot;{searchQuery}&quot;</Badge>}
+              {selectedTag && <Badge variant="secondary">{selectedTag}</Badge>}
+              {selectedSort && <Badge variant="secondary">sorted: {selectedSort}</Badge>}
+              {cookTimeRange && (
+                <Badge variant="secondary">
+                  time: {cookTimeRange.replace('-max', '+').replace('-', '-')} mins
+                </Badge>
+              )}
+              {caloriesRange && (
+                <Badge variant="secondary">
+                  cal: {caloriesRange.replace('-max', '+').replace('-', '-')}
+                </Badge>
+              )}
+              {proteinRange && (
+                <Badge variant="secondary">
+                  protein: {proteinRange.replace('-max', '+').replace('-', '-')}g
+                </Badge>
+              )}
+              {selectedIngredientsArray.length > 0 && (
+                <Badge variant="secondary">{selectedIngredientsArray.length} ingredients</Badge>
+              )}
+            </div>
 
             <motion.p
               whileTap={{ scale: 0.95 }}
               whileHover={{ color: 'rgba(0, 0, 0, 0.8)' }}
               transition={{ duration: 0.3 }}
-              className="cursor-pointer underline select-none"
+              className="cursor-pointer whitespace-nowrap underline select-none"
               onClick={() => {
                 setSelectedTag(null)
                 setSelectedSort(null)
                 setSearchQuery(null)
+                setCookTimeRange(null)
+                setCaloriesRange(null)
+                setProteinRange(null)
+                setSelectedIngredients(null)
               }}>
               clear all
             </motion.p>
@@ -192,15 +523,94 @@ export const RecipesSection: FC<RecipesSectionProps> = ({ className, bgColor }) 
               ))}
         </div>
 
-        <div key="recipes-grid" className="grid grid-cols-5 gap-3 px-4 pb-10">
-          {isLoadingRecipes
-            ? Array.from({ length: 8 }).map((_, index) => (
-                <RecipeCardSkeleton key={index} className={bgColor} />
+        <motion.div
+          layoutId="recipes-grid"
+          key="recipes-grid"
+          className="grid grid-cols-5 gap-3 overflow-hidden px-4 pb-10"
+          layout
+          transition={{ duration: 0.3, ease: 'easeInOut' }}>
+          <AnimatePresence mode="popLayout">
+            {isLoadingRecipes ? (
+              Array.from({ length: 8 }).map((_, index) => (
+                <motion.div
+                  key={`skeleton-${index}`}
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.8 }}
+                  transition={{
+                    duration: 0.3,
+                    delay: index * 0.05,
+                    ease: 'easeOut',
+                  }}
+                  layout>
+                  <RecipeCardSkeleton className={bgColor} />
+                </motion.div>
               ))
-            : recipes
+            ) : recipes && recipes.filter(r => r.cookingSteps && r.ingredients).length === 0 ? (
+              <motion.div
+                key="empty-state"
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -30 }}
+                transition={{ duration: 0.4, delay: 0.3, ease: 'easeOut' }}
+                className="col-span-5 flex flex-col items-center justify-center py-20">
+                <motion.div
+                  initial={{ scale: 0.8, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  transition={{ duration: 0.3, delay: 0.5, ease: 'easeOut' }}
+                  className="mb-6">
+                  <Image
+                    src="/assets/misc/empty-plate.png"
+                    alt="No recipes found"
+                    width={200}
+                    height={200}
+                    className="opacity-60"
+                  />
+                </motion.div>
+                <motion.div
+                  initial={{ opacity: 0, y: 15 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.3, delay: 0.7, ease: 'easeOut' }}
+                  className="text-center">
+                  <h3 className="mb-2 font-mono text-xl font-semibold text-neutral-700">
+                    No recipes found
+                  </h3>
+                  <p className="max-w-md font-mono text-sm text-neutral-500">
+                    Try adjusting your search terms or filters to discover more delicious recipes
+                  </p>
+                </motion.div>
+              </motion.div>
+            ) : (
+              recipes
                 ?.filter(r => r.cookingSteps && r.ingredients)
-                .map(recipe => <RecipeCard key={recipe.id} recipe={recipe} className={bgColor} />)}
-        </div>
+                .map((recipe, index) => (
+                  <motion.div
+                    key={recipe.id}
+                    initial={{ opacity: 0, scale: 0.8, y: 20 }}
+                    animate={{ opacity: 1, scale: 1, y: 0 }}
+                    exit={{
+                      opacity: 0,
+                      scale: 0.9,
+                      y: -10,
+                      transition: {
+                        duration: 0.2,
+                        delay: index * 0.02,
+                        ease: 'easeIn',
+                      },
+                    }}
+                    transition={{
+                      duration: 0.4,
+                      delay: index * 0.05,
+                      ease: 'easeOut',
+                    }}
+                    layout
+                    layoutId={recipe.id}>
+                    <RecipeCard recipe={recipe} className={bgColor} />
+                  </motion.div>
+                ))
+            )}
+          </AnimatePresence>
+        </motion.div>
       </AnimatePresence>
 
       <motion.div
@@ -261,60 +671,76 @@ const RecipeCard: FC<RecipeCardProps> = ({ recipe, className }) => {
   })
 
   return (
-    <Card
-      onClick={() => router.push(`/recipes/${recipe.slug}`)}
-      className={cn(
-        'group relative flex min-h-[350px] cursor-pointer flex-col justify-between rounded-lg border-none bg-[#f6f6f6] px-5 py-4 shadow-none select-none',
-        className
-      )}>
-      <div className="flex items-center justify-between">
-        <CardTitle className="max-w-[210px] font-mono text-sm">
-          {recipe.shortTitle ?? recipe.title}
-        </CardTitle>
+    <motion.div
+      whileHover={{
+        scale: 1.01,
+        transition: { duration: 0.2, ease: 'easeOut' },
+      }}
+      whileTap={{
+        scale: 0.98,
+        transition: { duration: 0.1, ease: 'easeOut' },
+      }}>
+      <Card
+        onClick={() => router.push(`/recipes/${recipe.slug}`)}
+        className={cn(
+          'group relative flex min-h-[350px] cursor-pointer flex-col justify-between rounded-lg border-none bg-[#f6f6f6] px-5 py-4 shadow-none transition-all duration-200 select-none hover:shadow-md',
+          className
+        )}>
+        <div className="flex items-center justify-between">
+          <CardTitle className="max-w-[210px] font-mono text-sm">
+            {recipe.shortTitle ?? recipe.title}
+          </CardTitle>
 
+          <motion.div
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.9 }}
+            onClick={e => {
+              e.stopPropagation()
+              if (cookbookId) {
+                removeFromCookbook()
+              } else {
+                addToCookbook()
+              }
+            }}
+            className={cn(
+              'absolute top-3 right-3 flex shrink-0 cursor-pointer items-center gap-2 rounded-full bg-white p-1 transition-all duration-200',
+              (isRemovingFromCookbook || isAddingToCookbook) && 'pointer-events-none opacity-50'
+            )}>
+            {isRemovingFromCookbook || isAddingToCookbook ? (
+              <LoadingIcon className="size-4 animate-spin" />
+            ) : cookbookId ? (
+              <BookmarkIcon className="size-4 fill-neutral-900" />
+            ) : (
+              <BookmarkIcon className="size-4 text-neutral-500" />
+            )}
+          </motion.div>
+        </div>
         <motion.div
-          whileTap={{ scale: 0.95 }}
-          onClick={e => {
-            e.stopPropagation()
-            if (cookbookId) {
-              removeFromCookbook()
-            } else {
-              addToCookbook()
-            }
-          }}
-          className={cn(
-            'absolute top-3 right-3 flex shrink-0 cursor-pointer items-center gap-2 rounded-full bg-white p-1',
-            (isRemovingFromCookbook || isAddingToCookbook) && 'pointer-events-none opacity-50'
-          )}>
-          {isRemovingFromCookbook || isAddingToCookbook ? (
-            <LoadingIcon className="size-4 animate-spin" />
-          ) : cookbookId ? (
-            <BookmarkIcon className="size-4 fill-neutral-900" />
-          ) : (
-            <BookmarkIcon className="size-4 text-neutral-500" />
-          )}
+          className="pointer-events-none mx-auto flex items-center justify-center overflow-hidden rounded-full shadow-xl select-none"
+          whileHover={{
+            scale: 1.05,
+            transition: { duration: 0.3, ease: 'easeOut' },
+          }}>
+          <Image
+            src={recipe?.imageUrl ?? ''}
+            alt={recipe?.title ?? ''}
+            width={640}
+            height={640}
+            className="size-48 scale-120 object-cover"
+          />
         </motion.div>
-      </div>
-      <div className="pointer-events-none mx-auto flex items-center justify-center overflow-hidden rounded-full shadow-xl transition-transform duration-300 select-none group-hover:scale-105">
-        <Image
-          src={recipe?.imageUrl ?? ''}
-          alt={recipe?.title ?? ''}
-          width={640}
-          height={640}
-          className="size-48 scale-120 object-cover"
-        />
-      </div>
-      <div>
-        <Link
-          href={`https://www.instagram.com/${recipe?.sourceName}`}
-          className="cursor-pointer font-mono text-xs text-neutral-500 underline"
-          target="_blank"
-          rel="noopener noreferrer"
-          title="View on Instagram">
-          @{recipe?.sourceName}
-        </Link>
-      </div>
-    </Card>
+        <div>
+          <Link
+            href={`https://www.instagram.com/${recipe?.sourceName}`}
+            className="cursor-pointer font-mono text-xs text-neutral-500 underline transition-colors duration-200 hover:text-neutral-700"
+            target="_blank"
+            rel="noopener noreferrer"
+            title="View on Instagram">
+            @{recipe?.sourceName}
+          </Link>
+        </div>
+      </Card>
+    </motion.div>
   )
 }
 
