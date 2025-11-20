@@ -23,6 +23,13 @@ export async function GET(req: NextRequest) {
         tagId: z.string().optional(),
         sortBy: z.enum(['newest', 'oldest', 'popular', 'random']).optional().default('newest'),
         q: z.string().optional(),
+        cookTimeMin: z.coerce.number().optional(),
+        cookTimeMax: z.coerce.number().optional(),
+        caloriesMin: z.coerce.number().optional(),
+        caloriesMax: z.coerce.number().optional(),
+        proteinMin: z.coerce.number().optional(),
+        proteinMax: z.coerce.number().optional(),
+        ingredientIds: z.string().optional(), // comma-separated ingredient IDs
       })
       .parseAsync(Object.fromEntries(req.nextUrl.searchParams))
 
@@ -46,6 +53,11 @@ export async function GET(req: NextRequest) {
         orderBy = { createdAt: 'desc' }
         break
     }
+
+    // Parse ingredient IDs if provided
+    const ingredientIdsArray = filters.ingredientIds
+      ? filters.ingredientIds.split(',').filter(id => id.trim())
+      : []
 
     const recipes = await db.recipe.findMany({
       where: {
@@ -96,6 +108,50 @@ export async function GET(req: NextRequest) {
               },
             },
           ],
+        }),
+        // Cooking time filter
+        ...(filters.cookTimeMin !== undefined && {
+          cookTime: {
+            gte: filters.cookTimeMin,
+          },
+        }),
+        ...(filters.cookTimeMax !== undefined && {
+          cookTime: {
+            lte: filters.cookTimeMax,
+          },
+        }),
+        // Calories filter
+        ...(filters.caloriesMin !== undefined && {
+          calories: {
+            gte: filters.caloriesMin,
+          },
+        }),
+        ...(filters.caloriesMax !== undefined && {
+          calories: {
+            lte: filters.caloriesMax,
+          },
+        }),
+        // Protein filter
+        ...(filters.proteinMin !== undefined && {
+          protein: {
+            gte: filters.proteinMin,
+          },
+        }),
+        ...(filters.proteinMax !== undefined && {
+          protein: {
+            lte: filters.proteinMax,
+          },
+        }),
+        // Ingredients filter - recipes must contain ALL selected ingredients
+        ...(ingredientIdsArray.length > 0 && {
+          AND: ingredientIdsArray.map(ingredientId => ({
+            RecipeIngredient: {
+              some: {
+                ingredientId,
+                deletedAt: null,
+              },
+            },
+          })),
         }),
       },
       include: {
