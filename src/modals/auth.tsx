@@ -14,7 +14,7 @@ import {
   InputGroupInput,
   InputGroupText,
 } from '@/components/ui/input-group'
-import { GoogleIcon, LoadingIcon, PasskeyIcon } from '@/components/icons'
+import { EyeClosedIcon, EyeIcon, GoogleIcon, LoadingIcon, PasskeyIcon } from '@/components/icons'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
 import { cn } from '@/lib/utils'
@@ -29,6 +29,7 @@ export const AuthModal: FC<AuthModalProps> = ({ trigger, type }) => {
   const [modalType, setModalType] = useState<typeof type>(type)
   const [isLoading, startLoading] = useTransition()
   const [socialLoading, startSocialLoading] = useTransition()
+  const [showPassword, setShowPassword] = useState(false)
 
   const form = useForm<SignInInput | SignUpInput>({
     resolver: zodResolver(modalType === 'signIn' ? signInSchema : signUpSchema),
@@ -247,13 +248,36 @@ export const AuthModal: FC<AuthModalProps> = ({ trigger, type }) => {
                         <FormItem>
                           <FormControl>
                             <InputGroup className="rounded-full px-2">
+                              {field.value.length > 0 && (
+                                <InputGroupAddon align="inline-start">
+                                  {showPassword ? (
+                                    <EyeIcon
+                                      className="cursor-pointer text-neutral-400"
+                                      onClick={e => {
+                                        e.stopPropagation()
+                                        setShowPassword(false)
+                                      }}
+                                    />
+                                  ) : (
+                                    <EyeClosedIcon
+                                      className="cursor-pointer text-neutral-400"
+                                      onClick={e => {
+                                        e.stopPropagation()
+                                        setShowPassword(true)
+                                      }}
+                                    />
+                                  )}
+                                </InputGroupAddon>
+                              )}
+
                               <InputGroupInput
                                 placeholder="Password"
-                                type="password"
+                                type={showPassword ? 'text' : 'password'}
                                 disabled={isLoading}
                                 className="placeholder:text-neutral-600"
                                 {...field}
                               />
+
                               <InputGroupAddon align="inline-end">
                                 <InputGroupText
                                   className={cn(
