@@ -6,7 +6,7 @@ import { CreateRecipe } from '@/components/layout/recipe/create-recipe'
 export default function DiscoverPage() {
   return (
     <section className="min-h-screen">
-      <div className="max-w-8xl mx-auto px-4 py-16">
+      <div className="max-w-8xl mx-auto px-3 py-16 sm:px-4">
         <div className="relative top-24 space-y-16">
           <CreateRecipe />
 
