@@ -43,10 +43,19 @@ import {
   DrawerTitle,
   DrawerTrigger,
 } from '@/components/ui/drawer'
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from '@/components/ui/command'
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
+import { ChevronDownIcon } from 'lucide-react'
 import { InputGroup, InputGroupAddon, InputGroupInput } from '@/components/ui/input-group'
 import { useDebounceCallback } from 'usehooks-ts'
 import { Badge } from '@/components/ui/badge'
-import { Separator } from '@/components/ui/separator'
 
 interface RecipesSectionProps {
   className?: string
@@ -62,6 +71,8 @@ export const RecipesSection: FC<RecipesSectionProps> = ({ className, bgColor }) 
   const [caloriesRange, setCaloriesRange] = useQueryState('calories')
   const [proteinRange, setProteinRange] = useQueryState('protein')
   const [selectedIngredients, setSelectedIngredients] = useQueryState('ingredients')
+  const [ingredientSearch, setIngredientSearch] = useState('')
+  const [open, setOpen] = useState(false)
 
   const setQuery = useDebounceCallback(value => {
     setSearchQuery(value || null)
@@ -159,7 +170,7 @@ export const RecipesSection: FC<RecipesSectionProps> = ({ className, bgColor }) 
   return (
     <section className={cn(className, 'space-y-6')}>
       <div id="search-culina" className="flex items-center justify-between gap-3 pt-20">
-        <InputGroup className="h-[44px] overflow-hidden bg-neutral-50/60 backdrop-blur-xs [--radius:9999px]">
+        <InputGroup className="hover:bg-accent h-[44px] overflow-hidden bg-neutral-50/60 backdrop-blur-xs [--radius:9999px]">
           <InputGroupAddon className="ml-1">
             <SearchIcon className="size-4" />
           </InputGroupAddon>
@@ -187,7 +198,7 @@ export const RecipesSection: FC<RecipesSectionProps> = ({ className, bgColor }) 
           onValueChange={value => setSelectedSort(value === 'newest' ? null : value)}>
           <SelectTrigger
             className={cn(
-              'h-[44px]! rounded-full bg-neutral-50/60 px-6! text-neutral-900! backdrop-blur-xs',
+              'hover:bg-accent h-[44px]! rounded-full bg-neutral-50/60 px-6! text-neutral-900! backdrop-blur-xs',
               selectedSort && selectedSort !== 'newest' && 'border-dashed border-neutral-900!'
             )}>
             <SortIcon className="size-4 text-neutral-900!" /> Sort
@@ -376,39 +387,67 @@ export const RecipesSection: FC<RecipesSectionProps> = ({ className, bgColor }) 
                   </div>
                 )}
 
-                <Select
-                  value=""
-                  onValueChange={ingredientId => {
-                    if (!selectedIngredientsArray.includes(ingredientId)) {
-                      setSelectedIngredients(
-                        selectedIngredientsArray.length > 0
-                          ? [...selectedIngredientsArray, ingredientId].join(',')
-                          : ingredientId
-                      )
-                    }
-                  }}>
-                  <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Select ingredients" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectGroup>
-                      <SelectLabel>Available Ingredients</SelectLabel>
-                      {isLoadingIngredients ? (
-                        <SelectItem value="loading" disabled>
-                          Loading...
-                        </SelectItem>
+                <Popover open={open} onOpenChange={setOpen} modal={false}>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      role="combobox"
+                      aria-expanded={open}
+                      className="w-full justify-between px-3 font-normal text-neutral-500 hover:bg-transparent">
+                      {selectedIngredientsArray.length > 0 ? (
+                        <span className="font-mono">
+                          {selectedIngredientsArray.length} ingredients selected
+                        </span>
                       ) : (
-                        ingredients
-                          ?.filter(i => !selectedIngredientsArray.includes(i.id))
-                          .map(ingredient => (
-                            <SelectItem key={ingredient.id} value={ingredient.id}>
-                              {ingredient.name}
-                            </SelectItem>
-                          ))
+                        'Select ingredients'
                       )}
-                    </SelectGroup>
-                  </SelectContent>
-                </Select>
+                      <ChevronDownIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent
+                    className="w-(--radix-popover-trigger-width) p-0"
+                    align="start"
+                    onOpenAutoFocus={e => e.preventDefault()}
+                    onWheel={e => e.stopPropagation()}>
+                    <Command>
+                      <CommandInput
+                        className="font-mono"
+                        placeholder="Search ingredients..."
+                        value={ingredientSearch}
+                        onValueChange={setIngredientSearch}
+                      />
+                      <CommandList>
+                        <CommandEmpty>No ingredients found.</CommandEmpty>
+                        <CommandGroup className="font-mono" heading="Available Ingredients">
+                          {isLoadingIngredients ? (
+                            <div className="py-6 text-center text-sm text-neutral-500">
+                              Loading...
+                            </div>
+                          ) : (
+                            ingredients
+                              ?.filter(i => !selectedIngredientsArray.includes(i.id))
+                              .map(ingredient => (
+                                <CommandItem
+                                  key={ingredient.id}
+                                  className="cursor-pointer"
+                                  value={ingredient.name}
+                                  onSelect={() => {
+                                    setSelectedIngredients(
+                                      selectedIngredientsArray.length > 0
+                                        ? [...selectedIngredientsArray, ingredient.id].join(',')
+                                        : ingredient.id
+                                    )
+                                    setIngredientSearch('')
+                                  }}>
+                                  {ingredient.name}
+                                </CommandItem>
+                              ))
+                          )}
+                        </CommandGroup>
+                      </CommandList>
+                    </Command>
+                  </PopoverContent>
+                </Popover>
               </div>
             </div>
 
