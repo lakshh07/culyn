@@ -124,9 +124,9 @@ export const AuthModal: FC<AuthModalProps> = ({ trigger, type }) => {
   return (
     <Dialog>
       <DialogTrigger asChild>{trigger}</DialogTrigger>
-      <DialogContent className="min-w-5xl rounded-2xl p-3" showCloseButton={false}>
+      <DialogContent className="rounded-2xl p-3 sm:min-w-lg lg:min-w-5xl" showCloseButton={false}>
         <div className="grid h-full w-full grid-cols-[0.9fr_1fr] justify-center">
-          <div className="overflow-hidden rounded-xl">
+          <div className="hidden overflow-hidden rounded-xl lg:block">
             <Image
               src={'/assets/misc/auth-bg.png'}
               alt="Auth Background"
@@ -136,14 +136,18 @@ export const AuthModal: FC<AuthModalProps> = ({ trigger, type }) => {
             />
           </div>
 
-          <div className={cn('space-y-10 px-6 py-4', modalType === 'signIn' && 'space-y-4')}>
+          <div
+            className={cn(
+              'col-span-2 space-y-10 px-4 py-4 lg:col-span-1 lg:px-6',
+              modalType === 'signIn' && 'space-y-4'
+            )}>
             <h2 className="text-center font-mono text-lg font-medium transition-all duration-300">
               {modalType === 'signIn'
                 ? 'Welcome back. Sign in to access your saved recipes.'
                 : 'Welcome. Sign up for free to browse & save over 1,500+ recipes.'}
             </h2>
 
-            <div className="space-y-6 px-4">
+            <div className="space-y-6 px-0 sm:px-4">
               <Form {...form}>
                 <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
                   <div
