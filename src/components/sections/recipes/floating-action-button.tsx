@@ -138,7 +138,7 @@ export const FloatingActionButton: FC<FloatingActionButtonProps> = ({
       <Button
         size={'sm'}
         className="active:scale-95"
-        onClick={() => router.push(`/recipes/${slug}/cook`)}>
+        onClick={() => router.push(`/recipes/${slug}/cook?servings=${servings}`)}>
         <ChefHatIcon className="size-4" />
         Cook
       </Button>

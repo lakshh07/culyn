@@ -1,7 +1,9 @@
 'use client'
+
 import React, { useState, useMemo } from 'react'
 import { useRecipeBySlug } from '@/hooks/use-recipes'
 import Link from 'next/link'
+import { useSearchParams } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { CookingStep } from '@/types/recipes'
 import { scaleIngredientQuantity } from '@/lib/utils'
@@ -14,8 +16,10 @@ export default function RecipeCookingPage({ params }: { params: Promise<{ slug: 
   const { slug } = React.use(params)
   const { recipe, isLoadingRecipe } = useRecipeBySlug(slug)
   const [currentStep, setCurrentStep] = useState(0)
+  const searchParams = useSearchParams()
+  const servingsParam = searchParams.get('servings')
   const originalServings = recipe?.servings || 2
-  const [servings, setServings] = useState(originalServings)
+  const [servings, setServings] = useState(servingsParam ? Number(servingsParam) : originalServings)
 
   React.useEffect(() => {
     if (recipe?.servings && servings === originalServings) {
