@@ -1,5 +1,6 @@
 import React, { FC, useState, useTransition } from 'react'
-import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog'
+import { Dialog, DialogContent, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
+import { VisuallyHidden } from '@/components/ui/visually-hidden'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { SignInInput, SignUpInput, signInSchema, signUpSchema } from '@/schema/auth'
@@ -126,6 +127,9 @@ export const AuthModal: FC<AuthModalProps> = ({ trigger, type }) => {
     <Dialog>
       <DialogTrigger asChild>{trigger}</DialogTrigger>
       <DialogContent className="rounded-2xl p-3 sm:min-w-lg lg:min-w-5xl" showCloseButton={false}>
+        <VisuallyHidden>
+          <DialogTitle>{modalType === 'signIn' ? 'Sign In' : 'Create Account'}</DialogTitle>
+        </VisuallyHidden>
         <div className="grid h-full w-full grid-cols-[0.9fr_1fr] justify-center">
           <div className="hidden overflow-hidden rounded-xl lg:block">
             <Image
