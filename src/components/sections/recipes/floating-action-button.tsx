@@ -76,7 +76,7 @@ export const FloatingActionButton: FC<FloatingActionButtonProps> = ({
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: 10 }}
       transition={{ duration: 0.3 }}
-      className="fixed bottom-6 left-1/2 flex -translate-x-1/2 gap-2 rounded-xl bg-white/80 px-2 py-3 shadow-lg backdrop-blur-sm">
+      className="fixed bottom-6 left-1/2 flex -translate-x-1/2 gap-2 rounded-xl bg-white/80 px-1 py-2 shadow-lg backdrop-blur-sm lg:px-2 lg:py-3">
       <div className="flex items-center gap-2">
         <Button
           variant={'ghost'}
@@ -84,33 +84,33 @@ export const FloatingActionButton: FC<FloatingActionButtonProps> = ({
           className="active:scale-95"
           onClick={() => setServings(servings - 1)}
           disabled={servings <= 1}>
-          <MinusIcon className="size-4" />
+          <MinusIcon className="size-3.5 lg:size-4" />
         </Button>
-        <div className="flex min-w-[100px] items-center gap-1">
+        <div className="flex min-w-[86px] items-center gap-1 text-sm lg:min-w-[100px] lg:text-base">
           <p className="font-mono">Cooking for</p>
-          <NumberFlow value={servings} className="-mt-0.5 font-mono text-base" />
+          <NumberFlow value={servings} className="-mt-0.5 font-mono" />
         </div>
         <Button
           variant={'ghost'}
           size={'icon-sm'}
           className="active:scale-95"
           onClick={() => setServings(servings + 1)}>
-          <PlusIcon className="size-4" />
+          <PlusIcon className="size-3.5 lg:size-4" />
         </Button>
       </div>
 
       <Button
         variant={'outline'}
         size={'sm'}
-        className="active:scale-95"
+        className="text-xs active:scale-95 lg:text-sm"
         disabled={isAddingToCookbook || isRemovingFromCookbook}
         onClick={() => (recipeCookbookIds.length > 0 ? removeFromCookbook() : addToCookbook())}>
         {isAddingToCookbook || isRemovingFromCookbook ? (
-          <LoadingIcon className="size-4 animate-spin" />
+          <LoadingIcon className="size-3.5 animate-spin lg:size-4" />
         ) : recipeCookbookIds.length > 0 ? (
-          <BookmarkIcon className="size-4 fill-neutral-900" />
+          <BookmarkIcon className="size-3.5 fill-neutral-900 lg:size-4" />
         ) : (
-          <BookmarkIcon className="size-4" />
+          <BookmarkIcon className="size-3.5 lg:size-4" />
         )}
         {recipeCookbookIds.length > 0 ? 'Saved' : 'Save'}
       </Button>
@@ -119,16 +119,16 @@ export const FloatingActionButton: FC<FloatingActionButtonProps> = ({
         <Button
           variant={'outline'}
           size={'sm'}
-          className="active:scale-95"
+          className="text-xs active:scale-95 lg:text-sm"
           onClick={handleVideoToggle}>
           {videoState?.isPlaying ? (
             <>
-              <PauseIcon className="size-4" />
+              <PauseIcon className="size-3.5 lg:size-4" />
               Pause
             </>
           ) : (
             <>
-              <PlayIcon className="size-4" />
+              <PlayIcon className="size-3.5 lg:size-4" />
               Watch
             </>
           )}
@@ -137,9 +137,9 @@ export const FloatingActionButton: FC<FloatingActionButtonProps> = ({
 
       <Button
         size={'sm'}
-        className="active:scale-95"
+        className="text-xs active:scale-95 lg:text-sm"
         onClick={() => router.push(`/recipes/${slug}/cook?servings=${servings}`)}>
-        <ChefHatIcon className="size-4" />
+        <ChefHatIcon className="size-3.5 lg:size-4" />
         Cook
       </Button>
     </motion.section>

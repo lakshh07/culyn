@@ -95,14 +95,16 @@ const VideoPlayer = forwardRef<VideoPlayerRef, VideoPlayerProps>(
         {isExpanded ? (
           <motion.div
             key="expanded-container"
-            className={cn('fixed bottom-5 left-5 z-99999 flex items-center justify-center p-4')}
+            className={cn(
+              'fixed bottom-0 left-0 z-99999 hidden items-center justify-center p-4 sm:flex xl:bottom-5 xl:left-5'
+            )}
             transition={{ duration: 0.2 }}>
             <motion.div
               layoutId="video-player-panel"
               layout
               transition={{ type: 'spring', stiffness: 300, damping: 30 }}
               className={cn(
-                'relative z-99999 h-[85vh] w-[22vw] rounded-xl bg-neutral-50 p-1 shadow-md select-none',
+                'relative z-99999 rounded-xl bg-neutral-50 p-1 shadow-md select-none sm:h-[42vh] sm:w-[30vw] lg:h-[82vh] lg:w-[25vw] xl:h-[85vh] xl:w-[22vw]',
                 className
               )}>
               <div
@@ -149,7 +151,9 @@ const VideoPlayer = forwardRef<VideoPlayerRef, VideoPlayerProps>(
               animate={{ scale: 1 }}
               exit={{ scale: 0.98 }}
               transition={{ duration: 0.2 }}
-              className={cn('pointer-events-auto absolute bottom-5 left-5 flex gap-2')}>
+              className={cn(
+                'pointer-events-auto absolute bottom-3 left-3 hidden flex-col-reverse sm:flex lg:bottom-5 lg:left-5 lg:flex-row lg:gap-2'
+              )}>
               <motion.div
                 layoutId="video-player-panel"
                 layout
@@ -157,7 +161,7 @@ const VideoPlayer = forwardRef<VideoPlayerRef, VideoPlayerProps>(
                 whileHover={{ scale: 1.05 }}
                 onClick={handleCollapsedClick}
                 className={cn(
-                  'group h-[200px] w-[120px] cursor-pointer rounded-xl bg-neutral-50 p-1 shadow-lg select-none'
+                  'group cursor-pointer rounded-xl bg-neutral-50 p-1 shadow-lg select-none sm:h-[180px] sm:w-[100px] lg:h-[180px] lg:w-[100px] xl:h-[200px] xl:w-[120px]'
                 )}>
                 <div className="relative h-full w-full">
                   <div
