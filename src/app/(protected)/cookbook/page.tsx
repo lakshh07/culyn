@@ -39,27 +39,27 @@ export default function CookbookPage() {
 
   return (
     <section className="min-h-screen">
-      <div className="max-w-8xl mx-auto px-4 py-16">
+      <div className="max-w-8xl mx-auto px-3 py-16 sm:px-4">
         <div className="relative top-24 space-y-16">
           <div className="space-y-16">
-            <div className="space-y-2 text-center font-mono text-3xl font-bold text-neutral-950">
-              <h1>
-                Welcome back, <span>It&apos;s {getCurrentDate()}.</span>
-              </h1>
+            <div className="space-y-2 font-mono text-sm font-bold text-neutral-950 sm:space-y-1 sm:text-center sm:text-xl lg:space-y-1.5 lg:text-2xl xl:space-y-2 xl:text-3xl">
+              <div className="flex flex-col items-start justify-center sm:flex-row sm:items-center sm:gap-1.5 lg:gap-2">
+                <h1>Welcome back,</h1>
+                <h1>It&apos;s {getCurrentDate()}.</h1>
+              </div>
               <p className="text-neutral-500">Your recipes are waiting for you.</p>
             </div>
-            <div className="mx-auto max-w-5xl"></div>
           </div>
 
           <div className="mt-20">
             {isPendingCookbook ? (
-              <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
                 {Array.from({ length: 6 }).map((_, index) => (
                   <CookbookCardSkeleton key={index} />
                 ))}
               </div>
             ) : cookbook && cookbook.length > 0 ? (
-              <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 xl:grid-cols-3">
                 {cookbook.map(cb => {
                   const jobId = cb.recipe.metadata?.jobId
                   const job = jobId ? jobsMap[jobId] : null
@@ -79,8 +79,10 @@ export default function CookbookPage() {
           </div>
 
           <section className="mx-auto my-28 flex max-w-md flex-col items-center justify-center gap-2">
-            <h1 className="font-mono text-2xl font-semibold">Save upto 12 recipes</h1>
-            <p className="text-center font-mono font-medium tracking-wide text-neutral-500">
+            <h1 className="font-mono text-base font-semibold sm:text-lg lg:text-xl xl:text-2xl">
+              Save upto 12 recipes
+            </h1>
+            <p className="text-center font-mono text-xs font-medium tracking-wide text-neutral-500 sm:text-sm xl:text-base">
               you have {cookbook?.length} recipes saved. Upgrade to Culina Pro to save unlimited
               recipes and access to all features.
             </p>
@@ -119,7 +121,7 @@ const CookbookCard: FC<CookbookCardProps> = ({ cookbook, job }) => {
     <div
       key={cookbook.id}
       onClick={() => router.push(`/recipes/${cookbook.recipe.slug}`)}
-      className="relative grid min-h-[150px] cursor-pointer grid-cols-[100px_1fr] items-center gap-4 rounded-lg bg-neutral-100 p-4">
+      className="relative grid min-h-[120px] cursor-pointer grid-cols-[100px_1fr] items-center gap-4 rounded-lg bg-neutral-100 p-4 sm:min-h-[1350x] lg:min-h-[150px]">
       <div className="pointer-events-none mx-auto flex size-24 items-center justify-center overflow-hidden rounded-full border border-neutral-200 bg-white transition-transform duration-300 select-none group-hover:scale-105">
         {cookbook.recipe.imageUrl && !job ? (
           <Image
@@ -135,19 +137,19 @@ const CookbookCard: FC<CookbookCardProps> = ({ cookbook, job }) => {
       </div>
 
       <div className="flex flex-col gap-1">
-        <h2 className="font-mono text-lg font-medium">
+        <h2 className="font-mono text-base font-medium lg:text-lg">
           {job
             ? 'Cooking...'
             : (cookbook.recipe.shortTitle ?? cookbook.recipe.title ?? 'Cooking...')}
         </h2>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-col items-start gap-1 lg:flex-row lg:items-center lg:gap-2">
           {cookbook.recipe.sourceName && cookbook.recipe.cookTime && !job ? (
             <>
-              <p className="max-w-[120px] truncate font-mono text-sm text-neutral-500">
+              <p className="max-w-[120px] truncate font-mono text-xs text-neutral-500 sm:text-sm">
                 By: @{cookbook.recipe.sourceName}
               </p>
-              <span className="text-neutral-400">•</span>
-              <p className="font-mono text-sm text-neutral-500">
+              <span className="hidden text-neutral-400 lg:block">•</span>
+              <p className="font-mono text-xs text-neutral-500 sm:text-sm">
                 {cookbook.recipe.cookTime} mins cooking time
               </p>
             </>
