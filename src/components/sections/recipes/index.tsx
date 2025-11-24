@@ -168,16 +168,18 @@ export const RecipesSection: FC<RecipesSectionProps> = ({ className, bgColor }) 
   }, [])
 
   return (
-    <section className={cn(className, 'space-y-6')}>
-      <div id="search-culina" className="flex items-center justify-between gap-3 pt-20">
-        <InputGroup className="hover:bg-accent h-[44px] overflow-hidden bg-neutral-50/60 backdrop-blur-xs [--radius:9999px]">
+    <section className={cn(className, 'space-y-4 sm:space-y-4 lg:space-y-5 xl:space-y-6')}>
+      <div
+        id="search-culina"
+        className="flex items-center justify-between gap-2 pt-12 sm:gap-3 sm:pt-16 lg:pt-20">
+        <InputGroup className="hover:bg-accent h-[34px] overflow-hidden bg-neutral-50/60 backdrop-blur-xs [--radius:9999px] lg:h-[39px] xl:h-[44px]">
           <InputGroupAddon className="ml-1">
-            <SearchIcon className="size-4" />
+            <SearchIcon className="size-3 sm:size-3.5 xl:size-4" />
           </InputGroupAddon>
 
           <InputGroupInput
             id="search-recipes"
-            className="ml-2 text-base! placeholder:text-neutral-500"
+            className="text-xs! placeholder:text-neutral-500 sm:ml-1 sm:text-sm! lg:ml-2 xl:text-base!"
             placeholder="Search recipes"
             value={searchQuery || ''}
             onChange={e => setQuery(e.target.value)}
@@ -198,10 +200,11 @@ export const RecipesSection: FC<RecipesSectionProps> = ({ className, bgColor }) 
           onValueChange={value => setSelectedSort(value === 'newest' ? null : value)}>
           <SelectTrigger
             className={cn(
-              'hover:bg-accent h-[44px]! rounded-full bg-neutral-50/60 px-6! text-neutral-900! backdrop-blur-xs',
+              'hover:bg-accent h-[34px]! rounded-full bg-neutral-50/60 px-4! font-medium text-neutral-900! backdrop-blur-xs sm:text-xs sm:leading-4 lg:h-[39px]! lg:px-6! lg:text-[13px] xl:h-[44px]! xl:text-sm xl:leading-5',
               selectedSort && selectedSort !== 'newest' && 'border-dashed border-neutral-900!'
             )}>
-            <SortIcon className="size-4 text-neutral-900!" /> Sort
+            <SortIcon className="size-3 text-neutral-900! sm:size-3.5 xl:size-4" />
+            <span className="hidden sm:inline">Sort</span>
           </SelectTrigger>
           <SelectContent>
             <SelectGroup>
@@ -219,12 +222,12 @@ export const RecipesSection: FC<RecipesSectionProps> = ({ className, bgColor }) 
             <Button
               variant="outline"
               className={cn(
-                'h-[44px] rounded-full bg-neutral-50/60 px-6! backdrop-blur-xs',
+                'h-[34px] rounded-full bg-neutral-50/60 px-4! font-medium text-neutral-900! backdrop-blur-xs sm:text-xs sm:leading-4 lg:h-[39px]! lg:px-6! lg:text-[13px] xl:h-[44px]! xl:text-sm xl:leading-5',
                 (cookTimeRange || caloriesRange || proteinRange || selectedIngredients) &&
                   'border-dashed border-neutral-900!'
               )}>
-              <FilterIcon className="size-4" />
-              Filter
+              <FilterIcon className="size-3 sm:size-3.5 xl:size-4" />
+              <span className="hidden sm:inline">Filter</span>
               {(cookTimeRange || caloriesRange || proteinRange || selectedIngredients) && (
                 <Badge className="ml-2 h-5 min-w-5 rounded-full px-1.5 text-xs">
                   {
@@ -534,7 +537,9 @@ export const RecipesSection: FC<RecipesSectionProps> = ({ className, bgColor }) 
           </motion.div>
         )}
 
-        <h1 key="section-title" className="font-mono text-2xl font-semibold">
+        <h1
+          key="section-title"
+          className="font-mono text-base font-semibold sm:text-lg lg:text-xl xl:text-2xl">
           What others are saving
         </h1>
 
@@ -543,7 +548,7 @@ export const RecipesSection: FC<RecipesSectionProps> = ({ className, bgColor }) 
             onClick={() => setSelectedTag(null)}
             size="sm"
             variant={selectedTag === null ? 'default' : 'secondary'}
-            className={cn('rounded-full')}>
+            className={cn('rounded-full text-xs xl:text-sm')}>
             All
           </Button>
           {isLoadingTags
@@ -556,7 +561,7 @@ export const RecipesSection: FC<RecipesSectionProps> = ({ className, bgColor }) 
                   size="sm"
                   variant={selectedTag === tag.name ? 'default' : 'secondary'}
                   onClick={() => setSelectedTag(tag.name)}
-                  className={cn('rounded-full')}>
+                  className={cn('rounded-full text-xs xl:text-sm')}>
                   {tag.name}
                 </Button>
               ))}
@@ -565,7 +570,7 @@ export const RecipesSection: FC<RecipesSectionProps> = ({ className, bgColor }) 
         <motion.div
           layoutId="recipes-grid"
           key="recipes-grid"
-          className="grid grid-cols-5 gap-3 overflow-hidden px-4 pb-10"
+          className="grid grid-cols-2 gap-3 overflow-hidden pb-10 sm:grid-cols-3 lg:grid-cols-4 lg:px-2 xl:grid-cols-5 xl:px-4"
           layout
           transition={{ duration: 0.3, ease: 'easeInOut' }}>
           <AnimatePresence mode="popLayout">
@@ -722,11 +727,11 @@ const RecipeCard: FC<RecipeCardProps> = ({ recipe, className }) => {
       <Card
         onClick={() => router.push(`/recipes/${recipe.slug}`)}
         className={cn(
-          'group relative flex min-h-[350px] cursor-pointer flex-col justify-between rounded-lg border-none bg-[#f6f6f6] px-5 py-4 shadow-none transition-all duration-200 select-none hover:shadow-md',
+          'group relative flex min-h-[260px] cursor-pointer flex-col justify-between rounded-lg border-none bg-[#f6f6f6] px-4 py-4 shadow-none transition-all duration-200 select-none hover:shadow-md sm:min-h-[320px] xl:min-h-[350px] xl:px-5',
           className
         )}>
         <div className="flex items-center justify-between">
-          <CardTitle className="max-w-[210px] font-mono text-sm">
+          <CardTitle className="max-w-[120px] font-mono text-xs sm:max-w-[160px] lg:max-w-[180px] lg:text-sm xl:max-w-[210px]">
             {recipe.shortTitle ?? recipe.title}
           </CardTitle>
 
@@ -746,11 +751,11 @@ const RecipeCard: FC<RecipeCardProps> = ({ recipe, className }) => {
               (isRemovingFromCookbook || isAddingToCookbook) && 'pointer-events-none opacity-50'
             )}>
             {isRemovingFromCookbook || isAddingToCookbook ? (
-              <LoadingIcon className="size-4 animate-spin" />
+              <LoadingIcon className="size-3.5 animate-spin sm:size-4" />
             ) : cookbookId ? (
-              <BookmarkIcon className="size-4 fill-neutral-900" />
+              <BookmarkIcon className="size-3.5 fill-neutral-900 sm:size-4" />
             ) : (
-              <BookmarkIcon className="size-4 text-neutral-500" />
+              <BookmarkIcon className="size-3.5 text-neutral-500 sm:size-4" />
             )}
           </motion.div>
         </div>
@@ -765,13 +770,13 @@ const RecipeCard: FC<RecipeCardProps> = ({ recipe, className }) => {
             alt={recipe?.title ?? ''}
             width={640}
             height={640}
-            className="size-48 scale-120 object-cover"
+            className="size-36 scale-120 object-cover sm:size-40 xl:size-48"
           />
         </motion.div>
         <div>
           <Link
             href={`https://www.instagram.com/${recipe?.sourceName}`}
-            className="cursor-pointer font-mono text-xs text-neutral-500 underline transition-colors duration-200 hover:text-neutral-700"
+            className="cursor-pointer font-mono text-[10px] leading-4 text-neutral-500 underline transition-colors duration-200 hover:text-neutral-700 lg:text-xs"
             target="_blank"
             rel="noopener noreferrer"
             title="View on Instagram">
