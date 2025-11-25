@@ -76,7 +76,7 @@ export const FloatingActionButton: FC<FloatingActionButtonProps> = ({
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: 10 }}
       transition={{ duration: 0.3 }}
-      className="fixed bottom-6 left-1/2 flex -translate-x-1/2 gap-2 rounded-xl bg-white/80 px-1 py-2 shadow-lg backdrop-blur-sm lg:px-2 lg:py-3">
+      className="fixed bottom-4 left-1/2 flex -translate-x-1/2 gap-2 rounded-xl bg-white/70 px-2 py-2 shadow-lg backdrop-blur-xs sm:bottom-6 lg:py-3">
       <div className="flex items-center gap-2">
         <Button
           variant={'ghost'}
@@ -112,7 +112,7 @@ export const FloatingActionButton: FC<FloatingActionButtonProps> = ({
         ) : (
           <BookmarkIcon className="size-3.5 lg:size-4" />
         )}
-        {recipeCookbookIds.length > 0 ? 'Saved' : 'Save'}
+        <span className="hidden sm:inline">{recipeCookbookIds.length > 0 ? 'Saved' : 'Save'}</span>
       </Button>
 
       {hasVideo && videoPlayerRef && (
@@ -124,12 +124,12 @@ export const FloatingActionButton: FC<FloatingActionButtonProps> = ({
           {videoState?.isPlaying ? (
             <>
               <PauseIcon className="size-3.5 lg:size-4" />
-              Pause
+              <span className="hidden sm:inline">Pause</span>
             </>
           ) : (
             <>
               <PlayIcon className="size-3.5 lg:size-4" />
-              Watch
+              <span className="hidden sm:inline">Watch</span>
             </>
           )}
         </Button>

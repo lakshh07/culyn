@@ -96,7 +96,7 @@ const VideoPlayer = forwardRef<VideoPlayerRef, VideoPlayerProps>(
           <motion.div
             key="expanded-container"
             className={cn(
-              'fixed bottom-0 left-0 z-99999 hidden items-center justify-center p-4 sm:flex xl:bottom-5 xl:left-5'
+              'fixed bottom-18 left-0 z-99999 flex items-center justify-center p-4 sm:bottom-0 xl:bottom-5 xl:left-5'
             )}
             transition={{ duration: 0.2 }}>
             <motion.div
@@ -104,7 +104,7 @@ const VideoPlayer = forwardRef<VideoPlayerRef, VideoPlayerProps>(
               layout
               transition={{ type: 'spring', stiffness: 300, damping: 30 }}
               className={cn(
-                'relative z-99999 rounded-xl bg-neutral-50 p-1 shadow-md select-none sm:h-[42vh] sm:w-[30vw] lg:h-[82vh] lg:w-[25vw] xl:h-[85vh] xl:w-[22vw]',
+                'relative z-99999 h-[72vh] rounded-xl bg-neutral-50 p-1 shadow-md select-none sm:h-[42vh] sm:w-[30vw] lg:h-[82vh] lg:w-[25vw] xl:h-[85vh] xl:w-[22vw]',
                 className
               )}>
               <div
