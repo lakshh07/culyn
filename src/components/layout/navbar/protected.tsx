@@ -19,6 +19,7 @@ import { useSession } from '@/hooks/use-session'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Button } from '@/components/ui/button'
 import { ShoppingListDrawer } from '@/components/sections/lists/shopping-list-drawer'
+import { MobileMenu } from './mobile-menu'
 
 interface NavItem {
   label: string
@@ -59,13 +60,13 @@ const NavLink: React.FC<NavLinkProps> = React.memo(({ item }) => {
       href={item.href}
       prefetch
       className={cn(
-        'relative flex cursor-pointer items-center gap-3 text-sm font-normal',
-        'text-zinc-950'
+        'relative flex cursor-pointer items-center gap-3 text-xs font-normal xl:text-sm',
+        'text-neutral-950'
       )}>
       <span className={cn('relative font-mono font-semibold')}>
         {item.label}
         <motion.span
-          className={cn('absolute -bottom-1 left-0 h-px w-full rounded-sm', 'bg-zinc-950')}
+          className={cn('absolute -bottom-1 left-0 h-px w-full rounded-sm', 'bg-neutral-950')}
           variants={{
             initial: {
               scaleX: 0,
@@ -80,7 +81,7 @@ const NavLink: React.FC<NavLinkProps> = React.memo(({ item }) => {
           }}
         />
       </span>
-      <ArrowIcon className="size-3" />
+      <ArrowIcon className="size-2.5 xl:size-3" />
     </MotionLink>
   )
 })
@@ -117,7 +118,7 @@ export const ProtectedNavbar: FC = () => {
       }}>
       <motion.nav
         className={cn(
-          'flex items-center justify-between rounded-md bg-neutral-50/60 py-2 pr-6 pl-6 backdrop-blur-xs',
+          'flex items-center justify-between gap-8 rounded-md bg-neutral-50/60 py-2 pr-6 pl-6 backdrop-blur-xs',
           'mx-3 max-w-full'
         )}
         initial={{ opacity: 0, y: -20 }}
@@ -131,7 +132,7 @@ export const ProtectedNavbar: FC = () => {
           <h1 className="font-autography text-2xl">Culina</h1>
         </motion.div>
 
-        <div className="flex items-center space-x-8">
+        <div className="hidden w-full items-center justify-end space-x-8 lg:flex">
           {sideNavLinks}
 
           <ShoppingListDrawer
@@ -149,15 +150,15 @@ export const ProtectedNavbar: FC = () => {
                   },
                 }}
                 className={cn(
-                  'relative flex cursor-pointer items-center gap-3 text-sm font-normal focus-visible:outline-none',
-                  'text-zinc-950'
+                  'relative flex cursor-pointer items-center gap-3 text-xs font-normal focus-visible:outline-none xl:text-sm',
+                  'text-neutral-950'
                 )}>
                 <span className="relative font-mono font-semibold">
                   Shopping List
                   <motion.span
                     className={cn(
                       'absolute -bottom-1 left-0 h-px w-full rounded-sm',
-                      'bg-zinc-950'
+                      'bg-neutral-950'
                     )}
                     variants={{
                       initial: {
@@ -173,7 +174,7 @@ export const ProtectedNavbar: FC = () => {
                     }}
                   />
                 </span>
-                <ArrowIcon className="size-3" />
+                <ArrowIcon className="size-2.5 xl:size-3" />
               </motion.button>
             }
           />
@@ -193,8 +194,8 @@ export const ProtectedNavbar: FC = () => {
                   },
                 }}
                 className={cn(
-                  'relative flex cursor-pointer items-center gap-3 text-sm font-normal focus-visible:outline-none',
-                  'text-zinc-950'
+                  'relative flex cursor-pointer items-center gap-3 text-xs font-normal focus-visible:outline-none xl:text-sm',
+                  'text-neutral-950'
                 )}>
                 <span className="relative font-mono font-semibold">
                   {isLoading ? (
@@ -205,7 +206,7 @@ export const ProtectedNavbar: FC = () => {
                   <motion.span
                     className={cn(
                       'absolute -bottom-1 left-0 h-px w-full rounded-sm',
-                      'bg-zinc-950'
+                      'bg-neutral-950'
                     )}
                     variants={{
                       initial: {
@@ -232,16 +233,18 @@ export const ProtectedNavbar: FC = () => {
               <DropdownMenuItem onClick={handleSignOut}>Logout</DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
-
-          <div className="flex items-center gap-4">
-            <Button variant="outline" size="sm" className="flex items-center gap-2">
-              <MobileIcon className="size-4" />
-              App
-            </Button>
-
-            <Button size="sm">Try Culina Pro</Button>
-          </div>
         </div>
+
+        <div className="hidden items-center gap-4 lg:flex">
+          <Button variant="outline" size="sm" className="flex items-center gap-2">
+            <MobileIcon className="size-4" />
+            App
+          </Button>
+
+          <Button size="sm">Try Culina Pro</Button>
+        </div>
+
+        <MobileMenu />
       </motion.nav>
     </motion.div>
   )
