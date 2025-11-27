@@ -19,7 +19,7 @@ export function ProtectedRoute({ children, redirectTo = '/' }: ProtectedRoutePro
     }
   }, [session, isLoading, redirectTo])
 
-  if (!isLoading) {
+  if (isLoading) {
     return <LoadingScreen />
   }
 

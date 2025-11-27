@@ -6,7 +6,7 @@ import { Navbar } from '@/components/layout/navbar'
 import { useSession } from '@/hooks/use-session'
 import { redirect } from 'next/navigation'
 import { useEffect } from 'react'
-import { Spinner } from '@/components/ui/spinner'
+import { LoadingScreen } from '@/components/ui/loading-screen'
 
 export default function Home() {
   const { session, isLoading } = useSession()
@@ -18,11 +18,7 @@ export default function Home() {
   }, [session, isLoading])
 
   if (isLoading) {
-    return (
-      <div className="flex min-h-screen items-center justify-center">
-        <Spinner className="h-8 w-8" />
-      </div>
-    )
+    return <LoadingScreen />
   }
 
   return (
