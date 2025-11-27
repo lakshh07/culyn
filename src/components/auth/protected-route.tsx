@@ -3,7 +3,7 @@
 import { useSession } from '@/hooks/use-session'
 import { redirect } from 'next/navigation'
 import { useEffect } from 'react'
-import { Spinner } from '@/components/ui/spinner'
+import { LoadingScreen } from '@/components/ui/loading-screen'
 
 interface ProtectedRouteProps {
   children: React.ReactNode
@@ -19,12 +19,8 @@ export function ProtectedRoute({ children, redirectTo = '/' }: ProtectedRoutePro
     }
   }, [session, isLoading, redirectTo])
 
-  if (isLoading) {
-    return (
-      <div className="flex min-h-screen items-center justify-center">
-        <Spinner className="h-8 w-8" />
-      </div>
-    )
+  if (!isLoading) {
+    return <LoadingScreen />
   }
 
   if (!session) {
