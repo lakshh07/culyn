@@ -11,6 +11,7 @@ import { motion, AnimatePresence } from 'motion/react'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import Image from 'next/image'
 import { getIngredientImageUrl } from '@/lib/recipe/ingredient-assets'
+import { useMediaQuery } from 'usehooks-ts'
 
 export default function RecipeCookingPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = React.use(params)
@@ -20,6 +21,7 @@ export default function RecipeCookingPage({ params }: { params: Promise<{ slug: 
   const servingsParam = searchParams.get('servings')
   const originalServings = recipe?.servings || 2
   const [servings, setServings] = useState(servingsParam ? Number(servingsParam) : originalServings)
+  const isDesktop = useMediaQuery('(min-width: 1024px)')
 
   React.useEffect(() => {
     if (recipe?.servings && servings === originalServings) {
@@ -91,10 +93,218 @@ export default function RecipeCookingPage({ params }: { params: Promise<{ slug: 
     }
   }
 
+  if (!isDesktop) {
+    return (
+      <div className="relative top-18 lg:hidden">
+        {/* Background Image - positioned behind all content */}
+        <div className="absolute -top-22 -right-5 -z-10 flex size-[40vh] items-center justify-center overflow-hidden rounded-full bg-white">
+          {recipe.imageUrl && (
+            <Image
+              src={recipe.imageUrl}
+              alt={recipe.title || 'Recipe image'}
+              width={640}
+              height={640}
+              className="scale-120 bg-white object-cover"
+              priority
+            />
+          )}
+        </div>
+
+        {/* White overlay for better text readability */}
+        <div className="absolute inset-0 -top-18 -z-5 bg-white/70" />
+
+        {/* Content on top of image */}
+        <div className="relative px-4 pt-6 pb-24">
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={currentStep}
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -20 }}
+              transition={{
+                duration: 0.4,
+                ease: [0.4, 0.0, 0.2, 1],
+              }}
+              className="mb-8">
+              <motion.h1
+                className="mb-2 font-mono text-lg font-light text-neutral-600"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.1, duration: 0.3 }}>
+                Step {currentStepData?.step_number.toString().padStart(2, '0')}:
+              </motion.h1>
+              <motion.p
+                className="font-mono text-xl leading-normal font-semibold text-neutral-800"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.2, duration: 0.3 }}>
+                {currentStepData?.step_description}
+              </motion.p>
+            </motion.div>
+          </AnimatePresence>
+
+          {/* What You'll Need */}
+          <motion.div
+            key={`tools-${currentStep}`}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            transition={{
+              duration: 0.4,
+              ease: [0.4, 0.0, 0.2, 1],
+            }}
+            className="mb-8 space-y-4">
+            <h2 className="font-mono text-lg font-semibold text-neutral-800">
+              What You&apos;ll Need
+            </h2>
+
+            {currentStepData?.tools_required && currentStepData.tools_required.length > 0 && (
+              <div className="border-t border-neutral-200">
+                {currentStepData.tools_required.map((tool, index) => (
+                  <motion.div
+                    key={`tool-${index}`}
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{
+                      delay: 0.3 + index * 0.05,
+                      duration: 0.4,
+                      ease: [0.4, 0.0, 0.2, 1],
+                    }}
+                    className="border-b border-neutral-200 py-3 ps-2 font-mono text-sm font-medium text-neutral-600 capitalize">
+                    {tool}
+                  </motion.div>
+                ))}
+              </div>
+            )}
+          </motion.div>
+
+          {/* Ingredients */}
+          <AnimatePresence mode="wait">
+            {currentStepData?.ingredients_used && currentStepData.ingredients_used.length > 0 && (
+              <motion.div
+                key={`ingredients-${currentStep}`}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                transition={{
+                  duration: 0.3,
+                  delay: 0.2,
+                  ease: [0.4, 0.0, 0.2, 1],
+                }}
+                className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <h2 className="font-mono text-lg font-semibold text-neutral-800">Ingredients</h2>
+                  <p className="font-mono text-sm text-neutral-600">
+                    {currentStepData.ingredients_used.length} items
+                  </p>
+                </div>
+
+                <div className="flex flex-col gap-3">
+                  {currentStepData.ingredients_used.map((ingredient, index) => (
+                    <motion.div
+                      key={index}
+                      initial={{ opacity: 0, scale: 0.9 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      transition={{
+                        delay: 0.3 + index * 0.05,
+                        duration: 0.2,
+                        ease: [0.4, 0.0, 0.2, 1],
+                      }}
+                      className="rounded-lg border border-neutral-200 bg-white/80 px-4 py-3 font-mono backdrop-blur-sm">
+                      <div className="flex items-center gap-4">
+                        <div className="relative size-14 overflow-hidden">
+                          <Avatar className="size-full rounded-xl object-cover">
+                            <AvatarImage src={getIngredientImageUrl(ingredient.name)} />
+                            <AvatarFallback className="size-full rounded-xl object-cover">
+                              {ingredient.name.charAt(0)}
+                            </AvatarFallback>
+                          </Avatar>
+                        </div>
+
+                        <div className="flex flex-col gap-1">
+                          <p className="text-sm font-medium text-neutral-700">{ingredient.name}</p>
+                          <p className="text-sm text-neutral-600">{ingredient.scaledQuantity}</p>
+                        </div>
+                      </div>
+                    </motion.div>
+                  ))}
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+
+        {/* Fixed Bottom Navigation */}
+        <div className="fixed right-0 bottom-0 left-0 z-50 border-t border-neutral-200 bg-white/95 p-4 backdrop-blur-md">
+          <div className="flex items-center justify-between gap-3">
+            <AnimatePresence>
+              {currentStep === 0 ? (
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.9 }}
+                  transition={{ duration: 0.2 }}
+                  className="flex-1">
+                  <Link href={`/recipes/${slug}`} className="block">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="w-full border-neutral-300 bg-white/80 backdrop-blur-sm">
+                      Back to recipe
+                    </Button>
+                  </Link>
+                </motion.div>
+              ) : (
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.9 }}
+                  transition={{ duration: 0.2 }}
+                  className="flex-1">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handlePrevStep}
+                    className="w-full border-neutral-300 bg-white/80 backdrop-blur-sm">
+                    Previous
+                  </Button>
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            {currentStep > 0 && (
+              <Link href={`/recipes/${slug}`}>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="border-neutral-300 bg-white/80 backdrop-blur-sm">
+                  Close
+                </Button>
+              </Link>
+            )}
+
+            <motion.div
+              whileTap={{ scale: 0.95 }}
+              transition={{ duration: 0.1 }}
+              className="flex-1">
+              <Button
+                size="sm"
+                onClick={handleNextStep}
+                disabled={isLastStep}
+                className="w-full bg-neutral-800 text-white hover:bg-neutral-700 disabled:cursor-not-allowed disabled:opacity-50">
+                {isLastStep ? 'Complete!' : 'Next'}
+              </Button>
+            </motion.div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
   return (
-    <div className="relative grid min-h-screen lg:grid-cols-[1fr_42%]">
+    <div className="relative grid min-h-screen sm:grid-cols-[1fr_42%]">
       <div className="sticky top-0 flex h-screen overflow-hidden">
-        <div className="relative flex h-full w-full flex-col justify-between bg-white/85 p-8 lg:p-16">
+        <div className="relative flex h-full w-full flex-col justify-between bg-white/85 p-8 xl:p-16">
           <div className="flex max-w-4xl flex-1 flex-col justify-center">
             <AnimatePresence mode="wait">
               <motion.div
@@ -108,14 +318,14 @@ export default function RecipeCookingPage({ params }: { params: Promise<{ slug: 
                 }}
                 className="mb-8">
                 <motion.h1
-                  className="mb-4 font-mono text-2xl font-light text-neutral-600 lg:text-3xl"
+                  className="font-mono text-xl font-light text-neutral-600 lg:mb-2 lg:text-2xl xl:mb-4 xl:text-3xl"
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.1, duration: 0.3 }}>
                   Step {currentStepData?.step_number.toString().padStart(2, '0')}:
                 </motion.h1>
                 <motion.p
-                  className="font-mono text-2xl leading-normal font-semibold text-neutral-800 lg:text-4xl"
+                  className="font-mono text-xl leading-normal font-semibold text-neutral-800 lg:text-2xl xl:text-4xl"
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.2, duration: 0.3 }}>
@@ -126,15 +336,24 @@ export default function RecipeCookingPage({ params }: { params: Promise<{ slug: 
           </div>
 
           <div className="flex items-center justify-between">
-            <Link href={`/recipes/${slug}`}>
-              <Button variant="outline" className="border-neutral-300 bg-white/80 backdrop-blur-sm">
-                Back to recipe
-              </Button>
-            </Link>
-
-            <div className="flex gap-3">
-              <AnimatePresence>
-                {currentStep > 0 && (
+            <AnimatePresence>
+              {currentStep === 0 ? (
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.9 }}
+                  transition={{ duration: 0.2 }}>
+                  <Link href={`/recipes/${slug}`}>
+                    <Button
+                      variant="outline"
+                      size={'sm'}
+                      className="border-neutral-300 bg-white/80 backdrop-blur-sm">
+                      Back to recipe
+                    </Button>
+                  </Link>
+                </motion.div>
+              ) : (
+                <div className="flex items-center gap-2">
                   <motion.div
                     initial={{ opacity: 0, scale: 0.9 }}
                     animate={{ opacity: 1, scale: 1 }}
@@ -142,15 +361,35 @@ export default function RecipeCookingPage({ params }: { params: Promise<{ slug: 
                     transition={{ duration: 0.2 }}>
                     <Button
                       variant="outline"
+                      size={'sm'}
                       onClick={handlePrevStep}
                       className="border-neutral-300 bg-white/80 backdrop-blur-sm">
                       Previous step
                     </Button>
                   </motion.div>
-                )}
-              </AnimatePresence>
+
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.9 }}
+                    transition={{ duration: 0.2 }}>
+                    <Link href={`/recipes/${slug}`}>
+                      <Button
+                        variant="outline"
+                        size={'sm'}
+                        className="border-neutral-300 bg-white/80 backdrop-blur-sm">
+                        Close
+                      </Button>
+                    </Link>
+                  </motion.div>
+                </div>
+              )}
+            </AnimatePresence>
+
+            <div className="flex gap-3">
               <motion.div whileTap={{ scale: 0.95 }} transition={{ duration: 0.1 }}>
                 <Button
+                  size={'sm'}
                   onClick={handleNextStep}
                   disabled={isLastStep}
                   className="bg-neutral-800 text-white hover:bg-neutral-700 disabled:cursor-not-allowed disabled:opacity-50">
@@ -181,7 +420,7 @@ export default function RecipeCookingPage({ params }: { params: Promise<{ slug: 
         </div>
       </div>
 
-      <div className="relative mt-10 p-6 lg:p-16">
+      <div className="relative mt-10 lg:top-10 lg:p-8 xl:top-0 xl:p-16">
         <div className="sticky top-8 space-y-20">
           <motion.div
             key={`tools-${currentStep}`}
@@ -193,12 +432,12 @@ export default function RecipeCookingPage({ params }: { params: Promise<{ slug: 
               ease: [0.4, 0.0, 0.2, 1],
             }}
             className="space-y-6">
-            <h1 className="font-mono text-2xl font-semibold text-neutral-800">
+            <h1 className="font-mono font-semibold text-neutral-800 lg:text-xl xl:text-2xl">
               What You&apos;ll Need
             </h1>
 
             {currentStepData?.tools_required && currentStepData.tools_required.length > 0 && (
-              <div className="space-y-4 border-t border-neutral-200">
+              <div className="border-t border-neutral-200">
                 {currentStepData.tools_required.map((tool, index) => (
                   <motion.div
                     key={`tool-${index}`}
@@ -209,7 +448,7 @@ export default function RecipeCookingPage({ params }: { params: Promise<{ slug: 
                       duration: 0.4,
                       ease: [0.4, 0.0, 0.2, 1],
                     }}
-                    className="border-b border-neutral-200 py-4 ps-2 font-mono text-lg font-medium text-neutral-600 capitalize">
+                    className="border-b border-neutral-200 py-4 ps-2 font-mono font-medium text-neutral-600 capitalize lg:text-base xl:text-lg">
                     {tool}
                   </motion.div>
                 ))}
@@ -231,8 +470,10 @@ export default function RecipeCookingPage({ params }: { params: Promise<{ slug: 
                 }}
                 className="space-y-6">
                 <div className="flex items-center justify-between">
-                  <h2 className="font-mono text-2xl font-semibold text-neutral-800">Ingredients</h2>
-                  <p className="font-mono text-base text-neutral-600">
+                  <h2 className="font-mono font-semibold text-neutral-800 lg:text-xl xl:text-2xl">
+                    Ingredients
+                  </h2>
+                  <p className="font-mono text-neutral-600 lg:text-sm xl:text-base">
                     {currentStepData.ingredients_used.length} items
                   </p>
                 </div>
@@ -260,8 +501,12 @@ export default function RecipeCookingPage({ params }: { params: Promise<{ slug: 
                         </div>
 
                         <div className="flex flex-col gap-1">
-                          <p className="text-lg font-medium text-neutral-700">{ingredient.name}</p>
-                          <p className="text-base text-neutral-600">{ingredient.scaledQuantity}</p>
+                          <p className="font-medium text-neutral-700 lg:text-base xl:text-lg">
+                            {ingredient.name}
+                          </p>
+                          <p className="text-base text-neutral-600 lg:text-sm xl:text-base">
+                            {ingredient.scaledQuantity}
+                          </p>
                         </div>
                       </div>
                     </motion.div>
