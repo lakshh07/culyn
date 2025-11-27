@@ -21,6 +21,7 @@ import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { FC } from 'react'
 import { toast } from 'sonner'
+import { motion } from 'motion/react'
 import { CircularProgress } from '@/components/ui/circular-progress'
 
 export default function CookbookPage() {
@@ -55,15 +56,15 @@ export default function CookbookPage() {
             {isPendingCookbook ? (
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
                 {Array.from({ length: 6 }).map((_, index) => (
-                  <CookbookCardSkeleton key={index} />
+                  <CookbookCardSkeleton key={index} index={index} />
                 ))}
               </div>
             ) : cookbook && cookbook.length > 0 ? (
               <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 xl:grid-cols-3">
-                {cookbook.map(cb => {
+                {cookbook.map((cb, index) => {
                   const jobId = cb.recipe.metadata?.jobId
                   const job = jobId ? jobsMap[jobId] : null
-                  return <CookbookCard key={cb.id} cookbook={cb} job={job} />
+                  return <CookbookCard key={cb.id} cookbook={cb} job={job} index={index} />
                 })}
               </div>
             ) : (
@@ -99,9 +100,10 @@ export default function CookbookPage() {
 interface CookbookCardProps {
   cookbook: RecipeCookbook
   job: Job | null
+  index: number
 }
 
-const CookbookCard: FC<CookbookCardProps> = ({ cookbook, job }) => {
+const CookbookCard: FC<CookbookCardProps> = ({ cookbook, job, index }) => {
   const queryClient = useQueryClient()
   const router = useRouter()
 
@@ -118,8 +120,25 @@ const CookbookCard: FC<CookbookCardProps> = ({ cookbook, job }) => {
   })
 
   return (
-    <div
+    <motion.div
       key={cookbook.id}
+      initial={{ opacity: 0, scale: 0.8, y: 20 }}
+      animate={{ opacity: 1, scale: 1, y: 0 }}
+      exit={{
+        opacity: 0,
+        scale: 0.9,
+        y: -10,
+        transition: {
+          duration: 0.2,
+          delay: index * 0.02,
+          ease: 'easeIn',
+        },
+      }}
+      transition={{
+        duration: 0.4,
+        delay: index * 0.05,
+        ease: 'easeOut',
+      }}
       onClick={() => router.push(`/recipes/${cookbook.recipe.slug}`)}
       className="relative grid min-h-[120px] cursor-pointer grid-cols-[100px_1fr] items-center gap-4 rounded-lg bg-neutral-100 p-4 sm:min-h-[1350x] lg:min-h-[150px]">
       <div className="pointer-events-none mx-auto flex size-24 items-center justify-center overflow-hidden rounded-full border border-neutral-200 bg-white transition-transform duration-300 select-none group-hover:scale-105">
@@ -188,13 +207,31 @@ const CookbookCard: FC<CookbookCardProps> = ({ cookbook, job }) => {
           </DropdownMenu>
         </div>
       )}
-    </div>
+    </motion.div>
   )
 }
 
-const CookbookCardSkeleton = () => {
+const CookbookCardSkeleton = ({ index }: { index: number }) => {
   return (
-    <div className="relative grid min-h-[150px] grid-cols-[100px_1fr] items-center gap-3 rounded-lg bg-neutral-100 p-4">
+    <motion.div
+      initial={{ opacity: 0, scale: 0.8, y: 20 }}
+      animate={{ opacity: 1, scale: 1, y: 0 }}
+      exit={{
+        opacity: 0,
+        scale: 0.9,
+        y: -10,
+        transition: {
+          duration: 0.2,
+          delay: index * 0.02,
+          ease: 'easeIn',
+        },
+      }}
+      transition={{
+        duration: 0.4,
+        delay: index * 0.05,
+        ease: 'easeOut',
+      }}
+      className="relative grid min-h-[150px] grid-cols-[100px_1fr] items-center gap-3 rounded-lg bg-neutral-100 p-4">
       <div className="mx-auto flex items-center justify-center overflow-hidden rounded-full border border-neutral-200">
         <Skeleton className="size-20 rounded-full bg-white" />
       </div>
@@ -211,7 +248,7 @@ const CookbookCardSkeleton = () => {
       <div className="absolute top-2 right-2">
         <Skeleton className="size-6 rounded-full bg-white" />
       </div>
-    </div>
+    </motion.div>
   )
 }
 
