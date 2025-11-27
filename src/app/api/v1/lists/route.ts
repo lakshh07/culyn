@@ -53,9 +53,12 @@ export async function GET(req: NextRequest) {
             checked: true,
             notes: true,
             ingredientId: true,
-            recipe: { select: { slug: true } },
+            recipe: { select: { slug: true, servings: true } },
           },
         },
+      },
+      orderBy: {
+        createdAt: 'desc',
       },
     })
 

@@ -8,7 +8,6 @@ import { ArrowIcon, MobileIcon } from '@/components/icons'
 import { useRouter } from 'next/navigation'
 import { authClient } from '@/lib/auth-client'
 import { useSession } from '@/hooks/use-session'
-import { ShoppingListDrawer } from '@/components/sections/lists/shopping-list-drawer'
 import { Button } from '@/components/ui/button'
 import { useMediaQuery } from 'usehooks-ts'
 
@@ -71,6 +70,7 @@ export const MobileMenu: React.FC = () => {
   const menuItems: NavItem[] = [
     { label: 'Discover', href: '/discover' },
     { label: 'Cookbook', href: '/cookbook' },
+    { label: 'Shopping List', href: '/lists' },
     { label: 'Profile', href: '/profile' },
     { label: 'Subscription', href: '/subscription' },
     { label: 'Logout', onClick: handleSignOut },
@@ -129,25 +129,6 @@ export const MobileMenu: React.FC = () => {
                   </p>
                 </motion.div>
               )}
-
-              {/* Shopping List Item */}
-              <motion.div variants={menuItemVariants}>
-                <ShoppingListDrawer
-                  trigger={
-                    <button
-                      onClick={() => setIsOpen(false)}
-                      className={cn(
-                        'flex w-full items-center justify-between rounded-md px-3 py-2.5 text-left transition-colors',
-                        'hover:bg-neutral-100 active:bg-neutral-200'
-                      )}>
-                      <span className="font-mono text-sm font-semibold text-neutral-950">
-                        Shopping List
-                      </span>
-                      <ArrowIcon className="size-3" />
-                    </button>
-                  }
-                />
-              </motion.div>
 
               {menuItems.map(item => (
                 <motion.div key={item.label} variants={menuItemVariants}>

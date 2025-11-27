@@ -18,7 +18,6 @@ import {
 import { useSession } from '@/hooks/use-session'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Button } from '@/components/ui/button'
-import { ShoppingListDrawer } from '@/components/sections/lists/shopping-list-drawer'
 import { MobileMenu } from './mobile-menu'
 
 interface NavItem {
@@ -34,6 +33,10 @@ const sideNavItems: NavItem[] = [
   {
     label: 'Cookbook',
     href: '/cookbook',
+  },
+  {
+    label: 'Shopping List',
+    href: '/lists',
   },
 ]
 
@@ -134,50 +137,6 @@ export const ProtectedNavbar: FC = () => {
 
         <div className="hidden w-full items-center justify-end space-x-8 lg:flex">
           {sideNavLinks}
-
-          <ShoppingListDrawer
-            trigger={
-              <motion.button
-                initial="initial"
-                whileHover="hover"
-                whileTap="tap"
-                disabled={isLoading}
-                variants={{
-                  initial: { scale: 1 },
-                  tap: {
-                    scale: 0.95,
-                    transition: { duration: 0.2 },
-                  },
-                }}
-                className={cn(
-                  'relative flex cursor-pointer items-center gap-3 text-xs font-normal focus-visible:outline-none xl:text-sm',
-                  'text-neutral-950'
-                )}>
-                <span className="relative font-mono font-semibold">
-                  Shopping List
-                  <motion.span
-                    className={cn(
-                      'absolute -bottom-1 left-0 h-px w-full rounded-sm',
-                      'bg-neutral-950'
-                    )}
-                    variants={{
-                      initial: {
-                        scaleX: 0,
-                        transformOrigin: 'right',
-                        transition: { duration: 0.3, ease: 'easeInOut' },
-                      },
-                      hover: {
-                        scaleX: 1,
-                        transformOrigin: 'left',
-                        transition: { duration: 0.3, ease: 'easeInOut' },
-                      },
-                    }}
-                  />
-                </span>
-                <ArrowIcon className="size-2.5 xl:size-3" />
-              </motion.button>
-            }
-          />
 
           <DropdownMenu>
             <DropdownMenuTrigger asChild>

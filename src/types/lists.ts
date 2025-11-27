@@ -15,6 +15,7 @@ export type GroceryList = {
     deletedAt: Date | null
     recipe: {
       slug: string
+      servings: number
     }
   }[]
 }

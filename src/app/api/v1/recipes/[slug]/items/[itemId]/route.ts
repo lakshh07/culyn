@@ -36,6 +36,7 @@ export async function PATCH(req: NextRequest, ctx: NextRequestContext) {
         z.object({
           notes: z.string(),
         }),
+        z.object({}),
       ])
       .parseAsync(await req.json())
 
@@ -102,6 +103,13 @@ export async function PATCH(req: NextRequest, ctx: NextRequestContext) {
 
       return new Response(null, { status: 204 })
     }
+
+    await db.listItem.update({
+      where: { id: itemId, recipeId: recipe.id },
+      data: { deletedAt: new Date() },
+    })
+
+    return new Response(null, { status: 204 })
   } catch (error) {
     return new ErrorResponse().from(error)
   }
