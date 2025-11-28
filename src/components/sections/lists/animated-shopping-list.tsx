@@ -17,6 +17,7 @@ import { toast } from 'sonner'
 
 interface AnimatedShoppingListProps {
   groceryLists: GroceryList[]
+  isInitialLoad: boolean
 }
 
 const listContainerVariants = {
@@ -66,7 +67,10 @@ const contentVariants = {
   },
 }
 
-export const AnimatedShoppingList: React.FC<AnimatedShoppingListProps> = ({ groceryLists }) => {
+export const AnimatedShoppingList: React.FC<AnimatedShoppingListProps> = ({
+  groceryLists,
+  isInitialLoad,
+}) => {
   const [selectedListId, setSelectedListId] = useState<string | null>(null)
 
   const selectedList = useMemo(() => {
@@ -76,7 +80,7 @@ export const AnimatedShoppingList: React.FC<AnimatedShoppingListProps> = ({ groc
 
   return (
     <>
-      <div className="mt-20 grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 xl:grid-cols-3">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 xl:grid-cols-3">
         {groceryLists?.map((list, index) => (
           <motion.div
             key={list.id}
@@ -93,8 +97,8 @@ export const AnimatedShoppingList: React.FC<AnimatedShoppingListProps> = ({ groc
               },
             }}
             transition={{
-              duration: 0.25,
-              delay: index * 0.05,
+              duration: 0.4,
+              delay: (isInitialLoad ? 0.8 : 0) + index * 0.05,
               ease: 'easeOut',
             }}
             layoutId={`list-card-${list.id}`}
