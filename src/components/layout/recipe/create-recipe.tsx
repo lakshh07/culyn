@@ -26,6 +26,7 @@ import { useRouter } from 'next/navigation'
 import React, { useState } from 'react'
 import { toast } from 'sonner'
 import { Highlighter } from '@/components/ui/highlighter'
+import { motion } from 'motion/react'
 
 export const CreateRecipe = () => {
   const [recipeInput, setRecipeInput] = useState('')
@@ -68,20 +69,39 @@ export const CreateRecipe = () => {
   })
 
   return (
-    <div className="space-y-16">
-      <div className="space-y-2 font-mono text-sm font-bold text-neutral-950 sm:space-y-1 sm:text-center sm:text-xl lg:space-y-1.5 lg:text-2xl xl:space-y-2 xl:text-3xl">
-        <div className="flex flex-col items-start justify-center sm:flex-row sm:items-center sm:gap-1.5 lg:gap-2">
+    <motion.div
+      className="space-y-16"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.5 }}>
+      <motion.div
+        className="space-y-2 font-mono text-sm font-bold text-neutral-950 sm:space-y-1 sm:text-center sm:text-xl lg:space-y-1.5 lg:text-2xl xl:space-y-2 xl:text-3xl"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, delay: 0.2, ease: 'easeOut' }}>
+        <motion.div
+          className="flex flex-col items-start justify-center sm:flex-row sm:items-center sm:gap-1.5 lg:gap-2"
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.4, ease: 'easeOut' }}>
           <h1 className="text-neutral-500">Welcome back,</h1>
           <h1 className="text-neutral-950">It&apos;s {getCurrentDate()}.</h1>
-        </div>
-        <p>
+        </motion.div>
+        <motion.p
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.6, ease: 'easeOut' }}>
           What are we making for{' '}
-          <Highlighter action="underline" color="#FF9800" isView>
+          <Highlighter action="underline" color="#FF9800" delay={2000}>
             <em className="italic">{getMealTypeByTime({ suffix: '?' })}</em>
           </Highlighter>
-        </p>
-      </div>
-      <div className="mx-auto sm:max-w-2xl lg:max-w-3xl xl:max-w-5xl">
+        </motion.p>
+      </motion.div>
+      <motion.div
+        className="mx-auto sm:max-w-2xl lg:max-w-3xl xl:max-w-5xl"
+        initial={{ opacity: 0, y: 30 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.7, delay: 0.8, ease: 'easeOut' }}>
         <InputGroup className="flex flex-col sm:h-[44px] sm:flex-row sm:[--radius:9999px] lg:h-[49px] xl:h-[54px]">
           <InputGroupAddon className="hidden sm:block">
             <SourceSelect recipeSource={recipeSource} setRecipeSource={setRecipeSource} />
@@ -121,8 +141,8 @@ export const CreateRecipe = () => {
             </InputGroupButton>
           </InputGroupAddon>
         </InputGroup>
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
   )
 }
 
