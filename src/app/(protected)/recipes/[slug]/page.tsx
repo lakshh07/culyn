@@ -14,6 +14,7 @@ import { DetailRecipeSkeleton } from '@/components/sections/recipes/detail-recip
 import VideoPlayer, { VideoPlayerRef } from '@/components/ui/video-player'
 import { getIngredientImageUrl } from '@/lib/recipe/ingredient-assets'
 import { CreateShoppingList } from '@/components/sections/recipes/create-shopping-list'
+import { motion } from 'motion/react'
 
 export default function RecipePage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = React.use(params)
@@ -83,8 +84,12 @@ export default function RecipePage({ params }: { params: Promise<{ slug: string 
   return (
     <>
       <div className="grid min-h-screen grid-cols-1 sm:grid-cols-2">
-        <div className="relative top-0 flex h-[280px] items-center justify-center overflow-hidden p-12 shadow-inner sm:sticky sm:h-screen sm:bg-[#E8E3DA] lg:p-16">
-          <div className="pointer-events-none relative mx-auto hidden items-center justify-center overflow-hidden rounded-full shadow-xl transition-transform duration-300 select-none group-hover:scale-105 sm:flex">
+        <motion.div className="relative top-0 flex h-[280px] items-center justify-center overflow-hidden p-12 shadow-inner sm:sticky sm:h-screen sm:bg-[#E8E3DA] lg:p-16">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.6, ease: 'easeOut' }}
+            className="pointer-events-none relative mx-auto hidden items-center justify-center overflow-hidden rounded-full shadow-xl select-none sm:flex">
             {recipe.imageUrl ? (
               <Image
                 src={recipe.imageUrl}
@@ -99,9 +104,13 @@ export default function RecipePage({ params }: { params: Promise<{ slug: string 
                 <span className="text-xl text-neutral-400">No image available</span>
               </div>
             )}
-          </div>
+          </motion.div>
 
-          <div className="absolute -right-5 bottom-0 flex size-[40vh] items-center justify-center overflow-hidden rounded-full sm:hidden">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.6, ease: 'easeOut' }}
+            className="absolute -right-5 bottom-0 flex size-[40vh] items-center justify-center overflow-hidden rounded-full sm:hidden">
             {recipe.imageUrl && (
               <Image
                 src={recipe.imageUrl}
@@ -112,15 +121,23 @@ export default function RecipePage({ params }: { params: Promise<{ slug: string 
                 priority
               />
             )}
-          </div>
-        </div>
+          </motion.div>
+        </motion.div>
 
         <div className="relative flex min-h-screen flex-col space-y-4 bg-white px-4 py-12 sm:mt-6 sm:px-6 sm:py-16 lg:px-10 xl:px-12">
-          <h1 className="font-mono text-3xl font-medium lg:text-4xl">
+          <motion.h1
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.1, ease: 'easeOut' }}
+            className="font-mono text-3xl font-medium lg:text-4xl">
             {recipe.shortTitle || recipe.title}
-          </h1>
+          </motion.h1>
 
-          <div className="flex items-center gap-2 font-mono text-xs text-neutral-600 lg:text-sm">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.2, ease: 'easeOut' }}
+            className="flex items-center gap-2 font-mono text-xs text-neutral-600 lg:text-sm">
             <InstagramIcon className="size-4 lg:size-4.5" />
             <span className="text-neutral-600">
               By{' '}
@@ -146,15 +163,23 @@ export default function RecipePage({ params }: { params: Promise<{ slug: string 
                 </Link>
               </>
             )}
-          </div>
+          </motion.div>
 
           {recipe.description && (
-            <p className="font-mono text-sm tracking-wide text-neutral-600 sm:tracking-normal lg:text-base xl:text-lg">
+            <motion.p
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.3, ease: 'easeOut' }}
+              className="font-mono text-sm tracking-wide text-neutral-600 sm:tracking-normal lg:text-base xl:text-lg">
               {recipe.description}
-            </p>
+            </motion.p>
           )}
 
-          <div className="mt-8 space-y-3 xl:mt-10">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.4, ease: 'easeOut' }}
+            className="mt-8 space-y-3 xl:mt-10">
             <h2 className="font-mono text-xl font-medium lg:text-2xl">Details</h2>
 
             <div className="flex flex-col space-y-2">
@@ -213,9 +238,13 @@ export default function RecipePage({ params }: { params: Promise<{ slug: string 
                 </Link>
               </p>
             </div>
-          </div>
+          </motion.div>
 
-          <div className="mt-10 space-y-3">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.5, ease: 'easeOut' }}
+            className="mt-10 space-y-3">
             <div className="flex items-center justify-between">
               <h2 className="font-mono text-xl font-medium lg:text-2xl">Ingredients</h2>
 
@@ -227,8 +256,13 @@ export default function RecipePage({ params }: { params: Promise<{ slug: string 
             </div>
 
             <div className="xs:grid-cols-2 grid grid-cols-4 gap-x-2 gap-y-4 lg:grid-cols-5 xl:grid-cols-7">
-              {scaledIngredients.map(ri => (
-                <div className="flex flex-col gap-2" key={ri.ingredient.slug}>
+              {scaledIngredients.map((ri, index) => (
+                <motion.div
+                  key={ri.ingredient.slug}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.3, delay: 0.6 + index * 0.05, ease: 'easeOut' }}
+                  className="flex flex-col gap-2">
                   <div className="relative size-20 overflow-hidden sm:size-18 lg:size-20">
                     <Avatar className="size-full rounded-xl object-cover">
                       <AvatarImage src={getIngredientImageUrl(ri.ingredient.name)} />
@@ -248,17 +282,26 @@ export default function RecipePage({ params }: { params: Promise<{ slug: string 
                       <span className="ps-0.5 text-neutral-400">{ri.unit}</span>
                     </div>
                   </div>
-                </div>
+                </motion.div>
               ))}
             </div>
-          </div>
+          </motion.div>
 
-          <div className="mt-10 space-y-3">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.7, ease: 'easeOut' }}
+            className="mt-10 space-y-3">
             <h2 className="font-mono text-xl font-medium lg:text-2xl">Cooking Steps</h2>
 
             <div className="mt-4 lg:mt-6">
-              {scaledCookingSteps.map(step => (
-                <div key={step.step_number} className="border-t border-neutral-200 pb-8">
+              {scaledCookingSteps.map((step, index) => (
+                <motion.div
+                  key={step.step_number}
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.4, delay: 0.8 + index * 0.1, ease: 'easeOut' }}
+                  className="border-t border-neutral-200 pb-8">
                   <div className="grid grid-cols-[60px_1fr] gap-4 pt-6 lg:grid-cols-[80px_1fr] lg:pt-8 xl:gap-10">
                     <p className="font-mono text-[50px] leading-10 font-medium text-neutral-400 sm:text-[55px] lg:text-[65px] xl:text-[70px]">
                       {step.step_number.toString().padStart(2, '0')}
@@ -284,10 +327,10 @@ export default function RecipePage({ params }: { params: Promise<{ slug: string 
                       )}
                     </div>
                   </div>
-                </div>
+                </motion.div>
               ))}
             </div>
-          </div>
+          </motion.div>
         </div>
       </div>
 
