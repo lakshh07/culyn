@@ -12,6 +12,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import Image from 'next/image'
 import { getIngredientImageUrl } from '@/lib/recipe/ingredient-assets'
 import { useMediaQuery } from 'usehooks-ts'
+import { CookPageSkeleton } from '@/components/sections/recipes/cook-page-skeleton'
 
 export default function RecipeCookingPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = React.use(params)
@@ -47,13 +48,7 @@ export default function RecipeCookingPage({ params }: { params: Promise<{ slug: 
   const isLastStep = currentStep === scaledCookingSteps.length - 1
 
   if (isLoadingRecipe) {
-    return (
-      <div className="flex min-h-screen items-center justify-center">
-        <div className="text-center">
-          <div className="text-4xl font-bold">Loading your recipe...</div>
-        </div>
-      </div>
-    )
+    return <CookPageSkeleton isDesktop={isDesktop} />
   }
 
   if (!recipe) {
@@ -118,11 +113,11 @@ export default function RecipeCookingPage({ params }: { params: Promise<{ slug: 
           <AnimatePresence mode="wait">
             <motion.div
               key={currentStep}
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, x: -20 }}
               transition={{
-                duration: 0.4,
+                duration: 0.5,
                 ease: [0.4, 0.0, 0.2, 1],
               }}
               className="mb-8">
@@ -144,39 +139,42 @@ export default function RecipeCookingPage({ params }: { params: Promise<{ slug: 
           </AnimatePresence>
 
           {/* What You'll Need */}
-          <motion.div
-            key={`tools-${currentStep}`}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            transition={{
-              duration: 0.4,
-              ease: [0.4, 0.0, 0.2, 1],
-            }}
-            className="mb-8 space-y-4">
-            <h2 className="font-mono text-lg font-semibold text-neutral-800">
-              What You&apos;ll Need
-            </h2>
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={`tools-${currentStep}`}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{
+                duration: 0.5,
+                delay: 0.15,
+                ease: [0.4, 0.0, 0.2, 1],
+              }}
+              className="mb-8 space-y-4">
+              <h2 className="font-mono text-lg font-semibold text-neutral-800">
+                What You&apos;ll Need
+              </h2>
 
-            {currentStepData?.tools_required && currentStepData.tools_required.length > 0 && (
-              <div className="border-t border-neutral-200">
-                {currentStepData.tools_required.map((tool, index) => (
-                  <motion.div
-                    key={`tool-${index}`}
-                    initial={{ opacity: 0, scale: 0.9 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{
-                      delay: 0.3 + index * 0.05,
-                      duration: 0.4,
-                      ease: [0.4, 0.0, 0.2, 1],
-                    }}
-                    className="border-b border-neutral-200 py-3 ps-2 font-mono text-sm font-medium text-neutral-600 capitalize">
-                    {tool}
-                  </motion.div>
-                ))}
-              </div>
-            )}
-          </motion.div>
+              {currentStepData?.tools_required && currentStepData.tools_required.length > 0 && (
+                <div className="border-t border-neutral-200">
+                  {currentStepData.tools_required.map((tool, index) => (
+                    <motion.div
+                      key={`tool-${index}`}
+                      initial={{ opacity: 0, scale: 0.9 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      transition={{
+                        delay: 0.3 + index * 0.05,
+                        duration: 0.4,
+                        ease: [0.4, 0.0, 0.2, 1],
+                      }}
+                      className="border-b border-neutral-200 py-3 ps-2 font-mono text-sm font-medium text-neutral-600 capitalize">
+                      {tool}
+                    </motion.div>
+                  ))}
+                </div>
+              )}
+            </motion.div>
+          </AnimatePresence>
 
           {/* Ingredients */}
           <AnimatePresence mode="wait">
@@ -187,8 +185,8 @@ export default function RecipeCookingPage({ params }: { params: Promise<{ slug: 
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -20 }}
                 transition={{
-                  duration: 0.3,
-                  delay: 0.2,
+                  duration: 0.5,
+                  delay: 0.3,
                   ease: [0.4, 0.0, 0.2, 1],
                 }}
                 className="space-y-4">
@@ -309,11 +307,11 @@ export default function RecipeCookingPage({ params }: { params: Promise<{ slug: 
             <AnimatePresence mode="wait">
               <motion.div
                 key={currentStep}
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, x: -20 }}
                 transition={{
-                  duration: 0.4,
+                  duration: 0.5,
                   ease: [0.4, 0.0, 0.2, 1],
                 }}
                 className="mb-8">
@@ -422,39 +420,42 @@ export default function RecipeCookingPage({ params }: { params: Promise<{ slug: 
 
       <div className="relative mt-10 lg:top-10 lg:p-8 xl:top-0 xl:p-16">
         <div className="sticky top-8 space-y-20">
-          <motion.div
-            key={`tools-${currentStep}`}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            transition={{
-              duration: 0.4,
-              ease: [0.4, 0.0, 0.2, 1],
-            }}
-            className="space-y-6">
-            <h1 className="font-mono font-semibold text-neutral-800 lg:text-xl xl:text-2xl">
-              What You&apos;ll Need
-            </h1>
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={`tools-${currentStep}`}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{
+                duration: 0.5,
+                delay: 0.15,
+                ease: [0.4, 0.0, 0.2, 1],
+              }}
+              className="space-y-6">
+              <h1 className="font-mono font-semibold text-neutral-800 lg:text-xl xl:text-2xl">
+                What You&apos;ll Need
+              </h1>
 
-            {currentStepData?.tools_required && currentStepData.tools_required.length > 0 && (
-              <div className="border-t border-neutral-200">
-                {currentStepData.tools_required.map((tool, index) => (
-                  <motion.div
-                    key={`tool-${index}`}
-                    initial={{ opacity: 0, scale: 0.9 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{
-                      delay: 0.3 + index * 0.05,
-                      duration: 0.4,
-                      ease: [0.4, 0.0, 0.2, 1],
-                    }}
-                    className="border-b border-neutral-200 py-4 ps-2 font-mono font-medium text-neutral-600 capitalize lg:text-base xl:text-lg">
-                    {tool}
-                  </motion.div>
-                ))}
-              </div>
-            )}
-          </motion.div>
+              {currentStepData?.tools_required && currentStepData.tools_required.length > 0 && (
+                <div className="border-t border-neutral-200">
+                  {currentStepData.tools_required.map((tool, index) => (
+                    <motion.div
+                      key={`tool-${index}`}
+                      initial={{ opacity: 0, scale: 0.9 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      transition={{
+                        delay: 0.3 + index * 0.05,
+                        duration: 0.4,
+                        ease: [0.4, 0.0, 0.2, 1],
+                      }}
+                      className="border-b border-neutral-200 py-4 ps-2 font-mono font-medium text-neutral-600 capitalize lg:text-base xl:text-lg">
+                      {tool}
+                    </motion.div>
+                  ))}
+                </div>
+              )}
+            </motion.div>
+          </AnimatePresence>
 
           <AnimatePresence mode="wait">
             {currentStepData?.ingredients_used && currentStepData.ingredients_used.length > 0 && (
@@ -464,8 +465,8 @@ export default function RecipeCookingPage({ params }: { params: Promise<{ slug: 
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -20 }}
                 transition={{
-                  duration: 0.3,
-                  delay: 0.2,
+                  duration: 0.5,
+                  delay: 0.3,
                   ease: [0.4, 0.0, 0.2, 1],
                 }}
                 className="space-y-6">
