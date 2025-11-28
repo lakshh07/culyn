@@ -262,10 +262,10 @@ export const RecipesSection: FC<RecipesSectionProps> = ({ className, bgColor }) 
                 )}
               </Button>
             </DrawerTrigger>
-            <DrawerContent className="m-2 max-w-lg! lg:rounded-l-lg">
+            <DrawerContent className="m-2 lg:max-w-md! lg:rounded-l-lg">
               <DrawerHeader>
-                <DrawerTitle className="text-left lg:text-center">Filter Recipes</DrawerTitle>
-                <DrawerDescription className="text-left lg:text-center">
+                <DrawerTitle className="text-left">Filter Recipes</DrawerTitle>
+                <DrawerDescription className="text-left">
                   Narrow down recipes by cooking time, nutrition, and ingredients
                 </DrawerDescription>
               </DrawerHeader>
