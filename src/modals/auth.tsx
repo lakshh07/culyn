@@ -252,7 +252,7 @@ export const AuthModal: FC<AuthModalProps> = ({ trigger, type }) => {
                         <FormItem>
                           <FormControl>
                             <InputGroup className="rounded-full px-2">
-                              {field.value.length > 0 && (
+                              {field.value && field.value.length > 0 && (
                                 <InputGroupAddon align="inline-start">
                                   {showPassword ? (
                                     <EyeIcon
