@@ -1,7 +1,7 @@
 import { betterAuth } from 'better-auth'
 import prisma from '@/lib/prisma'
 import { prismaAdapter } from 'better-auth/adapters/prisma'
-import { passkey } from 'better-auth/plugins/passkey'
+import { passkey } from '@better-auth/passkey'
 import { organization } from 'better-auth/plugins/organization'
 
 export const auth = betterAuth({
