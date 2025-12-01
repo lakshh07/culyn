@@ -1,0 +1,51 @@
+name: PR Title Check
+
+on:
+  pull_request:
+    types:
+      - opened
+      - edited
+      - synchronize
+      - reopened
+
+permissions:
+  contents: read
+  pull-requests: write
+  
+jobs:
+  validate-pr-title:
+    name: Validate PR Title
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Check PR Title
+        uses: amannn/action-semantic-pull-request@v5
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          # Configure allowed types (conventional commits)
+          types: |
+            feat
+            fix
+            docs
+            style
+            refactor
+            perf
+            test
+            build
+            ci
+            chore
+            revert
+          # Require a scope (optional, set to false if you don't want to enforce scopes)
+          requireScope: false
+          # Enforce 72 character limit for PR title
+          headerPattern: '^(\w+)(?:\(([^\)]+)\))?:\s(.{1,50})$'
+          headerPatternCorrespondence: type, scope, subject
+          # Subject may not be empty and must not start with uppercase
+          subjectPattern: ^(?![A-Z]).+$
+          subjectPatternError: |
+            The subject "{subject}" found in the pull request title "{title}"
+            didn't match the configured pattern. Please ensure that the subject
+            doesn't start with an uppercase character and the entire title is within 72 characters.
+          # Validate the entire PR title, and ignore the commits
+          validateSingleCommit: false
