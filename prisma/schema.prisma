@@ -426,7 +426,7 @@ model AiUsage {
   model        String
   inputTokens  Float    @default(0) @map("input_tokens")
   outputTokens Float    @default(0) @map("output_tokens")
-  userId       String  @map("user_id")
+  userId       String   @map("user_id")
   recipeId     String?  @map("recipe_id")
   createdAt    DateTime @default(now()) @map("created_at")
   updatedAt    DateTime @updatedAt @map("updated_at")

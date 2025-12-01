@@ -32,12 +32,14 @@
 ### Installation
 
 1. **Clone the repository**
+
    ```bash
    git clone https://github.com/yourusername/culyn.git
    cd culyn
    ```
 
 2. **Install dependencies**
+
    ```bash
    npm install
    # or
@@ -45,10 +47,11 @@
    ```
 
 3. **Set up environment variables**
+
    ```bash
    cp .env.example .env
    ```
-   
+
    Configure your `.env` file with:
    - Database connection (PostgreSQL)
    - Redis connection
@@ -58,12 +61,14 @@
    - Authentication secrets
 
 4. **Run database migrations**
+
    ```bash
    npx prisma migrate dev
    npx prisma generate
    ```
 
 5. **Start the development server**
+
    ```bash
    npm run dev
    # or
@@ -82,6 +87,7 @@ Open [http://localhost:3000](http://localhost:3000) to see the app.
 ## 🏗️ Tech Stack
 
 ### Frontend
+
 - **Framework**: Next.js 16 (App Router)
 - **UI Library**: React 19
 - **Styling**: Tailwind CSS 4
@@ -91,6 +97,7 @@ Open [http://localhost:3000](http://localhost:3000) to see the app.
 - **State Management**: TanStack Query
 
 ### Backend
+
 - **Database**: PostgreSQL (Prisma ORM)
 - **Authentication**: Better Auth
 - **Background Jobs**: BullMQ + Redis
@@ -99,6 +106,7 @@ Open [http://localhost:3000](http://localhost:3000) to see the app.
 - **Storage**: AWS S3
 
 ### PWA & SEO
+
 - **Manifest**: Full PWA support with installability
 - **Metadata**: Comprehensive SEO with Open Graph & Twitter Cards
 - **Theme**: Light mode with system-aware status bar
@@ -107,11 +115,13 @@ Open [http://localhost:3000](http://localhost:3000) to see the app.
 ## 📱 Progressive Web App
 
 Culyn is a fully-featured PWA that can be installed on:
+
 - 📱 iOS devices (via Safari)
 - 🤖 Android devices (via Chrome)
 - 💻 Desktop (Chrome, Edge, Safari)
 
 ### PWA Features
+
 - Offline-capable
 - Installable to home screen
 - Native-like experience
@@ -121,6 +131,7 @@ Culyn is a fully-featured PWA that can be installed on:
 ## 🎨 Design System
 
 ### Fonts
+
 - **Montserrat** - Primary UI font
 - **DM Sans** - Body text
 - **Syne** - Headings and emphasis
@@ -128,6 +139,7 @@ Culyn is a fully-featured PWA that can be installed on:
 - **Autography** - Decorative elements
 
 ### Theme
+
 - **Default**: Light mode
 - **Status Bar**: Adaptive (white for light, black for dark)
 - **Viewport**: Fixed scale for cooking experience
@@ -172,14 +184,17 @@ npm run ai-costs     # Check AI API costs
 ## 🌐 Deployment
 
 ### Domain
+
 - Production: `https://culyn.app`
 
 ### Recommended Platforms
+
 - **Vercel** - Optimized for Next.js
 - **Railway** - Full-stack deployment
 - **AWS** - Complete control
 
 ### Environment Setup
+
 1. Set all environment variables in your platform
 2. Configure PostgreSQL database
 3. Set up Redis instance
@@ -191,15 +206,18 @@ npm run ai-costs     # Check AI API costs
 Before deploying, ensure you have these images in `/public`:
 
 ### Priority 1: Core Icons
+
 - `/icon-192.png` (192x192px) - PWA icon
 - `/icon-512.png` (512x512px) - PWA icon
 - `/apple-icon.png` (180x180px) - iOS icon
 
 ### Priority 2: Social Media
+
 - `/og-image.png` (1200x630px) - Open Graph
 - `/twitter-image.png` (1200x675px) - Twitter card
 
 ### Optional: Screenshots & Splash
+
 - `/screenshot-mobile.png` (390x844px)
 - `/screenshot-desktop.png` (1920x1080px)
 - Apple splash screens (various sizes)
@@ -209,6 +227,7 @@ See `image-assets-checklist.md` for complete list.
 ## 🔐 Authentication
 
 Culyn uses Better Auth for authentication with support for:
+
 - Email/Password
 - OAuth providers (Google, etc.)
 - WebAuthn (passkeys)
@@ -217,6 +236,7 @@ Culyn uses Better Auth for authentication with support for:
 ## 💳 Payments
 
 Stripe integration for:
+
 - Subscription management
 - Premium features
 - Payment processing
@@ -224,6 +244,7 @@ Stripe integration for:
 ## 🤖 AI Features
 
 Powered by Google Generative AI:
+
 - Recipe extraction from text/images/videos
 - Ingredient recognition
 - Nutrition calculation
@@ -233,6 +254,7 @@ Powered by Google Generative AI:
 ## 📊 Database
 
 PostgreSQL with Prisma ORM:
+
 ```bash
 npx prisma studio        # Open Prisma Studio
 npx prisma migrate dev   # Create migration
@@ -242,6 +264,7 @@ npx prisma generate      # Generate client
 ## 🐛 Background Jobs
 
 BullMQ handles async tasks:
+
 - Recipe processing
 - AI extraction
 - Notification sending
@@ -263,6 +286,7 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 ## 🙏 Acknowledgments
 
 Built with:
+
 - [Next.js](https://nextjs.org)
 - [Tailwind CSS](https://tailwindcss.com)
 - [Prisma](https://prisma.io)
