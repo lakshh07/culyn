@@ -8,8 +8,6 @@ import { useScroll, motion, useTransform, easeInOut } from 'motion/react'
 import { useEffect, useRef, useState } from 'react'
 import Features from '@/components/sections/hero/features'
 import { ChefHatIcon, ListCheckIcon, ScanIcon } from '@/components/icons'
-import { LoadingScreen } from '@/components/ui/loading-screen'
-import { redirect } from 'next/navigation'
 
 const steps = [
   {
@@ -92,16 +90,6 @@ export default function Home() {
   const translateX = useTransform(scrollYProgress, [0, 1], [0, -300])
   const textOpacity = useTransform(scrollYProgress, [0.9, 1], [0, 1])
   const textTranslateY = useTransform(scrollYProgress, [0.9, 1], [40, 0])
-
-  useEffect(() => {
-    if (!isLoading && session) {
-      redirect('/discover')
-    }
-  }, [session, isLoading])
-
-  if (isLoading) {
-    return <LoadingScreen />
-  }
 
   return (
     <>
