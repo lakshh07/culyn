@@ -522,6 +522,136 @@ const EyeClosedIcon: FC<ComponentProps<'svg'>> = props => {
   )
 }
 
+const ClipboardListIcon: FC<ComponentProps<'svg'>> = props => {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      {...props}>
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M9 5h-2a2 2 0 0 0 -2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-12a2 2 0 0 0 -2 -2h-2" />
+      <path d="M9 3m0 2a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v0a2 2 0 0 1 -2 2h-2a2 2 0 0 1 -2 -2z" />
+      <path d="M9 12h6" />
+      <path d="M9 16h6" />
+    </svg>
+  )
+}
+
+const SettingsIcon: FC<ComponentProps<'svg'>> = props => {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      {...props}>
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M10.325 4.317c.426 -1.756 2.924 -1.756 3.35 0a1.724 1.724 0 0 0 2.573 1.066c1.543 -.94 3.31 .826 2.37 2.37a1.724 1.724 0 0 0 1.065 2.572c1.756 .426 1.756 2.924 0 3.35a1.724 1.724 0 0 0 -1.066 2.573c.94 1.543 -.826 3.31 -2.37 2.37a1.724 1.724 0 0 0 -2.572 1.065c-.426 1.756 -2.924 1.756 -3.35 0a1.724 1.724 0 0 0 -2.573 -1.066c-1.543 .94 -3.31 -.826 -2.37 -2.37a1.724 1.724 0 0 0 -1.065 -2.572c-1.756 -.426 -1.756 -2.924 0 -3.35a1.724 1.724 0 0 0 1.066 -2.573c-.94 -1.543 .826 -3.31 2.37 -2.37c1 .608 2.296 .07 2.572 -1.065z" />
+      <path d="M9 12a3 3 0 1 0 6 0a3 3 0 0 0 -6 0" />
+    </svg>
+  )
+}
+
+const BasketCheckIcon: FC<ComponentProps<'svg'>> = props => {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      {...props}>
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M17 10l-2 -6" />
+      <path d="M7 10l2 -6" />
+      <path d="M11 20h-3.756a3 3 0 0 1 -2.965 -2.544l-1.255 -7.152a2 2 0 0 1 1.977 -2.304h13.999a2 2 0 0 1 1.977 2.304l-.479 2.729" />
+      <path d="M10 14a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" />
+      <path d="M15 19l2 2l4 -4" />
+    </svg>
+  )
+}
+
+const MoodSmileIcon: FC<ComponentProps<'svg'>> = props => {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      {...props}>
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M12 21a9 9 0 1 1 0 -18a9 9 0 0 1 0 18z" />
+      <path d="M10 10c-.5 -1 -2.5 -1 -3 0" />
+      <path d="M17 10c-.5 -1 -2.5 -1 -3 0" />
+      <path d="M14.5 15a3.5 3.5 0 0 1 -5 0" />
+    </svg>
+  )
+}
+
+const TrophyIcon: FC<ComponentProps<'svg'>> = props => {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      {...props}>
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M8 21l8 0" />
+      <path d="M12 17l0 4" />
+      <path d="M7 4l10 0" />
+      <path d="M17 4v8a5 5 0 0 1 -10 0v-8" />
+      <path d="M5 9m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" />
+      <path d="M19 9m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" />
+    </svg>
+  )
+}
+
+const CheckIcon: FC<ComponentProps<'svg'>> = props => {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      {...props}>
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M5 12l5 5l10 -10" />
+    </svg>
+  )
+}
+
 export {
   GithubIcon,
   ArrowIcon,
@@ -548,4 +678,10 @@ export {
   XIcon,
   EyeClosedIcon,
   EyeIcon,
+  ClipboardListIcon,
+  SettingsIcon,
+  BasketCheckIcon,
+  MoodSmileIcon,
+  TrophyIcon,
+  CheckIcon,
 }
