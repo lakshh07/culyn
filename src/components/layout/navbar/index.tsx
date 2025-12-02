@@ -1,137 +1,43 @@
-'use client'
-
-import React, { useState, useEffect, FC, useMemo } from 'react'
-import Link from 'next/link'
+import { useEffect, useState } from 'react'
 import { motion } from 'motion/react'
-import { ArrowIcon } from '@/components/icons'
 import { cn } from '@/lib/utils'
-import { AuthModal } from '@/modals/auth'
 
-interface NavItem {
-  label: string
-  href: string
-}
-
-const sideNavItems: NavItem[] = [
-  {
-    label: 'Discover',
-    href: '/discover',
-  },
-]
-
-const MotionLink = motion.create(Link)
-
-interface NavLinkProps {
-  item: NavItem
-}
-
-const NavLink: React.FC<NavLinkProps> = React.memo(({ item }) => (
-  <MotionLink
-    key={item.label}
-    initial="initial"
-    whileHover="hover"
-    whileTap="tap"
-    variants={{
-      initial: { scale: 1 },
-      tap: {
-        scale: 0.95,
-        transition: { duration: 0.2 },
-      },
-    }}
-    href={item.href}
-    prefetch
-    className={cn(
-      'relative flex cursor-pointer items-center gap-3 text-sm font-normal',
-      'text-zinc-950'
-    )}>
-    <span className="relative font-mono font-medium">
-      {item.label}
-      <motion.span
-        className={cn('absolute -bottom-1 left-0 h-px w-full rounded-sm', 'bg-zinc-950')}
-        variants={{
-          initial: {
-            scaleX: 0,
-            transformOrigin: 'right',
-            transition: { duration: 0.3, ease: 'easeInOut' },
-          },
-          hover: {
-            scaleX: 1,
-            transformOrigin: 'left',
-            transition: { duration: 0.3, ease: 'easeInOut' },
-          },
-        }}
-      />
-    </span>
-    <ArrowIcon className="size-3" />
-  </MotionLink>
-))
-
-NavLink.displayName = 'NavLink'
-
-const LoginButton = () => (
-  <motion.button
-    initial="initial"
-    whileHover="hover"
-    whileTap="tap"
-    variants={{
-      initial: { scale: 1 },
-      tap: {
-        scale: 0.95,
-        transition: { duration: 0.2 },
-      },
-    }}
-    className={cn(
-      'relative flex cursor-pointer items-center gap-3 text-sm font-normal',
-      'text-zinc-950'
-    )}>
-    <span className="relative font-mono font-medium">
-      Login
-      <motion.span
-        className={cn('absolute -bottom-1 left-0 h-px w-full rounded-sm', 'bg-zinc-950')}
-        variants={{
-          initial: {
-            scaleX: 0,
-            transformOrigin: 'right',
-            transition: { duration: 0.3, ease: 'easeInOut' },
-          },
-          hover: {
-            scaleX: 1,
-            transformOrigin: 'left',
-            transition: { duration: 0.3, ease: 'easeInOut' },
-          },
-        }}
-      />
-    </span>
-    <ArrowIcon className="size-3" />
-  </motion.button>
-)
-
-export const Navbar: FC = () => {
+export const Navbar = () => {
+  const [isScrolled, setIsScrolled] = useState(false)
   const [showNavbar, setShowNavbar] = useState(true)
+  const [lastScrollY, setLastScrollY] = useState(0)
 
   useEffect(() => {
     const handleScroll = () => {
       const currentScrollY = window.scrollY
-      const isAtTop = currentScrollY <= 0
+      const windowHeight = window.innerHeight
+      const documentHeight = document.documentElement.scrollHeight
 
-      setShowNavbar(isAtTop)
+      const isAtBottom = currentScrollY + windowHeight >= documentHeight - 500
+
+      setIsScrolled(currentScrollY > 40)
+      if (currentScrollY <= 0) {
+        setShowNavbar(true)
+      } else if (currentScrollY > lastScrollY) {
+        setShowNavbar(false)
+      } else if (isAtBottom) {
+        setShowNavbar(false)
+      } else {
+        setShowNavbar(true)
+      }
+      setLastScrollY(currentScrollY)
     }
     window.addEventListener('scroll', handleScroll)
     return () => window.removeEventListener('scroll', handleScroll)
-  }, [])
-
-  const sideNavLinks = useMemo(
-    () => sideNavItems.map(item => <NavLink key={item.label} item={item} />),
-    []
-  )
+  }, [lastScrollY])
 
   return (
     <motion.div
-      className={cn('fixed left-0 z-50 w-full select-none', 'top-8')}
+      className={cn('fixed left-0 z-50 w-full', isScrolled ? 'top-6' : 'top-8')}
       initial={{ y: -100 }}
       animate={{
-        y: showNavbar ? 0 : -15,
-        opacity: 1,
+        y: showNavbar ? 0 : -100,
+        opacity: showNavbar ? 1 : 0,
       }}
       transition={{
         type: 'spring',
@@ -141,24 +47,82 @@ export const Navbar: FC = () => {
       }}>
       <motion.nav
         className={cn(
-          'flex items-center justify-between rounded-md bg-white/80 py-2 pr-6 pl-6 backdrop-blur-sm',
-          'mx-8 max-w-full'
+          'mx-auto flex items-center justify-between rounded-full bg-white/80 py-2 pr-2 pl-6 backdrop-blur-xs',
+          isScrolled ? 'max-w-3xl' : 'max-w-5xl'
         )}
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4 }}>
+        transition={{
+          duration: 0.4,
+          layout: {
+            ease: 'easeIn',
+            duration: 1.3,
+          },
+        }}
+        layout
+        layoutRoot>
         <motion.div
           className="flex items-center gap-2"
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.3, delay: 0.3 }}>
-          <h1 className="font-autography text-2xl">Culina</h1>
+          <h1 className="font-leckerli text-2xl">Culyn</h1>
         </motion.div>
 
-        <div className="flex items-center space-x-8">
-          {sideNavLinks}
-          <AuthModal trigger={LoginButton()} type="signIn" />
+        <div className="hidden items-center space-x-6 md:flex">
+          {[
+            { name: 'Home', href: '#home' },
+            { name: 'Features', href: '#features' },
+            { name: 'Contact', href: '#contact' },
+          ].map((item, index) => (
+            <motion.div
+              key={item.name}
+              onClick={() => {
+                const element = document.querySelector(item.href)
+                if (element) {
+                  element.scrollIntoView({ behavior: 'smooth' })
+                }
+              }}
+              initial={{ opacity: 0, y: -5 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{
+                duration: 0.2,
+                delay: 0.3 + index * 0.05,
+              }}>
+              <motion.button
+                whileHover={{ color: '#101828', scale: 1.02 }}
+                whileTap={{ scale: 0.95 }}
+                className="cursor-pointer font-normal text-gray-600">
+                {item.name}
+              </motion.button>
+            </motion.div>
+          ))}
         </div>
+
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.3, delay: 0.6 }}>
+          <motion.button
+            className="flex cursor-progress items-center gap-2 rounded-full bg-black px-4 py-2 text-white"
+            whileHover={{ scale: 1.02, backgroundColor: '#333' }}
+            whileTap={{ scale: 0.98 }}
+            transition={{ type: 'spring', stiffness: 400, damping: 17 }}>
+            Coming Soon
+            <motion.svg
+              className="h-4 w-4"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+              xmlns="http://www.w3.org/2000/svg">
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                d="M17 8l4 4m0 0l-4 4m4-4H3"></path>
+            </motion.svg>
+          </motion.button>
+        </motion.div>
       </motion.nav>
     </motion.div>
   )
