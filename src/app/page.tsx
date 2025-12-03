@@ -93,8 +93,8 @@ export default function Home() {
 
   return (
     <>
-      <motion.section style={{ backgroundColor }} className="font-thicccboi">
-        <motion.main className="h-full w-full space-y-40 rounded-md p-4" id="home">
+      <motion.section style={{ backgroundColor }} className="font-thicccboi select-none">
+        <motion.main className="h-full w-full space-y-40 rounded-md p-2 sm:p-3 lg:p-4" id="home">
           <div ref={containerRef} className="relative">
             <div
               className="absolute inset-0 h-full w-full rounded-t-lg"
@@ -116,9 +116,9 @@ export default function Home() {
             <Navbar />
 
             <div className="relative overflow-hidden pb-4">
-              <div className="relative top-[170px] flex w-full flex-col items-center justify-center">
+              <div className="relative top-[30px] flex h-screen w-full flex-col items-center justify-center px-3 sm:top-[100px] sm:h-[70vh] sm:px-0 lg:top-[170px] lg:h-auto">
                 <motion.h1
-                  className="mb-6 text-center text-[5.5rem] leading-tight font-black tracking-tight text-gray-950 uppercase"
+                  className="mb-6 text-[11vw] leading-tight font-black tracking-tight text-gray-950 uppercase sm:text-center sm:text-[2.8rem] lg:text-[3.8rem] xl:text-[5.5rem]"
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.6, delay: 0.4 }}>
@@ -129,7 +129,7 @@ export default function Home() {
                 </motion.h1>
 
                 <motion.p
-                  className="z-20 mb-8 max-w-4xl text-center text-xl font-normal text-gray-700"
+                  className="z-20 mb-8 max-w-2xl text-sm font-normal text-gray-700 sm:text-center lg:max-w-4xl lg:text-base xl:text-xl"
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.6, delay: 0.5 }}>
@@ -138,24 +138,24 @@ export default function Home() {
                 </motion.p>
 
                 <motion.div
-                  className="z-20 mb-10 flex flex-wrap items-center gap-4"
+                  className="z-20 mb-10 flex w-full flex-wrap items-center justify-start gap-4 sm:justify-center"
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.6, delay: 0.6 }}>
                   <motion.button
-                    className="cursor-progress rounded-full bg-black px-6 py-3 font-medium text-white"
+                    className="cursor-progress rounded-full bg-black px-4 py-2 text-sm font-medium text-white sm:px-5 sm:py-2 lg:px-6 lg:py-3 lg:text-base"
                     whileHover={{ scale: 1.05, backgroundColor: '#333' }}
                     whileTap={{ scale: 0.95 }}>
                     Coming Soon
                   </motion.button>
 
                   <motion.button
-                    className="flex cursor-pointer items-center gap-2 text-gray-700"
+                    className="flex cursor-pointer items-center gap-2 text-sm text-gray-700 lg:text-base"
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}>
-                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-white shadow-sm">
+                    <div className="flex items-center justify-center rounded-full bg-white shadow-sm sm:size-6 lg:size-8">
                       <svg
-                        className="h-4 w-4"
+                        className="size-3.5 lg:size-4"
                         fill="none"
                         stroke="currentColor"
                         viewBox="0 0 24 24"
@@ -181,7 +181,7 @@ export default function Home() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: 0.7 }}
-                className="relative flex items-center justify-center gap-4 p-2 md:p-20">
+                className="relative hidden items-center justify-center gap-4 p-2 md:p-20 lg:flex">
                 <div
                   className="relative w-full"
                   style={{
@@ -260,7 +260,7 @@ export default function Home() {
           <Features opacity={opacity} />
 
           <section ref={lastSectionRef} id="contact">
-            <div className="relative flex items-center justify-between px-4 pb-10">
+            <div className="relative flex items-center justify-between px-2 pb-10 sm:px-4">
               <motion.div
                 className="z-0"
                 initial={{ opacity: 0, x: -50 }}
@@ -313,7 +313,7 @@ export default function Home() {
                           {isGlow && (
                             <motion.span
                               className={cn(
-                                `absolute h-24 w-24 rounded-full opacity-90 blur-2xl`,
+                                `absolute size-20 rounded-full opacity-90 blur-2xl xl:size-24`,
                                 isGlow ? glow : 'bg-transparent'
                               )}
                               initial={{ scale: 0, opacity: 0 }}
@@ -329,7 +329,7 @@ export default function Home() {
                           )}
                           <motion.div
                             className={cn(
-                              `h-16 w-16 rounded-xl backdrop-blur-md transition`,
+                              `size-4 rounded-md backdrop-blur-md transition sm:size-10 sm:rounded-xl lg:size-12 xl:size-16`,
                               isGlow ? color : 'bg-[#181a20]/60'
                             )}
                             initial={{ opacity: 0 }}
@@ -396,7 +396,7 @@ export default function Home() {
                           {isGlow && (
                             <motion.span
                               className={cn(
-                                `absolute h-24 w-24 rounded-full opacity-90 blur-2xl`,
+                                `absolute size-16 rounded-full opacity-90 blur-2xl sm:size-20 xl:size-24`,
                                 isGlow ? glow : 'bg-transparent'
                               )}
                               initial={{ scale: 0, opacity: 0 }}
@@ -412,7 +412,7 @@ export default function Home() {
                           )}
                           <motion.div
                             className={cn(
-                              `h-16 w-16 rounded-xl backdrop-blur-md transition`,
+                              `size-4 rounded-md backdrop-blur-md transition sm:size-10 sm:rounded-xl lg:size-12 xl:size-16`,
                               isGlow ? color : 'bg-[#161616]/60'
                             )}
                             initial={{ opacity: 0 }}
@@ -433,14 +433,14 @@ export default function Home() {
               </motion.div>
 
               <motion.div
-                className="absolute inset-0 z-10 flex flex-col items-center justify-center"
+                className="absolute inset-0 -top-22 z-10 flex flex-col items-center justify-center sm:top-0"
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.8, delay: 0.5 }}
                 viewport={{ once: true }}>
                 <div className="flex flex-col items-center justify-center">
                   <motion.h2
-                    className="mb-4 bg-linear-to-b from-white to-gray-400 bg-clip-text text-center text-[80px] leading-tight font-bold tracking-tight text-transparent"
+                    className="mb-4 bg-linear-to-b from-white to-gray-400 bg-clip-text text-center text-[7.5vw] leading-tight font-bold tracking-tight text-transparent sm:text-5xl lg:text-6xl xl:text-[80px]"
                     initial={{ opacity: 0, y: 20 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.6, delay: 0.5 }}
@@ -449,7 +449,7 @@ export default function Home() {
                   </motion.h2>
 
                   <motion.p
-                    className="mb-10 max-w-2xl text-center text-lg text-gray-300 md:text-2xl"
+                    className="mb-10 max-w-lg text-center text-[3.5vw] text-gray-300 lg:max-w-xl lg:text-lg xl:max-w-2xl xl:text-2xl"
                     initial={{ opacity: 0, y: 20 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.6, delay: 0.6 }}
@@ -464,7 +464,7 @@ export default function Home() {
                     transition={{ duration: 0.6, delay: 0.7 }}
                     viewport={{ once: true }}>
                     <motion.button
-                      className="mb-4 flex cursor-progress items-center gap-2 rounded-full bg-white px-6 py-3 font-medium text-black shadow-lg"
+                      className="mb-4 flex cursor-progress items-center gap-2 rounded-full bg-white px-6 py-3 text-xs font-medium text-black shadow-lg lg:text-sm xl:text-base"
                       whileHover={{ scale: 1.05, backgroundColor: '#f5f5f5' }}
                       whileTap={{ scale: 0.95 }}>
                       Coming Soon
@@ -486,12 +486,14 @@ export default function Home() {
                   whileInView={{ opacity: 1, x: 0 }}
                   transition={{ duration: 0.6, delay: 1.1 }}
                   viewport={{ once: true }}>
-                  <h2 className="font-leckerli text-3xl font-normal text-white">Culyn</h2>
+                  <h2 className="font-leckerli text-xl font-normal text-white lg:text-2xl xl:text-3xl">
+                    Culyn
+                  </h2>
                   <motion.a
                     href="mailto:contact@culyn.app"
                     whileHover={{ color: '#fff' }}
                     whileTap={{ scale: 0.95 }}
-                    className="cursor-pointer text-sm text-gray-400">
+                    className="cursor-pointer text-xs text-gray-400 lg:text-sm">
                     contact@culyn.app
                   </motion.a>
                 </motion.div>
@@ -501,10 +503,10 @@ export default function Home() {
                   whileInView={{ opacity: 1, x: 0 }}
                   transition={{ duration: 0.6, delay: 1.1 }}
                   viewport={{ once: true }}>
-                  <span className="cursor-pointer text-gray-400 transition-all duration-300 hover:text-gray-100">
+                  <span className="cursor-pointer text-xs text-gray-400 transition-all duration-300 hover:text-gray-100 lg:text-sm xl:text-base">
                     Privacy
                   </span>
-                  <span className="cursor-pointer text-gray-400 transition-all duration-300 hover:text-gray-100">
+                  <span className="cursor-pointer text-xs text-gray-400 transition-all duration-300 hover:text-gray-100 lg:text-sm xl:text-base">
                     Terms
                   </span>
                 </motion.div>
@@ -513,7 +515,7 @@ export default function Home() {
               <hr className="w-full border-gray-700" />
 
               <motion.p
-                className="p-4 text-center text-sm text-gray-400"
+                className="p-4 text-center text-xs text-gray-400 lg:text-sm"
                 initial={{ opacity: 0 }}
                 whileInView={{ opacity: 1 }}
                 transition={{ duration: 0.6, delay: 1.2 }}

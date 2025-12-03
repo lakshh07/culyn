@@ -33,7 +33,7 @@ export const Navbar = () => {
 
   return (
     <motion.div
-      className={cn('fixed left-0 z-50 w-full', isScrolled ? 'top-6' : 'top-8')}
+      className={cn('fixed left-0 z-50 w-full', isScrolled ? 'top-6' : 'top-6 sm:top-8')}
       initial={{ y: -100 }}
       animate={{
         y: showNavbar ? 0 : -100,
@@ -47,8 +47,10 @@ export const Navbar = () => {
       }}>
       <motion.nav
         className={cn(
-          'mx-auto flex items-center justify-between rounded-full bg-white/80 py-2 pr-2 pl-6 backdrop-blur-xs',
-          isScrolled ? 'max-w-3xl' : 'max-w-5xl'
+          'mx-4 flex items-center justify-between rounded-full bg-white/80 py-1 pr-1 pl-6 backdrop-blur-xs sm:mx-auto lg:py-2 lg:pr-2',
+          isScrolled
+            ? 'max-w-md sm:max-w-xl lg:max-w-3xl'
+            : 'max-w-md sm:max-w-xl lg:max-w-4xl xl:max-w-5xl'
         )}
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -66,10 +68,10 @@ export const Navbar = () => {
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.3, delay: 0.3 }}>
-          <h1 className="font-leckerli text-2xl">Culyn</h1>
+          <h1 className="font-leckerli text-lg lg:text-xl xl:text-2xl">Culyn</h1>
         </motion.div>
 
-        <div className="hidden items-center space-x-6 md:flex">
+        <div className="hidden items-center space-x-6 lg:flex">
           {[
             { name: 'Home', href: '#home' },
             { name: 'Features', href: '#features' },
@@ -92,7 +94,7 @@ export const Navbar = () => {
               <motion.button
                 whileHover={{ color: '#101828', scale: 1.02 }}
                 whileTap={{ scale: 0.95 }}
-                className="cursor-pointer font-normal text-gray-600">
+                className="cursor-pointer text-sm font-normal text-gray-600 xl:text-base">
                 {item.name}
               </motion.button>
             </motion.div>
@@ -104,7 +106,7 @@ export const Navbar = () => {
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.3, delay: 0.6 }}>
           <motion.button
-            className="flex cursor-progress items-center gap-2 rounded-full bg-black px-4 py-2 text-white"
+            className="flex cursor-progress items-center gap-2 rounded-full bg-black px-4 py-1.5 text-xs text-white lg:py-2 lg:text-base"
             whileHover={{ scale: 1.02, backgroundColor: '#333' }}
             whileTap={{ scale: 0.98 }}
             transition={{ type: 'spring', stiffness: 400, damping: 17 }}>

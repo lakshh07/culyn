@@ -112,18 +112,18 @@ const Features = ({ opacity }: { opacity: MotionValue<number> }) => {
         viewport={{ once: true }}
         transition={{ duration: 0.6 }}
         className="mb-16 flex flex-col items-center justify-center overflow-hidden">
-        <h2 className="mb-3 text-center text-5xl font-extrabold text-gray-950">
+        <h2 className="mb-3 text-center text-2xl font-extrabold text-gray-950 sm:text-3xl lg:text-4xl xl:text-5xl">
           Smarter Cooking Habits,
           <br />
           Made Effortless
         </h2>
-        <p className="mb-4 max-w-3xl text-center text-xl text-gray-600">
+        <p className="mb-4 max-w-xl text-center text-sm text-gray-600 sm:text-base lg:max-w-2xl lg:text-lg xl:max-w-3xl xl:text-xl">
           Culyn helps you import recipes, auto-organize ingredients, and cook with AI guidance -
           without the chaos of screenshots or scattered notes.
         </p>
       </motion.div>
 
-      <div className="mb-12 grid grid-cols-1 gap-8 md:grid-cols-3">
+      <div className="mb-12 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:gap-8">
         {features.map((feature, i) => {
           return (
             <motion.div
@@ -150,14 +150,20 @@ const Features = ({ opacity }: { opacity: MotionValue<number> }) => {
                   {feature.icon}
                 </div>
               </div>
-              <h3 className={cn('mb-3 text-2xl font-bold', feature.colors.text)}>
+              <h3
+                className={cn(
+                  'mb-3 text-base font-bold sm:text-lg lg:text-xl xl:text-2xl',
+                  feature.colors.text
+                )}>
                 {feature.title}
               </h3>
-              <p className="mb-5 text-gray-600">{feature.description}</p>
+              <p className="mb-5 text-sm text-gray-600 xl:text-base">{feature.description}</p>
               <ul className="space-y-2 text-left">
                 {feature.listItems.map((item, i) => {
                   return (
-                    <li key={i} className="flex items-start justify-start gap-2 text-gray-700">
+                    <li
+                      key={i}
+                      className="flex items-start justify-start gap-2 text-sm text-gray-700 xl:text-base">
                       <span
                         className={cn(
                           'mt-0.5 flex items-center justify-center rounded-full p-1',
