@@ -1,9 +1,9 @@
 import type { Metadata, Viewport } from 'next'
-import { Montserrat, DM_Sans, Syne } from 'next/font/google'
+import { Montserrat, DM_Sans, Syne, Leckerli_One } from 'next/font/google'
 import '@/styles/globals.css'
 import { Providers } from '@/providers'
 import { cn } from '@/lib/utils'
-import { autography, sharpGrotesk } from '@/fonts'
+import { autography, thicccboi, sharpGrotesk } from '@/fonts'
 
 const montserrat = Montserrat({
   variable: '--font-montserrat',
@@ -19,6 +19,12 @@ const syne = Syne({
   variable: '--font-syne',
   subsets: ['latin'],
   weight: ['400', '500', '600', '700', '800'],
+})
+
+const leckerli = Leckerli_One({
+  weight: '400',
+  subsets: ['latin'],
+  variable: '--font-leckerli',
 })
 
 export const viewport: Viewport = {
@@ -172,6 +178,8 @@ export default function RootLayout({
           autography.variable,
           sharpGrotesk.variable,
           syne.variable,
+          thicccboi.variable,
+          leckerli.variable,
           'antialiased'
         )}>
         <Providers>{children}</Providers>
