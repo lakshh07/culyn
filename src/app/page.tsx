@@ -8,6 +8,8 @@ import { useScroll, motion, useTransform, easeInOut } from 'motion/react'
 import { useEffect, useRef, useState } from 'react'
 import Features from '@/components/sections/hero/features'
 import { ChefHatIcon, ListCheckIcon, ScanIcon } from '@/components/icons'
+import { appConfig as app } from '@/configs/app'
+import { AuthModal } from '@/modals/auth'
 
 const steps = [
   {
@@ -142,12 +144,20 @@ export default function Home() {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.6, delay: 0.6 }}>
-                  <motion.button
-                    className="cursor-progress rounded-full bg-black px-4 py-2 text-sm font-medium text-white sm:px-5 sm:py-2 lg:px-6 lg:py-3 lg:text-base"
-                    whileHover={{ scale: 1.05, backgroundColor: '#333' }}
-                    whileTap={{ scale: 0.95 }}>
-                    Coming Soon
-                  </motion.button>
+                  <AuthModal
+                    trigger={
+                      <motion.button
+                        className={cn(
+                          'cursor-pointer rounded-full bg-black px-4 py-2 text-sm font-medium text-white sm:px-5 sm:py-2 lg:px-6 lg:py-3 lg:text-base',
+                          app.isInProduction && 'cursor-progress'
+                        )}
+                        whileHover={{ scale: 1.05, backgroundColor: '#333' }}
+                        whileTap={{ scale: 0.95 }}>
+                        {app.isInProduction ? 'Coming Soon' : 'Get Started'}
+                      </motion.button>
+                    }
+                    type="signUp"
+                  />
 
                   <motion.button
                     className="flex cursor-pointer items-center gap-2 text-sm text-gray-700 lg:text-base"
@@ -242,12 +252,20 @@ export default function Home() {
                           transition={{ delay: 0.12, duration: 0.6 }}
                           viewport={{ once: true }}
                           className="mt-12">
-                          <motion.button
-                            whileHover={{ scale: 1.05, backgroundColor: '#333' }}
-                            whileTap={{ scale: 0.95 }}
-                            className="flex cursor-progress items-center gap-2 rounded-full bg-black px-6 py-3 font-medium text-white shadow hover:bg-gray-800">
-                            Coming Soon
-                          </motion.button>
+                          <AuthModal
+                            trigger={
+                              <motion.button
+                                className={cn(
+                                  'flex cursor-pointer items-center gap-2 rounded-full bg-black px-6 py-3 font-medium text-white shadow hover:bg-gray-800',
+                                  app.isInProduction && 'cursor-progress'
+                                )}
+                                whileHover={{ scale: 1.05, backgroundColor: '#333' }}
+                                whileTap={{ scale: 0.95 }}>
+                                {app.isInProduction ? 'Coming Soon' : 'Get Started'}
+                              </motion.button>
+                            }
+                            type="signUp"
+                          />
                         </motion.div>
                       </motion.div>
                     </div>
@@ -463,12 +481,20 @@ export default function Home() {
                     whileInView={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.6, delay: 0.7 }}
                     viewport={{ once: true }}>
-                    <motion.button
-                      className="mb-4 flex cursor-progress items-center gap-2 rounded-full bg-white px-6 py-3 text-xs font-medium text-black shadow-lg lg:text-sm xl:text-base"
-                      whileHover={{ scale: 1.05, backgroundColor: '#f5f5f5' }}
-                      whileTap={{ scale: 0.95 }}>
-                      Coming Soon
-                    </motion.button>
+                    <AuthModal
+                      trigger={
+                        <motion.button
+                          className={cn(
+                            'mb-4 flex cursor-pointer items-center gap-2 rounded-full bg-white px-6 py-3 text-xs font-medium text-black shadow-lg lg:text-sm xl:text-base',
+                            app.isInProduction && 'cursor-progress'
+                          )}
+                          whileHover={{ scale: 1.05, backgroundColor: '#f5f5f5' }}
+                          whileTap={{ scale: 0.95 }}>
+                          {app.isInProduction ? 'Coming Soon' : 'Get Started'}
+                        </motion.button>
+                      }
+                      type="signUp"
+                    />
                   </motion.div>
                 </div>
               </motion.div>
