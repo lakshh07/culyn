@@ -4,6 +4,7 @@ import '@/styles/globals.css'
 import { Providers } from '@/providers'
 import { cn } from '@/lib/utils'
 import { autography, thicccboi, sharpGrotesk } from '@/fonts'
+import { GoogleTag } from '@/scripts/google-tag'
 
 const montserrat = Montserrat({
   variable: '--font-montserrat',
@@ -171,6 +172,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <head>
+        <GoogleTag />
+      </head>
       <body
         className={cn(
           montserrat.variable,
