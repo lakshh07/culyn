@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react'
 import { motion } from 'motion/react'
 import { cn } from '@/lib/utils'
+import { appConfig as app } from '@/configs/app'
+import { AuthModal } from '@/modals/auth'
 
 export const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false)
@@ -105,25 +107,34 @@ export const Navbar = () => {
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.3, delay: 0.6 }}>
-          <motion.button
-            className="flex cursor-progress items-center gap-2 rounded-full bg-black px-4 py-1.5 text-xs text-white lg:py-2 lg:text-base"
-            whileHover={{ scale: 1.02, backgroundColor: '#333' }}
-            whileTap={{ scale: 0.98 }}
-            transition={{ type: 'spring', stiffness: 400, damping: 17 }}>
-            Coming Soon
-            <motion.svg
-              className="h-4 w-4"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-              xmlns="http://www.w3.org/2000/svg">
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                d="M17 8l4 4m0 0l-4 4m4-4H3"></path>
-            </motion.svg>
-          </motion.button>
+          <AuthModal
+            trigger={
+              <motion.button
+                className={cn(
+                  'flex cursor-pointer items-center gap-2 rounded-full bg-black px-4 py-1.5 text-xs text-white lg:py-2 lg:text-base',
+                  app.isInProduction && 'cursor-progress'
+                )}
+                whileHover={{ scale: 1.02, backgroundColor: '#333' }}
+                whileTap={{ scale: 0.98 }}
+                disabled={app.isInProduction}
+                transition={{ type: 'spring', stiffness: 400, damping: 17 }}>
+                {app.isInProduction ? 'Coming Soon' : 'Sign In'}
+                <motion.svg
+                  className="h-4 w-4"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                  xmlns="http://www.w3.org/2000/svg">
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M17 8l4 4m0 0l-4 4m4-4H3"></path>
+                </motion.svg>
+              </motion.button>
+            }
+            type="signIn"
+          />
         </motion.div>
       </motion.nav>
     </motion.div>

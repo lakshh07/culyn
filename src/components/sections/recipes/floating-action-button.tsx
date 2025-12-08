@@ -1,11 +1,10 @@
 import {
-  BookmarkIcon,
   ChefHatIcon,
-  LoadingIcon,
   MinusIcon,
   PlayIcon,
   PauseIcon,
   PlusIcon,
+  HeartIcon,
 } from '@/components/icons'
 import { Button } from '@/components/ui/button'
 import { motion } from 'motion/react'
@@ -54,6 +53,7 @@ export const FloatingActionButton: FC<FloatingActionButtonProps> = ({
       toast.success('Recipe added to cookbook')
       queryClient.invalidateQueries({ queryKey: ['v1', 'recipes'] })
       queryClient.invalidateQueries({ queryKey: ['v1', 'cookbook'] })
+      queryClient.invalidateQueries({ queryKey: ['v1', 'user', 'stats'] })
     },
     onError: error => new ClientErrorHandler().toast().handle(error),
   })
@@ -66,6 +66,7 @@ export const FloatingActionButton: FC<FloatingActionButtonProps> = ({
       toast.success('Recipe removed from cookbook')
       queryClient.invalidateQueries({ queryKey: ['v1', 'recipes'] })
       queryClient.invalidateQueries({ queryKey: ['v1', 'cookbook'] })
+      queryClient.invalidateQueries({ queryKey: ['v1', 'user', 'stats'] })
     },
     onError: error => new ClientErrorHandler().toast().handle(error),
   })
@@ -106,11 +107,11 @@ export const FloatingActionButton: FC<FloatingActionButtonProps> = ({
         disabled={isAddingToCookbook || isRemovingFromCookbook}
         onClick={() => (recipeCookbookIds.length > 0 ? removeFromCookbook() : addToCookbook())}>
         {isAddingToCookbook || isRemovingFromCookbook ? (
-          <LoadingIcon className="size-3.5 animate-spin lg:size-4" />
+          <HeartIcon className="size-3.5 animate-pulse text-red-500 lg:size-4" />
         ) : recipeCookbookIds.length > 0 ? (
-          <BookmarkIcon className="size-3.5 fill-neutral-900 lg:size-4" />
+          <HeartIcon className="size-3.5 fill-red-500 text-red-500 lg:size-4" />
         ) : (
-          <BookmarkIcon className="size-3.5 lg:size-4" />
+          <HeartIcon className="size-3.5 text-red-500 lg:size-4" />
         )}
         <span className="hidden sm:inline">{recipeCookbookIds.length > 0 ? 'Saved' : 'Save'}</span>
       </Button>

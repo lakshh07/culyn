@@ -188,7 +188,10 @@ export default function CookbookPage() {
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ duration: 0.4, delay: 1.6, ease: 'easeOut' }}>
-                <Button variant="default" size="sm" className="mt-4">
+                <Button
+                  variant="default"
+                  size="sm"
+                  className="mt-4 rounded-full px-4 py-2 text-xs font-bold">
                   Try Culina Pro
                 </Button>
               </motion.div>
@@ -219,6 +222,7 @@ const CookbookCard: FC<CookbookCardProps> = ({ cookbook, job }) => {
       toast.success('Recipe removed from cookbook')
       queryClient.invalidateQueries({ queryKey: ['v1', 'recipes'] })
       queryClient.invalidateQueries({ queryKey: ['v1', 'cookbook'] })
+      queryClient.invalidateQueries({ queryKey: ['v1', 'user', 'stats'] })
     },
     onError: error => new ClientErrorHandler().toast().handle(error),
   })
@@ -235,7 +239,7 @@ const CookbookCard: FC<CookbookCardProps> = ({ cookbook, job }) => {
         transition: { duration: 0.1, ease: 'easeOut' },
       }}
       onClick={() => router.push(`/recipes/${cookbook.recipe.slug}`)}
-      className="relative grid min-h-[120px] cursor-pointer grid-cols-[100px_1fr] items-center gap-4 rounded-lg bg-neutral-100 p-4 select-none hover:shadow-md sm:min-h-[1350x] lg:min-h-[150px]">
+      className="relative grid min-h-[120px] cursor-pointer grid-cols-[100px_1fr] items-center gap-4 rounded-3xl border border-neutral-200 bg-white p-4 transition-all duration-200 select-none hover:shadow-md sm:min-h-[1350x] lg:min-h-[150px]">
       <div className="pointer-events-none mx-auto flex size-24 items-center justify-center overflow-hidden rounded-full border border-neutral-200 bg-white transition-transform duration-300 select-none group-hover:scale-105">
         {cookbook.recipe.imageUrl && !job ? (
           <Image

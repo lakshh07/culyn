@@ -51,6 +51,7 @@ export const useBatchJobs = (jobIds: string[], enabled: boolean = true) => {
       console.log('invalidating cookbook and recipes')
       queryClient.invalidateQueries({ queryKey: ['v1', 'cookbook'] })
       queryClient.invalidateQueries({ queryKey: ['v1', 'recipes'] })
+      queryClient.invalidateQueries({ queryKey: ['v1', 'user', 'stats'] })
     }
 
     // Update the previous job IDs reference
