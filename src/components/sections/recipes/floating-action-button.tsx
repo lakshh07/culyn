@@ -54,6 +54,7 @@ export const FloatingActionButton: FC<FloatingActionButtonProps> = ({
       toast.success('Recipe added to cookbook')
       queryClient.invalidateQueries({ queryKey: ['v1', 'recipes'] })
       queryClient.invalidateQueries({ queryKey: ['v1', 'cookbook'] })
+      queryClient.invalidateQueries({ queryKey: ['v1', 'user', 'stats'] })
     },
     onError: error => new ClientErrorHandler().toast().handle(error),
   })
@@ -66,6 +67,7 @@ export const FloatingActionButton: FC<FloatingActionButtonProps> = ({
       toast.success('Recipe removed from cookbook')
       queryClient.invalidateQueries({ queryKey: ['v1', 'recipes'] })
       queryClient.invalidateQueries({ queryKey: ['v1', 'cookbook'] })
+      queryClient.invalidateQueries({ queryKey: ['v1', 'user', 'stats'] })
     },
     onError: error => new ClientErrorHandler().toast().handle(error),
   })
