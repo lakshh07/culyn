@@ -17,12 +17,12 @@ import { AnimatePresence, motion } from 'motion/react'
 import { inView } from 'motion'
 import {
   FilterIcon,
-  LoadingIcon,
   SearchIcon,
   SortIcon,
   XDashedIcon,
   BookmarkIcon,
   XIcon,
+  HeartIcon,
 } from '@/components/icons'
 import {
   Select,
@@ -574,7 +574,7 @@ export const RecipesSection: FC<RecipesSectionProps> = ({ className, bgColor }) 
 
         <motion.div
           key="tags-section"
-          className="scrollbar-hide flex gap-2 overflow-x-auto pb-2"
+          className="scrollbar-hide flex gap-2 overflow-x-auto"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: isInitialLoad ? 1.6 : 0, ease: 'easeOut' }}>
@@ -604,7 +604,7 @@ export const RecipesSection: FC<RecipesSectionProps> = ({ className, bgColor }) 
         <motion.div
           layoutId="recipes-grid"
           key="recipes-grid"
-          className="grid grid-cols-2 gap-3 overflow-hidden pb-10 sm:grid-cols-3 lg:grid-cols-4 lg:px-2 xl:grid-cols-5 xl:px-4"
+          className="grid grid-cols-2 gap-3 overflow-hidden pt-2 pb-10 sm:grid-cols-3 lg:grid-cols-4 lg:px-2 xl:grid-cols-5 xl:px-4"
           layout
           transition={{ duration: 0.5, ease: 'easeOut' }}>
           <AnimatePresence mode="popLayout">
@@ -732,6 +732,7 @@ const RecipeCard: FC<RecipeCardProps> = ({ recipe, className }) => {
       toast.success('Recipe added to cookbook')
       queryClient.invalidateQueries({ queryKey: ['v1', 'recipes'] })
       queryClient.invalidateQueries({ queryKey: ['v1', 'cookbook'] })
+      queryClient.invalidateQueries({ queryKey: ['v1', 'user', 'stats'] })
     },
     onError: error => new ClientErrorHandler().toast().handle(error),
   })
@@ -744,6 +745,7 @@ const RecipeCard: FC<RecipeCardProps> = ({ recipe, className }) => {
       toast.success('Recipe removed from cookbook')
       queryClient.invalidateQueries({ queryKey: ['v1', 'recipes'] })
       queryClient.invalidateQueries({ queryKey: ['v1', 'cookbook'] })
+      queryClient.invalidateQueries({ queryKey: ['v1', 'user', 'stats'] })
     },
     onError: error => new ClientErrorHandler().toast().handle(error),
   })
@@ -761,7 +763,7 @@ const RecipeCard: FC<RecipeCardProps> = ({ recipe, className }) => {
       <Card
         onClick={() => router.push(`/recipes/${recipe.slug}`)}
         className={cn(
-          'group relative flex min-h-[260px] cursor-pointer flex-col justify-between rounded-lg border-none bg-[#f6f6f6] px-4 py-4 shadow-none transition-all duration-200 select-none hover:shadow-md sm:min-h-[320px] xl:min-h-[350px] xl:px-5',
+          'group relative flex min-h-[260px] cursor-pointer flex-col justify-between rounded-3xl bg-white px-4 py-4 shadow-none transition-all duration-200 select-none hover:shadow-md sm:min-h-[320px] xl:min-h-[350px] xl:px-5',
           className
         )}>
         <div className="flex items-center justify-between">
@@ -781,15 +783,17 @@ const RecipeCard: FC<RecipeCardProps> = ({ recipe, className }) => {
               }
             }}
             className={cn(
-              'absolute top-3 right-3 flex shrink-0 cursor-pointer items-center gap-2 rounded-full bg-white p-1 transition-all duration-200',
-              (isRemovingFromCookbook || isAddingToCookbook) && 'pointer-events-none opacity-50'
+              'absolute top-3 right-3 flex shrink-0 cursor-pointer items-center gap-2 rounded-full bg-white p-1.5 transition-all duration-200',
+              (isRemovingFromCookbook || isAddingToCookbook) &&
+                'pointer-events-none animate-pulse opacity-50',
+              cookbookId && 'bg-red-50'
             )}>
             {isRemovingFromCookbook || isAddingToCookbook ? (
-              <LoadingIcon className="size-3.5 animate-spin sm:size-4" />
+              <HeartIcon className="size-3.5 animate-pulse text-red-500 sm:size-4" />
             ) : cookbookId ? (
-              <BookmarkIcon className="size-3.5 fill-neutral-900 sm:size-4" />
+              <HeartIcon className="size-3.5 fill-red-500 text-red-500 sm:size-4" />
             ) : (
-              <BookmarkIcon className="size-3.5 text-neutral-500 sm:size-4" />
+              <HeartIcon className="size-3.5 text-red-500 sm:size-4" />
             )}
           </motion.div>
         </div>
@@ -804,7 +808,7 @@ const RecipeCard: FC<RecipeCardProps> = ({ recipe, className }) => {
             alt={recipe?.title ?? ''}
             width={640}
             height={640}
-            className="size-36 scale-120 object-cover sm:size-40 xl:size-48"
+            className="size-36 scale-120 object-cover sm:size-40 xl:size-52"
           />
         </motion.div>
         <div>
