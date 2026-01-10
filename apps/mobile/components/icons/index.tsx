@@ -1,0 +1,14 @@
+export { default as AddIcon } from './Add';
+export { default as AddFillIcon } from './AddFill';
+export { default as BackIcon } from './Back';
+export { default as ChefHatIcon } from './ChefHat';
+export { default as ClockFillIcon } from './ClockFill';
+export { default as DiscoverIcon } from './Discover';
+export { default as DiscoverFillIcon } from './DiscoverFill';
+export { default as FireFillIcon } from './FireFill';
+export { default as HeartFillIcon } from './HeartFillIcon';
+export { default as HeartIcon } from './HeartIcon';
+export { default as MealPlanIcon } from './MealPlan';
+export { default as MealPlanFillIcon } from './MealPlanFill';
+export { default as RecipesIcon } from './Recipes';
+export { default as RecipesFillIcon } from './RecipesFill';
