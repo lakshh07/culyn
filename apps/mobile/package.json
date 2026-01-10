@@ -1,5 +1,5 @@
 {
-  "name": "culyn-app",
+  "name": "@culyn/mobile",
   "main": "expo-router/entry",
   "version": "1.0.0",
   "scripts": {

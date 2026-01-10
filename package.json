@@ -1,0 +1,21 @@
+{
+  "name": "culyn",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "bun run --parallel dev",
+    "dev:mobile": "bun --cwd apps/mobile dev",
+    "dev:mobile:ios": "bun --cwd apps/mobile ios",
+    "dev:web": "bun --cwd apps/web dev",
+    "dev:backend": "bun --cwd apps/backend dev",
+    "build": "bun run --parallel build",
+    "build:mobile": "bun --cwd apps/mobile build",
+    "build:web": "bun --cwd apps/web build",
+    "build:backend": "bun --cwd apps/backend build",
+    "lint": "bun run --parallel lint",
+    "typecheck": "bun run --parallel typecheck"
+  }
+}
