@@ -20,7 +20,7 @@
     ],
     "paths": {
       "@/*": ["./src/*"],
-      "@/bull/*": ["./bull/*"]
+      "@/bull/*": ["../backend/src/bull-old/*"]
     }
   },
   "include": [
