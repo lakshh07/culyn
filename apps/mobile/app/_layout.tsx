@@ -1,4 +1,6 @@
-import { useColorScheme, useThemeColors } from '@/constants/useTheme';
+import { useThemeColors } from '@/constants/useTheme';
+import { ThemeProvider } from '@/contexts/ThemeContext';
+import { queryClient } from '@/lib/query-client';
 import {
   EBGaramond_400Regular,
   EBGaramond_400Regular_Italic,
@@ -16,6 +18,7 @@ import {
   Syne_500Medium,
   Syne_600SemiBold,
 } from '@expo-google-fonts/syne';
+import { QueryClientProvider } from '@tanstack/react-query';
 import { useFonts } from 'expo-font';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Stack } from 'expo-router';
@@ -24,6 +27,29 @@ import { useEffect } from 'react';
 import { Platform, StatusBar, StyleSheet, View } from 'react-native';
 
 const GRADIENT_HEIGHT = 100;
+
+// Inner component that has access to ThemeProvider
+function AppContent() {
+  const colors = useThemeColors();
+
+  return (
+    <View style={styles.container}>
+      <StatusBar barStyle='light-content' backgroundColor='transparent' />
+      <Stack screenOptions={{ headerShown: false }}>
+        <Stack.Screen name='(auth)' />
+        <Stack.Screen name='(tabs)' />
+        <Stack.Screen name='settings' />
+      </Stack>
+      <LinearGradient
+        colors={[colors.gradientStart, colors.gradientEnd]}
+        start={{ x: 0, y: 1 }}
+        end={{ x: 0, y: 0 }}
+        pointerEvents='none'
+        style={styles.gradientOverlay}
+      />
+    </View>
+  );
+}
 
 export default function RootLayout() {
   const [fontsLoaded, fontError] = useFonts({
@@ -39,9 +65,6 @@ export default function RootLayout() {
     Syne_500Medium,
     Syne_600SemiBold,
   });
-
-  const colors = useThemeColors();
-  const scheme = useColorScheme();
 
   useEffect(() => {
     // Ensure we only call this once when the layout mounts
@@ -59,23 +82,11 @@ export default function RootLayout() {
   }
 
   return (
-    <View style={styles.container}>
-      <StatusBar barStyle='dark-content' backgroundColor='transparent' />
-      <Stack screenOptions={{ headerShown: false }}>
-        <Stack.Screen name='(tabs)' />
-        {/* <Stack.Screen name='(auth)' /> */}
-      </Stack>
-      <LinearGradient
-        colors={[
-          scheme === 'dark' ? 'rgba(17,24,39,0)' : 'rgba(255,255,255,0)',
-          colors.background,
-        ]}
-        start={{ x: 0, y: 1 }}
-        end={{ x: 0, y: 0 }}
-        pointerEvents='none'
-        style={styles.gradientOverlay}
-      />
-    </View>
+    <QueryClientProvider client={queryClient}>
+      <ThemeProvider>
+        <AppContent />
+      </ThemeProvider>
+    </QueryClientProvider>
   );
 }
 

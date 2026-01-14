@@ -56,6 +56,10 @@ export const Colors = {
     chipBackgroundActive: '#3B2523',
     chipText: '#6B6B6B',
     chipTextActive: '#FFFFFF',
+
+    // Gradient colors
+    gradientStart: 'rgba(255,255,255,0)',
+    gradientEnd: '#FFFFFF',
   },
 
   dark: {
@@ -115,6 +119,10 @@ export const Colors = {
     chipBackgroundActive: '#8B5CF6',
     chipText: '#D1D5DB',
     chipTextActive: '#FFFFFF',
+
+    // Gradient colors
+    gradientStart: 'rgba(17,24,39,0)',
+    gradientEnd: '#111827',
   },
 };
 

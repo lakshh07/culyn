@@ -20,7 +20,8 @@ interface RecipeCardProps {
   id: string;
   title: string;
   image: string | ImageSourcePropType;
-  credit?: string;
+  cookTime?: number | null;
+  calories?: number | null;
   onPress?: () => void;
   onHeartPress?: (liked: boolean) => void;
 }
@@ -29,7 +30,8 @@ export function RecipeCard({
   id,
   title,
   image,
-  credit,
+  cookTime,
+  calories,
   onPress,
   onHeartPress,
 }: RecipeCardProps) {
@@ -134,18 +136,22 @@ export function RecipeCard({
 
         {/* Row 3: Footer Section */}
         <View style={styles.footerRow}>
-          <View style={styles.footerItem}>
-            <ClockFillIcon width={14} height={14} />
-            <Text style={[styles.credit, { color: colors.textMuted }]}>
-              20min
-            </Text>
-          </View>
-          <View style={styles.footerItem}>
-            <FireFillIcon width={14} height={14} />
-            <Text style={[styles.credit, { color: colors.textMuted }]}>
-              320kcal
-            </Text>
-          </View>
+          {cookTime && (
+            <View style={styles.footerItem}>
+              <ClockFillIcon width={14} height={14} />
+              <Text style={[styles.credit, { color: colors.textMuted }]}>
+                {cookTime} min
+              </Text>
+            </View>
+          )}
+          {calories && (
+            <View style={styles.footerItem}>
+              <FireFillIcon width={14} height={14} />
+              <Text style={[styles.credit, { color: colors.textMuted }]}>
+                {calories} kcal
+              </Text>
+            </View>
+          )}
         </View>
       </Pressable>
     </Animated.View>
