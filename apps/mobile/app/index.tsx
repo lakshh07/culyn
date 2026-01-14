@@ -1,9 +1,36 @@
-// import { useAuthStore } from '@/store/auth.store';
+import { useThemeColors } from '@/constants/useTheme';
+import { authClient } from '@/lib/auth-client';
 import { Redirect } from 'expo-router';
+import { ActivityIndicator, StyleSheet, View } from 'react-native';
 
 export default function Index() {
-  // const isLoggedIn = useAuthStore((state) => state.isLoggedIn);
-  // Avoid redirecting to the same route (`/`) which causes an infinite loop.
-  // For now, send both logged-in and logged-out users to the main `discover` tab.
-  return <Redirect href='/discover' />;
+  const { data: session, isPending } = authClient.useSession();
+  const colors = useThemeColors();
+
+  if (isPending) {
+    return (
+      <View
+        style={[
+          styles.loadingContainer,
+          { backgroundColor: colors.background },
+        ]}
+      >
+        <ActivityIndicator size='large' color={colors.primary} />
+      </View>
+    );
+  }
+
+  return session ? (
+    <Redirect href='/(tabs)/discover' />
+  ) : (
+    <Redirect href='/(auth)/onboarding' />
+  );
 }
+
+const styles = StyleSheet.create({
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+});

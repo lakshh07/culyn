@@ -1,6 +1,7 @@
+import TabsHeader from '@/components/navigation/TabsHeader';
 import { useThemeColors } from '@/constants/useTheme';
 import { RecipeCard } from '@/features/recipes/components/RecipeCard';
-import { LinearGradient } from 'expo-linear-gradient';
+import { useRecipes } from '@/hooks/recipes/useRecipes';
 import { useRouter } from 'expo-router';
 import React from 'react';
 import {
@@ -12,24 +13,13 @@ import {
   Text,
   View,
 } from 'react-native';
-import {
-  SafeAreaView,
-  useSafeAreaInsets,
-} from 'react-native-safe-area-context';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 type QuickAction = {
   id: string;
   title: string;
   subtitle: string;
   image: string;
-};
-
-type RecipeCardData = {
-  id: string;
-  title: string;
-  category: string;
-  image: string;
-  credit?: string;
 };
 
 const weekdayNames = [
@@ -88,33 +78,6 @@ const quickActions: QuickAction[] = [
   },
 ];
 
-const recipeCards: RecipeCardData[] = [
-  {
-    id: 'thai-steak',
-    title: 'Thai Steak Bowl',
-    category: 'Dinner',
-    image:
-      'https://pub-9ee8a88c5e204f60bb31ce62c2b024e7.r2.dev/recipe-images/xkc5ozpa057wshb2atfljxl6-1766203607861.png',
-    credit: '@cuisinehub',
-  },
-  {
-    id: 'monte-cristo',
-    title: 'Monte Cristo Croissant Breakfast...',
-    category: 'Breakfast',
-    image:
-      'https://pub-9ee8a88c5e204f60bb31ce62c2b024e7.r2.dev/recipe-images/xkc5ozpa057wshb2atfljxl6-1766203607861.png',
-    credit: '@breakfastlove',
-  },
-  {
-    id: 'pasta',
-    title: 'Creamy Pesto Pasta',
-    category: 'Lunch',
-    image:
-      'https://pub-9ee8a88c5e204f60bb31ce62c2b024e7.r2.dev/recipe-images/xkc5ozpa057wshb2atfljxl6-1766203607861.png',
-    credit: '@pastachef',
-  },
-];
-
 const getOrdinalSuffix = (day: number) => {
   const remainderTen = day % 10;
   const remainderHundred = day % 100;
@@ -150,13 +113,13 @@ const buildDateString = (date: Date) => {
 };
 
 export default function Index() {
-  const insets = useSafeAreaInsets();
   const today = new Date();
   const dateString = buildDateString(today);
   const mealType = getMealTypeByTime();
   const colors = useThemeColors();
-  const topOffset = Math.max(insets.top, 18);
   const router = useRouter();
+
+  const { recipes } = useRecipes();
 
   return (
     <SafeAreaView
@@ -176,21 +139,7 @@ export default function Index() {
         contentInsetAdjustmentBehavior='never'
         contentContainerStyle={styles.scrollContent}
       >
-        <View style={[styles.topBar, { paddingTop: topOffset }]}>
-          <View style={styles.logoMark}>
-            <Text style={[styles.logoText, { color: colors.textPrimary }]}>
-              Culyn
-            </Text>
-          </View>
-          <LinearGradient
-            colors={[colors.primaryGradientStart, colors.primaryGradientEnd]}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 1 }}
-            style={styles.proButton}
-          >
-            <Text style={styles.proButtonText}>Try Pro</Text>
-          </LinearGradient>
-        </View>
+        <TabsHeader />
 
         <View style={styles.heroBlock}>
           <Text style={[styles.welcomeFaint, { color: colors.textSecondary }]}>
@@ -295,25 +244,27 @@ export default function Index() {
         />
 
         <View style={styles.recipeGrid}>
-          {recipeCards.map((recipe) => (
-            <View key={recipe.id} style={styles.recipeItem}>
-              <RecipeCard
-                id={recipe.id}
-                title={recipe.title}
-                image={recipe.image}
-                credit={recipe.credit}
-                onPress={() => {
-                  router.push({
-                    pathname: '/recipes/[id]',
-                    params: { id: recipe.id },
-                  });
-                }}
-                onHeartPress={(liked) => {
-                  // Handle heart press
-                }}
-              />
-            </View>
-          ))}
+          {recipes &&
+            recipes.map((recipe) => (
+              <View key={recipe.id} style={styles.recipeItem}>
+                <RecipeCard
+                  id={recipe.id}
+                  title={recipe.title}
+                  image={recipe.imageUrl ?? ''}
+                  cookTime={recipe.cookTime}
+                  calories={recipe.calories}
+                  onPress={() => {
+                    router.push({
+                      pathname: '/recipes/[slug]',
+                      params: { slug: recipe.slug },
+                    });
+                  }}
+                  onHeartPress={(liked) => {
+                    // Handle heart press
+                  }}
+                />
+              </View>
+            ))}
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -326,35 +277,6 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     paddingBottom: 86,
-  },
-  topBar: {
-    paddingHorizontal: 20,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  logoText: {
-    fontSize: 24,
-    fontFamily: 'LeckerliOne_400Regular',
-  },
-  logoMark: {
-    flexDirection: 'row',
-    alignItems: 'flex-end',
-    gap: 6,
-  },
-  proButton: {
-    paddingVertical: 10,
-    paddingHorizontal: 22,
-    borderRadius: 16,
-    shadowColor: '#8b5cf6',
-    shadowOpacity: 0.4,
-    shadowRadius: 12,
-    shadowOffset: { width: 0, height: 6 },
-  },
-  proButtonText: {
-    color: '#fff',
-    fontSize: 16,
-    fontFamily: 'EBGaramond_600SemiBold',
   },
   heroBlock: {
     paddingHorizontal: 20,

@@ -8,7 +8,7 @@ import {
   RecipesFillIcon,
   RecipesIcon,
 } from '@/components/icons';
-import { useColorScheme, useThemeColors } from '@/constants/useTheme';
+import { useThemeColors } from '@/constants/useTheme';
 import type { BottomTabBarProps } from '@react-navigation/bottom-tabs';
 import { LinearGradient } from 'expo-linear-gradient';
 import { usePathname } from 'expo-router';
@@ -63,7 +63,6 @@ export default function CustomTabBar({
 }: BottomTabBarProps) {
   const insets = useSafeAreaInsets();
   const colors = useThemeColors();
-  const scheme = useColorScheme();
   const bottomPadding = Math.max(insets.bottom, 18);
   const pathname = usePathname();
 
@@ -87,10 +86,7 @@ export default function CustomTabBar({
       ]}
     >
       <LinearGradient
-        colors={[
-          scheme === 'dark' ? 'rgba(17,24,39,0)' : 'rgba(255,255,255,0)',
-          colors.background,
-        ]}
+        colors={[colors.gradientStart, colors.gradientEnd]}
         start={{ x: 0, y: 0 }}
         end={{ x: 0, y: 1 }}
         pointerEvents='none'
