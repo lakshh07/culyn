@@ -1,4 +1,0 @@
--- AlterTable
-ALTER TABLE "recipes" ALTER COLUMN "title" DROP NOT NULL,
-ALTER COLUMN "cookingSteps" DROP NOT NULL,
-ALTER COLUMN "ingredients" DROP NOT NULL;
