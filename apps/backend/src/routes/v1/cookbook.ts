@@ -33,6 +33,7 @@ cookbook.get('/', async c => {
           sourceName: true,
           cookTime: true,
           metadata: true,
+          calories: true,
         },
       },
     },
