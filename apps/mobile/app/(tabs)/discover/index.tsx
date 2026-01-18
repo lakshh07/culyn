@@ -7,6 +7,7 @@ import React from 'react';
 import {
   FlatList,
   Image,
+  Pressable,
   ScrollView,
   StatusBar,
   StyleSheet,
@@ -18,6 +19,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 type QuickAction = {
   id: string;
   title: string;
+  path: string;
   subtitle: string;
   image: string;
 };
@@ -49,15 +51,9 @@ const monthNames = [
 
 const quickActions: QuickAction[] = [
   {
-    id: 'profile',
-    title: 'Your Profile',
-    subtitle: 'Account details & more',
-    image:
-      'https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=200&q=80',
-  },
-  {
     id: 'surprise',
     title: 'Surprise Me',
+    path: '/recipes',
     subtitle: 'Curated recipes for you',
     image:
       'https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=200&q=80&sat=-50',
@@ -65,16 +61,10 @@ const quickActions: QuickAction[] = [
   {
     id: 'shopping',
     title: 'Shopping List',
+    path: '/shopping-list',
     subtitle: 'What are we buying?',
     image:
       'https://images.unsplash.com/photo-1481391032119-d89fee407e44?auto=format&fit=crop&w=240&q=80',
-  },
-  {
-    id: 'merch',
-    title: 'Julienne Merch',
-    subtitle: 'Support the team',
-    image:
-      'https://images.unsplash.com/photo-1582719478145-bd35c8c1d917?auto=format&fit=crop&w=240&q=80',
   },
 ];
 
@@ -154,20 +144,18 @@ export default function Index() {
         </View>
 
         <FlatList
-          data={[
-            [quickActions[0]],
-            [quickActions[1]],
-            [quickActions[2]],
-            [quickActions[3]],
-          ]}
+          data={quickActions}
           horizontal
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={styles.quickGrid}
-          renderItem={({ item: column }) => (
-            <View style={styles.quickColumn}>
-              {column.map((item) => (
+          renderItem={({ item }) => (
+            <View key={item.id} style={styles.quickColumn}>
+              <Pressable
+                onPress={() => {
+                  router.push(item.path as any);
+                }}
+              >
                 <View
-                  key={item.id}
                   style={[
                     styles.quickCard,
                     { backgroundColor: colors.background },
@@ -193,7 +181,7 @@ export default function Index() {
                     style={styles.quickImage}
                   />
                 </View>
-              ))}
+              </Pressable>
             </View>
           )}
           keyExtractor={(item, index) => `column-${index}`}
@@ -307,7 +295,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 18,
     paddingTop: 16,
     paddingBottom: 8,
-    gap: 12,
+    gap: 10,
   },
   quickColumn: {
     gap: 10,
@@ -315,31 +303,30 @@ const styles = StyleSheet.create({
   quickCard: {
     borderRadius: 16,
     paddingTop: 4,
-    paddingBottom: 18,
-    paddingLeft: 20,
-    paddingRight: 20,
+    paddingBottom: 10,
+    paddingLeft: 14,
+    paddingRight: 4,
     display: 'flex',
-    flexDirection: 'column',
+    flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
+    gap: 10,
   },
   quickTextBlock: {
     // marginRight: 40,
   },
   quickTitle: {
     fontSize: 16,
-    textAlign: 'center',
     fontFamily: 'EBGaramond_400Regular',
   },
   quickSubtitle: {
     marginTop: 3,
     fontSize: 12,
-    textAlign: 'center',
     fontFamily: 'Syne_400Regular',
   },
   quickImage: {
-    width: 108,
-    height: 108,
+    width: 72,
+    height: 72,
   },
   sectionHeader: {
     paddingHorizontal: 20,

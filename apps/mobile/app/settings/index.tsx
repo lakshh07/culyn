@@ -12,7 +12,6 @@ import {
   ScrollView,
   StyleSheet,
   Text,
-  TouchableOpacity,
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -67,35 +66,6 @@ export default function SettingsScreen() {
       ]}
       edges={['bottom']}
     >
-      {/* Custom Header with Back Button */}
-      <View style={[styles.header, { borderBottomColor: colors.border }]}>
-        <TouchableOpacity
-          onPress={() => router.back()}
-          style={styles.backButton}
-        >
-          <Text
-            style={[
-              styles.backButtonText,
-              { color: colors.primary, fontFamily: 'Poppins_400Regular' },
-            ]}
-          >
-            ← Back
-          </Text>
-        </TouchableOpacity>
-        <Text
-          style={[
-            styles.headerTitle,
-            {
-              color: colors.textPrimary,
-              fontFamily: 'EBGaramond_600SemiBold',
-            },
-          ]}
-        >
-          Settings
-        </Text>
-        <View style={styles.headerSpacer} />
-      </View>
-
       <ScrollView
         style={styles.scrollView}
         contentContainerStyle={styles.scrollContent}
@@ -214,33 +184,6 @@ export default function SettingsScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 20,
-    paddingVertical: 16,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-  },
-  backButton: {
-    paddingVertical: 4,
-  },
-  backButtonText: {
-    fontSize: 16,
-    lineHeight: 24,
-  },
-  headerTitle: {
-    fontSize: 20,
-    lineHeight: 26,
-    position: 'absolute',
-    left: 0,
-    right: 0,
-    textAlign: 'center',
-    zIndex: -1,
-  },
-  headerSpacer: {
-    width: 60,
   },
   scrollView: {
     flex: 1,

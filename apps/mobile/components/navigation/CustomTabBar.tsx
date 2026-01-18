@@ -35,7 +35,7 @@ const TAB_CONFIG: Record<string, TabConfig> = {
     activeIcon: DiscoverFillIcon,
   },
   recipes: {
-    label: 'Recipes',
+    label: 'Cookbook',
     inactiveIcon: RecipesIcon,
     activeIcon: RecipesFillIcon,
   },

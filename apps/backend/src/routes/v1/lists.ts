@@ -18,11 +18,16 @@ lists.get('/', async c => {
     })
   }
 
+  const queries = c.req.queries() || {}
+  const queryParams = Object.fromEntries(
+    Object.entries(queries).map(([key, value]) => [key, Array.isArray(value) ? value[0] : value])
+  )
+
   const filters = await z
     .object({
       recipeId: z.string().optional(),
     })
-    .parseAsync(Object.fromEntries(c.req.queries() || []))
+    .parseAsync(queryParams)
 
   const groceryLists = await db.groceryList.findMany({
     where: {
