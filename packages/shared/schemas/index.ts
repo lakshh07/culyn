@@ -1,6 +1,7 @@
 export * from './cookbook';
 export * from './recipe';
 export * from './recipes';
+export * from './shopping-list';
 
 // Re-export commonly used recipes schemas for convenience
 export {
@@ -10,5 +11,6 @@ export {
   ListRecipesQuerySchema,
   RecipeDetailSchema,
   RecipeListItemSchema,
-  UpdateListItemRequestSchema,
+  UpdateListItemRequestSchema
 } from './recipes';
+
