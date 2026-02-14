@@ -10,7 +10,8 @@
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.culyn-ai"
+      "bundleIdentifier": "com.culyn-ai",
+      "appleTeamId": "3R4B4DSQSY"
     },
     "android": {
       "adaptiveIcon": {
@@ -20,7 +21,8 @@
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
       "edgeToEdgeEnabled": true,
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "package": "com.culynai"
     },
     "web": {
       "output": "static",
@@ -40,7 +42,31 @@
           }
         }
       ],
-      "expo-font"
+      "expo-font",
+      [
+        "expo-share-extension",
+        {
+          "activationRules": [
+            {
+              "type": "url",
+              "max": 1
+            }
+          ],
+          "height": 150,
+          "backgroundColor": {
+            "red": 0,
+            "green": 0,
+            "blue": 0,
+            "alpha": 0.95
+          },
+          "excludedPackages": [
+            "expo-dev-client",
+            "expo-splash-screen",
+            "expo-font"
+          ]
+        }
+      ],
+      "expo-notifications"
     ],
     "experiments": {
       "typedRoutes": true,
