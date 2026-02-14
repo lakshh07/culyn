@@ -7,7 +7,7 @@ import os from 'os'
 import path from 'path'
 
 const AI_CONFIG = Object.freeze({
-  MODEL: 'gpt-4o-mini',
+  MODEL: 'gemini-2.5-flash',
   TEMPERATURE: 0.3,
 })
 
@@ -92,14 +92,6 @@ const PRODUCT_PROMPTS = Object.freeze({
     Return ONLY valid JSON matching the exact schema -- no explanations or extra text.
   `,
 })
-
-export interface ExtractProductFromCaptionOptions {
-  caption: string
-  ownerUsername: string
-  url: string
-  productId: string
-  userId: string
-}
 
 export interface GenerateProductOptions {
   videoBuffer: Buffer
