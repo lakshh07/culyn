@@ -1,60 +1,86 @@
-import {
-  AddFillIcon,
-  AddIcon,
-  DiscoverFillIcon,
-  DiscoverIcon,
-  MealPlanFillIcon,
-  MealPlanIcon,
-  RecipesFillIcon,
-  RecipesIcon,
-} from '@/components/icons';
 import { useThemeColors } from '@/constants/useTheme';
 import type { BottomTabBarProps } from '@react-navigation/bottom-tabs';
 import { LinearGradient } from 'expo-linear-gradient';
 import { usePathname } from 'expo-router';
-import React from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import React, { useEffect } from 'react';
+import {
+  Image,
+  ImageSourcePropType,
+  Pressable,
+  StyleSheet,
+  Text,
+  View,
+} from 'react-native';
+import Animated, {
+  useAnimatedStyle,
+  useSharedValue,
+  withSpring,
+} from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { type SvgProps } from 'react-native-svg';
-
-type IconComponent = React.ComponentType<SvgProps>;
 
 const TAB_BAR_HEIGHT = 52;
-const GRADIENT_HEIGHT = 100;
+const GRADIENT_HEIGHT = 50;
 
 type TabConfig = {
   label: string;
-  inactiveIcon: IconComponent;
-  activeIcon: IconComponent;
+  image: ImageSourcePropType;
 };
 
 const TAB_CONFIG: Record<string, TabConfig> = {
   discover: {
     label: 'Discover',
-    inactiveIcon: DiscoverIcon,
-    activeIcon: DiscoverFillIcon,
+    image: require('@/assets/icons/discover.png'),
   },
-  recipes: {
-    label: 'Cookbook',
-    inactiveIcon: RecipesIcon,
-    activeIcon: RecipesFillIcon,
+  add: {
+    label: 'Import',
+    image: require('@/assets/icons/import.png'),
   },
-  create: {
-    label: 'Add',
-    inactiveIcon: AddIcon,
-    activeIcon: AddFillIcon,
+  'ai-chat': {
+    label: 'Chat',
+    image: require('@/assets/icons/ai-chat.png'),
   },
-  ai: {
-    label: 'Ask',
-    inactiveIcon: MealPlanIcon,
-    activeIcon: MealPlanFillIcon,
+  library: {
+    label: 'Library',
+    image: require('@/assets/icons/library.png'),
   },
-  meals: {
-    label: 'Meals',
-    inactiveIcon: MealPlanIcon,
-    activeIcon: MealPlanFillIcon,
+  profile: {
+    label: 'Profile',
+    image: require('@/assets/icons/profile.png'),
   },
 };
+
+const AnimatedImage = Animated.createAnimatedComponent(Image);
+
+function TabIcon({
+  image,
+  isActive,
+}: {
+  image: ImageSourcePropType;
+  isActive: boolean;
+}) {
+  const scale = useSharedValue(isActive ? 1.15 : 1);
+  const opacity = useSharedValue(isActive ? 1 : 0.4);
+
+  useEffect(() => {
+    scale.value = withSpring(isActive ? 1.05 : 1, {
+      damping: 20,
+      stiffness: 250,
+    });
+    opacity.value = withSpring(isActive ? 1 : 0.6, {
+      damping: 20,
+      stiffness: 250,
+    });
+  }, [isActive]);
+
+  const animatedStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: scale.value }],
+    opacity: opacity.value,
+  }));
+
+  return (
+    <AnimatedImage source={image} style={[styles.tabIcon, animatedStyle]} />
+  );
+}
 
 export default function CustomTabBar({
   state,
@@ -63,15 +89,19 @@ export default function CustomTabBar({
 }: BottomTabBarProps) {
   const insets = useSafeAreaInsets();
   const colors = useThemeColors();
-  const bottomPadding = Math.max(insets.bottom, 18);
+  const bottomPadding = Math.min(insets.bottom, 22);
   const pathname = usePathname();
 
-  // Hide tab bar when on recipe detail page (recipes/[id])
-  // Pathname will be like: /recipes/monte-cristo or /(tabs)/recipes/monte-cristo
-  const isRecipeDetailPage =
-    pathname.includes('/recipes/') && !pathname.endsWith('/recipes');
+  // Hide tab bar on detail pages and profile sub-screens
+  const isDetailPage =
+    (pathname.includes('/recipes/') && !pathname.endsWith('/recipes')) ||
+    (pathname.includes('/places/') && !pathname.endsWith('/places')) ||
+    (pathname.includes('/products/') && !pathname.endsWith('/products')) ||
+    (pathname.includes('/chat-detail/') &&
+      !pathname.endsWith('/chat-detail')) ||
+    (pathname.includes('/profile/') && !pathname.endsWith('/profile'));
 
-  if (isRecipeDetailPage) {
+  if (isDetailPage) {
     return null;
   }
 
@@ -104,7 +134,6 @@ export default function CustomTabBar({
           const { options } = descriptors[route.key];
 
           const config = TAB_CONFIG[route.name] ?? TAB_CONFIG.discover;
-          const Icon = isFocused ? config.activeIcon : config.inactiveIcon;
 
           const onPress = () => {
             const event = navigation.emit({
@@ -149,7 +178,7 @@ export default function CustomTabBar({
                 },
               ]}
             >
-              <Icon width={23} height={23} opacity={isFocused ? 1 : 0.6} />
+              <TabIcon image={config.image} isActive={isFocused} />
               <Text
                 style={[
                   styles.label,
@@ -180,7 +209,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     height: TAB_BAR_HEIGHT,
-    paddingHorizontal: 26,
+    paddingHorizontal: 20,
     paddingTop: 10,
   },
   tabItem: {
@@ -189,8 +218,13 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     gap: 4,
   },
+  tabIcon: {
+    width: 22,
+    height: 22,
+    resizeMode: 'contain',
+  },
   label: {
-    fontSize: 10,
+    fontSize: 11,
     fontFamily: 'Syne_500Medium',
   },
   gradientOverlay: {

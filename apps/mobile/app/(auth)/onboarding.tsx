@@ -1,5 +1,6 @@
 import { useThemeColors } from '@/constants/useTheme';
 import { authClient } from '@/lib/auth-client';
+import { requestNotificationPermissions } from '@/lib/notifications';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
@@ -78,7 +79,9 @@ export default function OnboardingScreen() {
       // Success - router will handle navigation via session check
       router.replace('/(tabs)/discover');
     } catch (err) {
-      setError('An error occurred. Please try again.');
+      const message =
+        err instanceof Error ? err.message : 'An error occurred. Please try again.';
+      setError(__DEV__ ? message : 'An error occurred. Please try again.');
       setLoading(false);
     }
   };
@@ -115,10 +118,15 @@ export default function OnboardingScreen() {
         return;
       }
 
+      // Request notification permissions for share extension import updates
+      requestNotificationPermissions();
+
       // Success - router will handle navigation via session check
       router.replace('/(tabs)/discover');
     } catch (err) {
-      setError('An error occurred. Please try again.');
+      const message =
+        err instanceof Error ? err.message : 'An error occurred. Please try again.';
+      setError(__DEV__ ? message : 'An error occurred. Please try again.');
       setLoading(false);
     }
   };
@@ -132,7 +140,7 @@ export default function OnboardingScreen() {
         provider: 'google',
         callbackURL: '/(tabs)/discover',
       });
-    } catch (err) {
+    } catch {
       setError('Failed to sign in with Google');
       setLoading(false);
     }

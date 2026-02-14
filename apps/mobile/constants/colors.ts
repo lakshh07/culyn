@@ -37,6 +37,14 @@ export const Colors = {
     accent: '#D2784A',
     accentSoft: '#FED7AA',
 
+    // Category colors
+    categoryRecipe: '#EF4444',
+    categoryRecipeSoft: '#FEE2E2',
+    categoryPlace: '#14B8A6',
+    categoryPlaceSoft: '#CCFBF1',
+    categoryProduct: '#22C55E',
+    categoryProductSoft: '#DCFCE7',
+
     // Status colors
     success: '#22C55E',
     successSoft: '#DCFCE7',
@@ -56,6 +64,18 @@ export const Colors = {
     chipBackgroundActive: '#3B2523',
     chipText: '#6B6B6B',
     chipTextActive: '#FFFFFF',
+
+    // Search & Header colors
+    searchBarBackground: '#FFFFFF',
+    searchBarText: '#717171',
+    searchBarIcon: '#222222',
+    headerBackground: '#FFFFFF',
+    tabIndicator: '#222222',
+    tabDivider: '#EBEBEB',
+
+    // Search overlay colors
+    overlayBackdrop: 'rgba(0,0,0,0.4)',
+    searchCardBackground: '#FFFFFF',
 
     // Gradient colors
     gradientStart: 'rgba(255,255,255,0)',
@@ -100,6 +120,14 @@ export const Colors = {
     accent: '#FB923C',
     accentSoft: '#7C2D12',
 
+    // Category colors
+    categoryRecipe: '#F87171',
+    categoryRecipeSoft: '#7F1D1D',
+    categoryPlace: '#2DD4BF',
+    categoryPlaceSoft: '#134E4A',
+    categoryProduct: '#4ADE80',
+    categoryProductSoft: '#14532D',
+
     // Status colors
     success: '#4ADE80',
     successSoft: '#14532D',
@@ -119,6 +147,18 @@ export const Colors = {
     chipBackgroundActive: '#8B5CF6',
     chipText: '#D1D5DB',
     chipTextActive: '#FFFFFF',
+
+    // Search & Header colors
+    searchBarBackground: '#374151',
+    searchBarText: '#9CA3AF',
+    searchBarIcon: '#D1D5DB',
+    headerBackground: '#111827',
+    tabIndicator: '#F9FAFB',
+    tabDivider: '#374151',
+
+    // Search overlay colors
+    overlayBackdrop: 'rgba(0,0,0,0.6)',
+    searchCardBackground: '#1F2937',
 
     // Gradient colors
     gradientStart: 'rgba(17,24,39,0)',

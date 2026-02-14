@@ -1,1 +1,1 @@
-export { generateRecipesQueue } from './generate-recipes'
+export { contentImportQueue } from './content-import'

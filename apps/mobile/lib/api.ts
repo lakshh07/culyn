@@ -4,7 +4,7 @@ import Constants from 'expo-constants';
 
 const getApiUrl = () => {
   if (__DEV__) {
-    return 'http://localhost:8000';
+    return process.env.CULYN_API_URL;
   }
   return Constants.expoConfig?.extra?.apiUrl || 'https://your-api-domain.com';
 };
@@ -44,7 +44,7 @@ export const apiClient = (version: 'v1' = 'v1'): AxiosInstance => {
     },
     (error) => {
       return Promise.reject(error);
-    }
+    },
   );
 
   // Response interceptor for error handling
@@ -62,7 +62,7 @@ export const apiClient = (version: 'v1' = 'v1'): AxiosInstance => {
         // Better Auth will handle session refresh automatically
       }
       return Promise.reject(error);
-    }
+    },
   );
 
   // Store instance for reuse

@@ -13,6 +13,10 @@ const S3_CONFIG = Object.freeze({
     RECIPE_VIDEOS: 'recipe-videos',
     RECIPE_THUMBNAILS: 'recipe-thumbnails',
     RECIPE_IMAGES: 'recipe-images',
+    CONTENT_VIDEOS: 'content-videos',
+    CONTENT_THUMBNAILS: 'content-thumbnails',
+    PLACE_IMAGES: 'place-images',
+    PRODUCT_IMAGES: 'product-images',
   },
 })
 

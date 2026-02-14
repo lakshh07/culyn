@@ -8,10 +8,10 @@ export default function TabsLayout() {
       tabBar={(props) => <CustomTabBar {...props} />}
     >
       <Tabs.Screen name='discover' />
-      <Tabs.Screen name='recipes' />
-      <Tabs.Screen name='ai' />
-      <Tabs.Screen name='meals' />
-      <Tabs.Screen name='create' />
+      <Tabs.Screen name='add' />
+      <Tabs.Screen name='ai-chat' />
+      <Tabs.Screen name='library' />
+      <Tabs.Screen name='profile' />
     </Tabs>
   );
 }

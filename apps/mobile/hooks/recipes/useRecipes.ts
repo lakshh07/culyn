@@ -1,25 +1,48 @@
 import { apiClient } from '@/lib/api';
 import { authClient } from '@/lib/auth-client';
 import { RecipeListItem } from '@culyn/shared/schemas';
-import { useQuery } from '@tanstack/react-query';
+import { useInfiniteQuery } from '@tanstack/react-query';
 
-export function useRecipes() {
+const PAGE_SIZE = 20;
+
+export interface RecipeFilterParams {
+  q?: string;
+  cookTimeMin?: number;
+  cookTimeMax?: number;
+  caloriesMin?: number;
+  caloriesMax?: number;
+  sortBy?: string;
+}
+
+export function useRecipes(filters?: RecipeFilterParams) {
   const { data: session } = authClient.useSession();
 
-  const data = useQuery({
-    queryKey: ['v1', 'recipes'],
-    queryFn: async () => {
-      const response = await apiClient().get<RecipeListItem[]>('/recipes');
+  const query = useInfiniteQuery({
+    queryKey: ['v1', 'recipes', filters],
+    queryFn: async ({ pageParam = 0 }) => {
+      const response = await apiClient().get<RecipeListItem[]>('/recipes', {
+        params: { limit: PAGE_SIZE, offset: pageParam, ...filters },
+      });
       return response.data;
     },
-    enabled: !!session?.user?.id, // Only fetch when user is authenticated
+    initialPageParam: 0,
+    getNextPageParam: (lastPage, allPages) => {
+      if (lastPage.length < PAGE_SIZE) return undefined;
+      return allPages.flat().length;
+    },
+    enabled: !!session?.user?.id,
     retry: 1,
   });
 
+  const recipes = query.data?.pages.flat();
+
   return {
-    recipes: data.data,
-    isLoading: data.isLoading,
-    error: data.error,
-    refetch: data.refetch,
+    recipes,
+    isLoading: query.isLoading,
+    error: query.error,
+    refetch: query.refetch,
+    fetchNextPage: query.fetchNextPage,
+    hasNextPage: query.hasNextPage,
+    isFetchingNextPage: query.isFetchingNextPage,
   };
 }

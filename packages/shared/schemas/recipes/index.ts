@@ -21,6 +21,8 @@ export const ListRecipesQuerySchema = z.object({
   proteinMin: z.coerce.number().optional(),
   proteinMax: z.coerce.number().optional(),
   ingredientIds: z.string().optional(), // comma-separated ingredient IDs
+  limit: z.coerce.number().optional().default(20),
+  offset: z.coerce.number().optional().default(0),
 });
 
 export type ListRecipesQuery = z.infer<typeof ListRecipesQuerySchema>;

@@ -1,5 +1,6 @@
-import { useThemeColors } from '@/constants/useTheme';
 import { ThemeProvider } from '@/contexts/ThemeContext';
+import { useShareImport } from '@/hooks/useShareImport';
+import { setupNotificationResponseHandler } from '@/lib/notifications';
 import { queryClient } from '@/lib/query-client';
 import {
   EBGaramond_400Regular,
@@ -20,17 +21,35 @@ import {
 } from '@expo-google-fonts/syne';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { useFonts } from 'expo-font';
-import { LinearGradient } from 'expo-linear-gradient';
-import { Stack } from 'expo-router';
+import * as Linking from 'expo-linking';
+import { useURL } from 'expo-linking';
+
+import { Stack, useRouter } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect } from 'react';
-import { Platform, StatusBar, StyleSheet, View } from 'react-native';
-
-const GRADIENT_HEIGHT = 100;
+import { StatusBar, StyleSheet, View } from 'react-native';
 
 // Inner component that has access to ThemeProvider
 function AppContent() {
-  const colors = useThemeColors();
+  const router = useRouter();
+  const incomingUrl = useURL();
+  const { triggerImport } = useShareImport();
+
+  // Handle deep links from share extension (culynapp://share?url=...)
+  useEffect(() => {
+    if (incomingUrl) {
+      const parsed = Linking.parse(incomingUrl);
+      if (parsed.path === 'share' && parsed.queryParams?.url) {
+        triggerImport(parsed.queryParams.url as string);
+      }
+    }
+  }, [incomingUrl, triggerImport]);
+
+  // Handle notification taps → navigate to detail page
+  useEffect(() => {
+    const subscription = setupNotificationResponseHandler(router);
+    return () => subscription.remove();
+  }, [router]);
 
   return (
     <View style={styles.container}>
@@ -39,14 +58,11 @@ function AppContent() {
         <Stack.Screen name='(auth)' />
         <Stack.Screen name='(tabs)' />
         <Stack.Screen name='settings' />
+        <Stack.Screen name='recipes/[slug]' />
+        <Stack.Screen name='places/[slug]' />
+        <Stack.Screen name='products/[slug]' />
+        <Stack.Screen name='chat-detail/[id]' />
       </Stack>
-      <LinearGradient
-        colors={[colors.gradientStart, colors.gradientEnd]}
-        start={{ x: 0, y: 1 }}
-        end={{ x: 0, y: 0 }}
-        pointerEvents='none'
-        style={styles.gradientOverlay}
-      />
     </View>
   );
 }
@@ -93,14 +109,5 @@ export default function RootLayout() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-  },
-  gradientOverlay: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    height: GRADIENT_HEIGHT,
-    zIndex: 9999,
-    ...(Platform.OS === 'android' && { elevation: 9999 }),
   },
 });

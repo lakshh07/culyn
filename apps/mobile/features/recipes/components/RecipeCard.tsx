@@ -1,9 +1,4 @@
-import {
-  ClockFillIcon,
-  FireFillIcon,
-  HeartFillIcon,
-  HeartIcon,
-} from '@/components/icons';
+import { ClockFillIcon, FireFillIcon } from '@/components/icons';
 import { useThemeColors } from '@/constants/useTheme';
 import React, { useRef, useState } from 'react';
 import {
@@ -93,11 +88,7 @@ export function RecipeCard({
         ]}
       >
         <Animated.View
-          style={[
-            styles.heartButton,
-            { borderColor: colors.backgroundSecondary },
-            { transform: [{ scale: heartScale }] },
-          ]}
+          style={[styles.heartButton, { transform: [{ scale: heartScale }] }]}
         >
           <Pressable
             onPress={handleHeartPress}
@@ -106,11 +97,15 @@ export function RecipeCard({
             hitSlop={8}
             style={styles.heartButtonInner}
           >
-            {isLiked ? (
-              <HeartFillIcon width={20} height={20} />
-            ) : (
-              <HeartIcon width={20} height={20} />
-            )}
+            <Image
+              source={
+                isLiked
+                  ? require('@/assets/icons/heart-fill.png')
+                  : require('@/assets/icons/heart.png')
+              }
+              style={styles.heartIcon}
+              resizeMode='contain'
+            />
           </Pressable>
         </Animated.View>
 
@@ -174,15 +169,15 @@ const styles = StyleSheet.create({
   },
   heartButton: {
     position: 'absolute',
-    top: 8,
-    right: 8,
+    top: 7,
+    right: 7,
     width: 30,
     height: 30,
-    borderRadius: 13,
-    borderWidth: 2,
+    borderRadius: 15,
     backgroundColor: 'rgba(255, 255, 255, 0.9)',
     justifyContent: 'center',
     alignItems: 'center',
+    overflow: 'visible',
     elevation: 3,
     zIndex: 10,
   },
@@ -191,6 +186,10 @@ const styles = StyleSheet.create({
     height: '100%',
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  heartIcon: {
+    width: 17,
+    height: 17,
   },
 
   titleRow: {

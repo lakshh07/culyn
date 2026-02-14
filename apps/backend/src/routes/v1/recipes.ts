@@ -1,14 +1,9 @@
-import { QUEUE_NAMES } from '@/bull/config'
-import { generateRecipesQueue } from '@/bull/queues'
 import { auth } from '@/lib/auth'
 import db from '@/lib/prisma'
 import {
-  GenerateRecipeRequestSchema,
   ListRecipesQuerySchema,
   UpdateListItemRequestSchema,
 } from '@culyn/shared/schemas'
-import { JobType } from '@prisma/client'
-import { randomUUID } from 'crypto'
 import { Hono } from 'hono'
 import { HTTPException } from 'hono/http-exception'
 
@@ -198,6 +193,8 @@ recipes.get('/', async c => {
       },
     },
     orderBy,
+    take: filters.limit,
+    skip: filters.offset,
   })
 
   let finalRecipes = recipeList
@@ -206,122 +203,6 @@ recipes.get('/', async c => {
   }
 
   return c.json(finalRecipes)
-})
-
-// POST /recipes/generate - Generate recipe from URL (async with BullMQ)
-recipes.post('/generate', async c => {
-  const session = await auth.api.getSession({
-    headers: c.req.raw.headers,
-  })
-
-  if (!session) {
-    throw new HTTPException(401, {
-      message: 'You are not authenticated, please login',
-    })
-  }
-
-  // Note: SubscriptionService is deferred, so we skip the limit check for now
-  // await SubscriptionService.enforceRecipeLimit(session.user.id)
-
-  const { user, org } = await db.$transaction(async tx => {
-    const user = await tx.user.findUnique({
-      where: {
-        id: session.user.id,
-      },
-    })
-
-    const org = await tx.organization.findFirst({
-      where: {
-        ownerId: session.user.id,
-      },
-    })
-
-    return { user, org }
-  })
-
-  if (!user || !org) {
-    throw new HTTPException(404, {
-      message: 'User or organization not found',
-    })
-  }
-
-  const payload = await GenerateRecipeRequestSchema.parseAsync(await c.req.json())
-
-  const { recipe, bullJob, job } = await db.$transaction(async tx => {
-    const recipe = await tx.recipe.create({
-      data: {
-        slug: randomUUID(),
-        user: {
-          connect: {
-            id: session.user.id,
-          },
-        },
-        organization: {
-          connect: {
-            id: org.id,
-          },
-        },
-        sourceType: payload.sourceType,
-        sourceUrl: payload.url,
-      },
-    })
-
-    await tx.recipeFavorite.create({
-      data: {
-        recipeId: recipe.id,
-        userId: session.user.id,
-      },
-    })
-
-    const bullJob = await generateRecipesQueue.add(QUEUE_NAMES.RECIPE_GENERATION, {
-      userId: session.user.id,
-      organizationId: org.id,
-      recipeId: recipe.id,
-      url: payload.url,
-      sourceType: payload.sourceType,
-    })
-
-    const job = await tx.job.create({
-      data: {
-        bullJobId: bullJob.id,
-        type: JobType.RECIPE_GENERATION,
-        user: {
-          connect: {
-            id: session.user.id,
-          },
-        },
-        organization: {
-          connect: {
-            id: org.id,
-          },
-        },
-        jobData: {
-          url: payload.url,
-          sourceType: payload.sourceType,
-          recipeId: recipe.id,
-        },
-      },
-    })
-
-    await tx.recipe.update({
-      where: { id: recipe.id },
-      data: {
-        metadata: {
-          jobId: job.id,
-        },
-      },
-    })
-
-    return { recipe, bullJob, job }
-  })
-
-  return c.json(
-    {
-      status: 202,
-      data: { recipeId: recipe.id, bullJobId: bullJob.id, jobId: job.id },
-    },
-    202
-  )
 })
 
 // GET /recipes/:slug - Get recipe by slug

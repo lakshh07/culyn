@@ -3,24 +3,31 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "dev": "bun run --hot src/index.ts",
+    "dev": "NODE_ENV=development bun run --hot src/index.ts",
+    "start": "NODE_ENV=production bun run src/index.ts",
     "format": "prettier --write \"**/*.{js,jsx,ts,tsx,json,css,md,prisma}\"",
-    "format:check": "prettier --check \"**/*.{js,jsx,ts,tsx,json,css,md,prisma}\""
+    "format:check": "prettier --check \"**/*.{js,jsx,ts,tsx,json,css,md,prisma}\"",
+    "seed:sample": "bun run scripts/seed-places-products.ts"
   },
   "dependencies": {
+    "@ai-sdk/google": "^1.2.0",
     "@aws-sdk/client-s3": "^3.946.0",
     "@better-auth/expo": "^1.4.10",
     "@better-auth/passkey": "^1.4.5",
     "@culyn/shared": "workspace:*",
+    "@google/genai": "^1.0.0",
     "@hono/zod-validator": "^0.7.6",
     "@prisma/adapter-pg": "^7.2.0",
     "@prisma/client": "^7.2.0",
+    "ai": "^6.0.86",
     "axios": "^1.13.2",
     "better-auth": "^1.4.5",
     "bullmq": "^5.65.1",
     "dotenv": "^17.2.3",
     "hono": "^4.11.3",
+    "openai": "^6.17.0",
     "redis": "^5.10.0",
+    "slugify": "^1.6.6",
     "zod": "^4.1.13"
   },
   "devDependencies": {
