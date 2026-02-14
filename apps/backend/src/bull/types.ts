@@ -1,15 +1,13 @@
-import { RecipeSourceType } from '@prisma/client'
-
-export type RecipeGenerationJobData = {
+export type ContentImportJobData = {
   userId: string
   organizationId: string
-  recipeId: string
   url: string
-  sourceType: RecipeSourceType
 }
 
-export type RecipeGenerationJobResult = {
-  recipeId: string
+export type ContentImportJobResult = {
+  category: 'RECIPE' | 'PLACE' | 'PRODUCT'
+  slug: string
+  recordId: string
   success: boolean
   error?: string
 }

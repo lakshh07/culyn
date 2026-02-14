@@ -1,12 +1,12 @@
 import type { ConnectionOptions } from 'bullmq'
 
 export const QUEUE_NAMES = {
-  RECIPE_GENERATION: 'recipe-generation',
+  CONTENT_IMPORT: 'content-import',
 } as const
 
 export const connectionOptions: ConnectionOptions = {
   url: process.env.REDIS_URL || 'redis://localhost:6379',
-  maxRetriesPerRequest: 5,
+  maxRetriesPerRequest: null,
 }
 
 export const defaultJobOptions = {

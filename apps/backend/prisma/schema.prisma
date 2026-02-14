@@ -34,6 +34,10 @@ model User {
   GroceryList        GroceryList[]
   jobs               Job[]
   apiKeys            ApiKey[]
+  places             Place[]
+  products           Product[]
+  placeFavorites     PlaceFavorite[]
+  productFavorites   ProductFavorite[]
 
   @@index([email, id])
   @@index([deletedAt])
@@ -139,6 +143,8 @@ model Organization {
   recipes      Recipe[]
   lists        GroceryList[]
   jobs         Job[]
+  places       Place[]
+  products     Product[]
 
   @@index([slug])
   @@index([deletedAt])
@@ -223,8 +229,8 @@ model Job {
 // ============================================
 
 model Recipe {
-  id                 String            @id @default(cuid(2))
-  slug               String            @unique
+  id                 String             @id @default(cuid(2))
+  slug               String             @unique
   title              String?
   shortTitle         String?
   description        String?
@@ -237,33 +243,34 @@ model Recipe {
   ingredients        Json?
   notes              String?
   sourceMetadata     Json?
-  sourceType         RecipeSourceType  @default(MANUAL)
+  sourceType         RecipeSourceType   @default(MANUAL)
   sourceUrl          String?
   sourceName         String?
   sourceVideoUrl     String?
   sourceThumbnailUrl String?
   calories           Int?
-  protein            Decimal?          @db.Decimal(10, 2)
-  carbs              Decimal?          @db.Decimal(10, 2)
-  fat                Decimal?          @db.Decimal(10, 2)
+  protein            Decimal?           @db.Decimal(10, 2)
+  carbs              Decimal?           @db.Decimal(10, 2)
+  fat                Decimal?           @db.Decimal(10, 2)
   metadata           Json?
 
   userId String?
   orgId  String?
 
-  isPublic         Boolean            @default(false)
-  createdAt        DateTime           @default(now())
-  updatedAt        DateTime           @updatedAt
-  deletedAt        DateTime?
-  user             User?              @relation(fields: [userId], references: [id], onDelete: SetNull)
-  organization     Organization?      @relation(fields: [orgId], references: [id], onDelete: SetNull)
-  tags             RecipeTag[]
-  listItems        ListItem[]
-  RecipeIngredient RecipeIngredient[]
-  RecipeRating     RecipeRating[]
-  RecipeFavorite   RecipeFavorite[]
-  RecipeSuggestion RecipeSuggestion[]
-  MealPlanRecipe   MealPlanRecipe[]
+  isPublic           Boolean            @default(false)
+  createdAt          DateTime           @default(now())
+  updatedAt          DateTime           @updatedAt
+  deletedAt          DateTime?
+  user               User?              @relation(fields: [userId], references: [id], onDelete: SetNull)
+  organization       Organization?      @relation(fields: [orgId], references: [id], onDelete: SetNull)
+  tags               RecipeTag[]
+  listItems          ListItem[]
+  RecipeIngredient   RecipeIngredient[]
+  RecipeRating       RecipeRating[]
+  RecipeFavorite     RecipeFavorite[]
+  RecipeSuggestion   RecipeSuggestion[]
+  MealPlanRecipe     MealPlanRecipe[]
+  chatConversations  ChatConversation[]
 
   @@index([userId])
   @@index([orgId])
@@ -319,14 +326,16 @@ model RecipeIngredient {
 
 // Reusable tags that can be shared across recipes
 model Tag {
-  id        String      @id @default(cuid(2))
-  slug      String      @unique
-  name      String      @unique // "vegetarian", "keto", "italian", "dinner", etc.
-  type      TagType     @default(CUSTOM)
-  createdAt DateTime    @default(now())
-  updatedAt DateTime    @updatedAt
+  id        String       @id @default(cuid(2))
+  slug      String       @unique
+  name      String       @unique // "vegetarian", "keto", "italian", "dinner", etc.
+  type      TagType      @default(CUSTOM)
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
   deletedAt DateTime?
   recipes   RecipeTag[] // Many-to-many relationship
+  places    PlaceTag[]
+  products  ProductTag[]
 
   @@index([name])
   @@index([type])
@@ -389,6 +398,182 @@ model RecipeFavorite {
   @@map("recipe_favorites")
 }
 
+// ============================================
+// PLACE MODELS
+// ============================================
+
+model Place {
+  id             String          @id @default(cuid(2))
+  slug           String          @unique
+  name           String?
+  shortName      String?
+  description    String?         @db.Text
+  type           PlaceType       @default(OTHER)
+  address        String?
+  city           String?
+  state          String?
+  country        String?
+  postalCode     String?
+  latitude       Decimal?        @db.Decimal(10, 8)
+  longitude      Decimal?        @db.Decimal(11, 8)
+  imageUrl       String?
+  thumbnailUrl   String?
+  videoUrl       String?
+  sourceType     SourcePlatform  @default(MANUAL)
+  sourceUrl      String?
+  sourceName     String?
+  sourceMetadata Json?
+  phoneNumber    String?
+  website        String?
+  priceRange     String?
+  cuisine        String?
+  hours          Json?
+  rating         Decimal?        @db.Decimal(3, 2)
+  notes          String?         @db.Text
+  metadata       Json?
+  userId         String?
+  orgId          String?
+  isPublic       Boolean         @default(false)
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+  deletedAt      DateTime?
+  user           User?           @relation(fields: [userId], references: [id], onDelete: SetNull)
+  organization   Organization?   @relation(fields: [orgId], references: [id], onDelete: SetNull)
+  tags           PlaceTag[]
+  PlaceFavorite  PlaceFavorite[]
+  chatConversations ChatConversation[]
+
+  @@index([userId])
+  @@index([orgId])
+  @@index([type])
+  @@index([city])
+  @@index([latitude, longitude])
+  @@index([deletedAt])
+  @@index([createdAt])
+  @@map("places")
+}
+
+model PlaceTag {
+  id        String    @id @default(cuid(2))
+  placeId   String
+  tagId     String
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+  place     Place     @relation(fields: [placeId], references: [id], onDelete: Cascade)
+  tag       Tag       @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@unique([placeId, tagId])
+  @@index([placeId])
+  @@index([tagId])
+  @@index([deletedAt])
+  @@map("place_tags")
+}
+
+model PlaceFavorite {
+  id        String    @id @default(cuid(2))
+  placeId   String
+  userId    String
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+  place     Place     @relation(fields: [placeId], references: [id], onDelete: Cascade)
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([placeId, userId])
+  @@index([placeId])
+  @@index([userId])
+  @@index([deletedAt])
+  @@map("place_favorites")
+}
+
+// ============================================
+// PRODUCT MODELS
+// ============================================
+
+model Product {
+  id              String            @id @default(cuid(2))
+  slug            String            @unique
+  name            String?
+  shortName       String?
+  description     String?           @db.Text
+  category        ProductCategory   @default(OTHER)
+  brand           String?
+  modelNumber     String?
+  price           Decimal?          @db.Decimal(10, 2)
+  currency        String?           @default("USD")
+  imageUrl        String?
+  thumbnailUrl    String?
+  videoUrl        String?
+  sourceType      SourcePlatform    @default(MANUAL)
+  sourceUrl       String?
+  sourceName      String?
+  sourceMetadata  Json?
+  purchaseUrl     String?
+  affiliateUrl    String?
+  specifications  Json?
+  features        Json?
+  notes           String?           @db.Text
+  metadata        Json?
+  userId          String?
+  orgId           String?
+  isPublic        Boolean           @default(false)
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+  deletedAt       DateTime?
+  user            User?             @relation(fields: [userId], references: [id], onDelete: SetNull)
+  organization    Organization?     @relation(fields: [orgId], references: [id], onDelete: SetNull)
+  tags            ProductTag[]
+  ProductFavorite ProductFavorite[]
+  chatConversations ChatConversation[]
+
+  @@index([userId])
+  @@index([orgId])
+  @@index([category])
+  @@index([brand])
+  @@index([deletedAt])
+  @@index([createdAt])
+  @@map("products")
+}
+
+model ProductTag {
+  id        String    @id @default(cuid(2))
+  productId String
+  tagId     String
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+  product   Product   @relation(fields: [productId], references: [id], onDelete: Cascade)
+  tag       Tag       @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@unique([productId, tagId])
+  @@index([productId])
+  @@index([tagId])
+  @@index([deletedAt])
+  @@map("product_tags")
+}
+
+model ProductFavorite {
+  id        String    @id @default(cuid(2))
+  productId String
+  userId    String
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+  product   Product   @relation(fields: [productId], references: [id], onDelete: Cascade)
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([productId, userId])
+  @@index([productId])
+  @@index([userId])
+  @@index([deletedAt])
+  @@map("product_favorites")
+}
+
+// ============================================
+// GROCERY & LIST MODELS
+// ============================================
+
 model GroceryList {
   id           String        @id @default(cuid(2))
   name         String
@@ -436,6 +621,10 @@ model ListItem {
   @@map("list_items")
 }
 
+// ============================================
+// AI & USAGE MODELS
+// ============================================
+
 model AiUsage {
   id           String   @id @default(cuid(2))
   feature      String
@@ -477,19 +666,32 @@ model DietaryPreference {
   @@map("dietary_preferences")
 }
 
+// ============================================
+// CHAT MODELS
+// ============================================
+
 model ChatConversation {
-  id        String        @id @default(cuid(2))
-  userId    String
-  title     String?
-  recipeId  String? // If chat is about a specific recipe
-  createdAt DateTime      @default(now())
-  updatedAt DateTime      @updatedAt
-  deletedAt DateTime?
-  user      User          @relation(fields: [userId], references: [id], onDelete: Cascade)
-  messages  ChatMessage[]
+  id          String          @id @default(cuid(2))
+  userId      String
+  title       String?
+  contextType ChatContextType @default(GENERAL)
+  recipeId    String?
+  placeId     String?
+  productId   String?
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+  deletedAt   DateTime?
+  user        User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  recipe      Recipe?         @relation(fields: [recipeId], references: [id], onDelete: SetNull)
+  place       Place?          @relation(fields: [placeId], references: [id], onDelete: SetNull)
+  product     Product?        @relation(fields: [productId], references: [id], onDelete: SetNull)
+  messages    ChatMessage[]
 
   @@index([userId])
   @@index([recipeId])
+  @@index([placeId])
+  @@index([productId])
+  @@index([contextType])
   @@index([deletedAt])
   @@index([createdAt])
   @@map("chat_conversations")
@@ -512,6 +714,10 @@ model ChatMessage {
   @@index([createdAt])
   @@map("chat_messages")
 }
+
+// ============================================
+// SUGGESTION & MEAL PLAN MODELS
+// ============================================
 
 model RecipeSuggestion {
   id        String    @id @default(cuid(2))
@@ -612,6 +818,53 @@ enum RecipeSourceType {
   TIKTOK
 }
 
+enum SourcePlatform {
+  INSTAGRAM_REEL
+  INSTAGRAM_POST
+  INSTAGRAM_VIDEO
+  TIKTOK
+  YOUTUBE_SHORT
+  MANUAL
+}
+
+enum ContentCategory {
+  RECIPE
+  PLACE
+  PRODUCT
+}
+
+enum PlaceType {
+  RESTAURANT
+  CAFE
+  BAR
+  BAKERY
+  FOOD_TRUCK
+  MARKET
+  GROCERY_STORE
+  SPECIALTY_SHOP
+  OTHER
+}
+
+enum ProductCategory {
+  BEAUTY
+  TECH
+  FASHION
+  KITCHEN
+  HOME
+  HEALTH
+  SPORTS
+  BOOKS
+  TOYS
+  OTHER
+}
+
+enum ChatContextType {
+  GENERAL
+  RECIPE
+  PLACE
+  PRODUCT
+}
+
 enum IngredientCategory {
   PRODUCE
   MEAT
@@ -665,6 +918,9 @@ enum MealType {
 
 enum JobType {
   RECIPE_GENERATION
+  PLACE_GENERATION
+  PRODUCT_GENERATION
+  CONTENT_IMPORT
 }
 
 enum JobStatus {

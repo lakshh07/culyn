@@ -70,6 +70,16 @@ bun run dev
 
 The API will be available at `http://localhost:8000`
 
+### Sample Data (Places & Products)
+
+Seed sample places and products for a user:
+
+```bash
+bun run seed:sample -- --email your@email.com --places 5 --products 5
+```
+
+Options: `--places N`, `--products N`, `--email EMAIL` (required), `--dry-run` (preview only). Run `bun run seed:sample -- --help` for details.
+
 ### Authentication
 
 The API supports two authentication methods:
