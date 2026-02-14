@@ -3,11 +3,15 @@ import type { ContentImportJobData, ContentImportJobResult } from '@/bull/types'
 import { S3_CONFIG, uploadRecipeImage, uploadToS3 } from '@/lib/aws/s3-helpers'
 import { extractStructuredData, type ChatMessage } from '@/lib/llm'
 import db from '@/lib/prisma'
+import { placeAIService } from '@/lib/services/place/place-ai.service'
+import { placeGeoService } from '@/lib/services/place/place-geo.service'
+import { placePersistenceService } from '@/lib/services/place/place-persistence.service'
+import { productAIService } from '@/lib/services/product/product-ai.service'
+import { productPersistenceService } from '@/lib/services/product/product-persistence.service'
 import { recipeAIService } from '@/lib/services/recipe/recipe-ai.service'
 import { recipeImageService } from '@/lib/services/recipe/recipe-image.service'
 import { recipePersistenceService } from '@/lib/services/recipe/recipe-persistence.service'
 import { detectSourcePlatform, scrapeAndDownload } from '@/lib/source-scrapers'
-import { CreatePlaceRequestSchema, CreateProductRequestSchema } from '@culyn/shared/schemas'
 import { JobStatus, RecipeSourceType, type ContentCategory } from '@prisma/client'
 import { Worker, type Job } from 'bullmq'
 import { randomUUID } from 'crypto'
@@ -180,7 +184,7 @@ async function processContentImport(
           userId,
         })
 
-        await recipePersistenceService.saveRecipe({
+        slug = await recipePersistenceService.saveRecipe({
           recipeId: createdRecordId,
           recipeData,
           sourceUrl: url,
@@ -190,136 +194,62 @@ async function processContentImport(
           videoUrl: videoS3Url,
           thumbnailUrl: thumbnailS3Url,
         })
-
-        // Update slug from recipe data
-        const updatedRecipe = await db.recipe.findUnique({
-          where: { id: createdRecordId },
-          select: { slug: true },
-        })
-        if (updatedRecipe) slug = updatedRecipe.slug
         break
       }
       case 'PLACE': {
-        const placeMessages: ChatMessage[] = [
-          {
-            role: 'system',
-            content: `You are a data extraction assistant. Extract structured place/restaurant/cafe information from social media content. Return a JSON object with the place details. If you cannot determine a field, omit it or set it to null.`,
-          },
-          {
-            role: 'user',
-            content: `Extract place information from this social media post:\n\nCaption: ${scraped.caption}\nAuthor: @${scraped.ownerUsername}\nURL: ${url}\n\nReturn a JSON object with these fields: name, short_name, description, type (one of: RESTAURANT, CAFE, BAR, BAKERY, FOOD_TRUCK, MARKET, GROCERY_STORE, SPECIALTY_SHOP, OTHER), address, city, state, country, latitude, longitude, phone_number, website, price_range, cuisine, rating, notes, tags (array of {type, value}).`,
-          },
-        ]
-
-        const { data: placeData } = await extractStructuredData(
-          placeMessages,
-          CreatePlaceRequestSchema,
-          { temperature: 0.3 }
-        )
-
-        const placeSlug =
-          placeData.name
-            ?.toLowerCase()
-            .replace(/[^a-z0-9]+/g, '-')
-            .replace(/^-|-$/g, '') || slug
-
-        await db.place.update({
-          where: { id: createdRecordId },
-          data: {
-            slug: placeSlug,
-            name: placeData.name,
-            shortName: placeData.short_name,
-            description: placeData.description,
-            type: placeData.type,
-            address: placeData.address,
-            city: placeData.city,
-            state: placeData.state,
-            country: placeData.country,
-            postalCode: placeData.postal_code,
-            latitude: placeData.latitude,
-            longitude: placeData.longitude,
-            phoneNumber: placeData.phone_number,
-            website: placeData.website,
-            priceRange: placeData.price_range,
-            cuisine: placeData.cuisine,
-            rating: placeData.rating,
-            notes: placeData.notes,
-          },
-        })
-        slug = placeSlug
-
-        if (placeData.tags && placeData.tags.length > 0) {
-          for (const tagData of placeData.tags) {
-            const tagSlug = tagData.value.toLowerCase().replace(/[^a-z0-9]+/g, '-')
-            const tag = await db.tag.upsert({
-              where: { slug: tagSlug },
-              create: { slug: tagSlug, name: tagData.value, type: tagData.type as any },
-              update: {},
-            })
-            await db.placeTag
-              .create({ data: { placeId: createdRecordId, tagId: tag.id } })
-              .catch(() => {})
-          }
+        if (!media.video) {
+          throw new Error('No video available for place extraction')
         }
+
+        const placeData = await placeAIService.generate({
+          caption: scraped.caption,
+          videoBuffer: media.video?.buffer,
+          placeId: createdRecordId,
+          userId,
+        })
+
+        // Geocode & enrich with Google Places API
+        const geoResult = await placeGeoService.enrich({
+          name: placeData.name,
+          address: placeData.address,
+          city: placeData.city,
+          state: placeData.state,
+          country: placeData.country,
+          postal_code: placeData.postal_code,
+        })
+
+        if (geoResult) {
+          placeData.latitude = geoResult.latitude
+          placeData.longitude = geoResult.longitude
+          placeData.phone_number = geoResult.phone_number || placeData.phone_number
+          placeData.website = geoResult.website || placeData.website
+          placeData.rating = geoResult.rating || placeData.rating
+          placeData.price_range = geoResult.price_range || placeData.price_range
+          placeData.hours = geoResult.hours || placeData.hours
+        }
+
+        slug = await placePersistenceService.savePlace({
+          placeId: createdRecordId,
+          placeData,
+        })
         break
       }
       case 'PRODUCT': {
-        const productMessages: ChatMessage[] = [
-          {
-            role: 'system',
-            content: `You are a data extraction assistant. Extract structured product information from social media content. Return a JSON object with the product details. If you cannot determine a field, omit it or set it to null.`,
-          },
-          {
-            role: 'user',
-            content: `Extract product information from this social media post:\n\nCaption: ${scraped.caption}\nAuthor: @${scraped.ownerUsername}\nURL: ${url}\n\nReturn a JSON object with these fields: name, short_name, description, category (one of: BEAUTY, TECH, FASHION, KITCHEN, HOME, HEALTH, SPORTS, BOOKS, TOYS, OTHER), brand, model_number, price, currency, purchase_url, specifications, features (array of strings), notes, tags (array of {type, value}).`,
-          },
-        ]
-
-        const { data: productData } = await extractStructuredData(
-          productMessages,
-          CreateProductRequestSchema,
-          { temperature: 0.3 }
-        )
-
-        const productSlug =
-          productData.name
-            ?.toLowerCase()
-            .replace(/[^a-z0-9]+/g, '-')
-            .replace(/^-|-$/g, '') || slug
-
-        await db.product.update({
-          where: { id: createdRecordId },
-          data: {
-            slug: productSlug,
-            name: productData.name,
-            shortName: productData.short_name,
-            description: productData.description,
-            category: productData.category,
-            brand: productData.brand,
-            modelNumber: productData.model_number,
-            price: productData.price,
-            currency: productData.currency,
-            purchaseUrl: productData.purchase_url,
-            specifications: productData.specifications,
-            features: productData.features,
-            notes: productData.notes,
-          },
-        })
-        slug = productSlug
-
-        if (productData.tags && productData.tags.length > 0) {
-          for (const tagData of productData.tags) {
-            const tagSlug = tagData.value.toLowerCase().replace(/[^a-z0-9]+/g, '-')
-            const tag = await db.tag.upsert({
-              where: { slug: tagSlug },
-              create: { slug: tagSlug, name: tagData.value, type: tagData.type as any },
-              update: {},
-            })
-            await db.productTag
-              .create({ data: { productId: createdRecordId, tagId: tag.id } })
-              .catch(() => {})
-          }
+        if (!media.video) {
+          throw new Error('No video available for recipe extraction')
         }
+
+        const productData = await productAIService.generate({
+          videoBuffer: media.video?.buffer,
+          caption: scraped.caption,
+          productId: createdRecordId,
+          userId,
+        })
+
+        slug = await productPersistenceService.saveProduct({
+          productId: createdRecordId,
+          productData,
+        })
         break
       }
     }
@@ -382,29 +312,22 @@ async function processContentImport(
         break
       }
       case 'PLACE': {
-        // Use thumbnail as image
         if (thumbnailS3Url) {
-          await db.place.update({
-            where: { id: createdRecordId },
-            data: { imageUrl: thumbnailS3Url },
-          })
+          await placePersistenceService.updatePlaceImage(createdRecordId, thumbnailS3Url)
         }
         break
       }
       case 'PRODUCT': {
-        // Use thumbnail as image
         if (thumbnailS3Url) {
-          await db.product.update({
-            where: { id: createdRecordId },
-            data: { imageUrl: thumbnailS3Url },
-          })
+          await productPersistenceService.updateProductImage(createdRecordId, thumbnailS3Url)
         }
         break
       }
     }
+
     await job.updateProgress(90)
 
-    // ── Step 9 (100%): FINALIZE ──
+    // ── FINALIZE ──
     const resultData = { category, slug, recordId: createdRecordId, success: true }
 
     await db.job.updateMany({

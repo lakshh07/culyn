@@ -18,6 +18,9 @@ export const AiPricing = Object.freeze({
     'gemini-2.5-flash': { input: 0.3, output: 2.5, unit: 1_000_000 },
     'gemini-2.5-flash-image': { input: 0.3, output: 30, unit: 1_000_000 },
   },
+  [AiProvider.OpenAI]: {
+    'gpt-4o-mini': { input: 0.15, output: 0.6, unit: 1_000_000 },
+  },
 } as const)
 
 /**
@@ -29,7 +32,10 @@ export function calculateCostFromUsage(usage: {
   inputTokens: number
   outputTokens: number
 }): CostBreakdown {
-  const pricing = AiPricing[usage.provider as AiProvider]?.[usage.model as AiModel]
+  const providerPricing = AiPricing[usage.provider as AiProvider] as
+    | Record<string, { input: number; output: number; unit: number }>
+    | undefined
+  const pricing = providerPricing?.[usage.model]
 
   if (!pricing) {
     console.warn(
@@ -67,6 +73,8 @@ export async function trackAiUsage(counts: UsageData, options: TrackingOptions):
         initiator: validatedOptions.initiator,
         userId: validatedOptions.user_id,
         recipeId: validatedOptions.recipe_id,
+        placeId: validatedOptions.place_id,
+        productId: validatedOptions.product_id,
       },
     })
   } catch (error) {
