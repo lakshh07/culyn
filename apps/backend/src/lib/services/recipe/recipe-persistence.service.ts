@@ -1,7 +1,7 @@
 import db from '@/lib/prisma'
-import type { CreateRecipeRequest } from '@culyn/shared/schemas'
-import { RecipeDifficulty, type RecipeSourceType, TagType } from '@prisma/client'
 import { parseQuantity } from '@/lib/recipe/ingredient-parser'
+import type { CreateRecipeRequest } from '@culyn/shared/schemas'
+import { RecipeDifficulty, TagType, type RecipeSourceType } from '@prisma/client'
 import slugify from 'slugify'
 
 export interface SaveRecipeOptions {
@@ -17,7 +17,7 @@ export interface SaveRecipeOptions {
 }
 
 export class RecipePersistenceService {
-  async saveRecipe(options: SaveRecipeOptions): Promise<void> {
+  async saveRecipe(options: SaveRecipeOptions): Promise<string> {
     const {
       recipeId,
       recipeData,
@@ -30,12 +30,14 @@ export class RecipePersistenceService {
       imageUrl,
     } = options
 
+    const slug = slugify(recipeData.short_title, { lower: true, strict: true })
+
     await db.recipe.update({
       where: { id: recipeId },
       data: {
         title: recipeData.title,
         shortTitle: recipeData.short_title,
-        slug: slugify(recipeData.short_title, { lower: true, strict: true }),
+        slug,
         description: recipeData.description,
         tagline: recipeData.tagline,
         cookTime: recipeData.cook_time_minutes,
@@ -59,6 +61,8 @@ export class RecipePersistenceService {
 
     await this.saveTags(recipeId, recipeData.tags)
     await this.saveIngredients(recipeId, recipeData.ingredients)
+
+    return slug
   }
 
   async updateRecipeImage(recipeId: string, imageUrl: string): Promise<void> {

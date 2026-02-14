@@ -61,10 +61,13 @@ export type GeneratePlaceRequest = z.infer<typeof GeneratePlaceRequestSchema>;
 
 export const CreatePlaceRequestSchema = z
   .object({
-    name: z.string().describe('The name of the place'),
-    short_name: z.string().optional().describe('A short version of the name'),
-    description: z.string().optional().describe('Description of the place'),
-    type: PlaceTypeSchema.describe('The type of place'),
+    name: z.string().describe('The official name of the place'),
+    short_name: z.string().optional().describe('A shortened or informal name'),
+    description: z
+      .string()
+      .optional()
+      .describe('Cleaned description of the place'),
+    type: PlaceTypeSchema.describe('Primary place type'),
     address: z.string().optional(),
     city: z.string().optional(),
     state: z.string().optional(),
@@ -91,7 +94,7 @@ export const CreatePlaceRequestSchema = z
             'CUSTOM',
           ]),
           value: z.string(),
-        })
+        }),
       )
       .optional(),
   })
@@ -125,12 +128,12 @@ export const PlaceListItemSchema = z.object({
   tags: z.array(
     z.object({
       tag: PlaceTagSchema,
-    })
+    }),
   ),
   PlaceFavorite: z.array(
     z.object({
       id: z.string(),
-    })
+    }),
   ),
   _count: z.object({
     PlaceFavorite: z.number(),
@@ -174,7 +177,7 @@ export const PlaceDetailSchema = z.object({
   PlaceFavorite: z.array(
     z.object({
       id: z.string(),
-    })
+    }),
   ),
 });
 
