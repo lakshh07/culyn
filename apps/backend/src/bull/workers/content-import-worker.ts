@@ -226,6 +226,7 @@ async function processContentImport(
           placeData.rating = geoResult.rating || placeData.rating
           placeData.price_range = geoResult.price_range || placeData.price_range
           placeData.hours = geoResult.hours || placeData.hours
+          placeData.address = geoResult.formattedAddress || placeData.address
         }
 
         slug = await placePersistenceService.savePlace({

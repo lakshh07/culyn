@@ -60,6 +60,7 @@ function AppContent() {
         <Stack.Screen name='settings' />
         <Stack.Screen name='recipes/[slug]' />
         <Stack.Screen name='places/[slug]' />
+        <Stack.Screen name='places/map' />
         <Stack.Screen name='products/[slug]' />
         <Stack.Screen name='chat-detail/[id]' />
       </Stack>
@@ -89,6 +90,7 @@ export default function RootLayout() {
 
   useEffect(() => {
     if (fontsLoaded || fontError) {
+      SplashScreen.setOptions({ fade: true, duration: 400 });
       SplashScreen.hideAsync();
     }
   }, [fontsLoaded, fontError]);

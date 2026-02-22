@@ -1,6 +1,7 @@
 import { MapIcon } from '@/components/icons';
 import { useThemeColors } from '@/constants/useTheme';
-import React, { useRef } from 'react';
+import { PlaceListItem } from '@culyn/shared/schemas';
+import React, { useRef, useState } from 'react';
 import {
   Animated,
   Image,
@@ -12,26 +13,39 @@ import {
 
 interface PlaceCardProps {
   id: string;
-  name: string | null;
-  imageUrl: string | null;
-  city: string | null;
-  cuisine: string | null;
-  priceRange: string | null;
-  type: string;
+  item: PlaceListItem;
   onPress?: () => void;
+  onHeartPress?: (liked: boolean) => void;
 }
 
-export function PlaceCard({
-  name,
-  imageUrl,
-  city,
-  cuisine,
-  priceRange,
-  type,
-  onPress,
-}: PlaceCardProps) {
+export function PlaceCard({ id, item, onPress, onHeartPress }: PlaceCardProps) {
   const colors = useThemeColors();
+  const [isLiked, setIsLiked] = useState(false);
   const scale = useRef(new Animated.Value(1)).current;
+  const heartScale = useRef(new Animated.Value(1)).current;
+
+  const handleHeartPress = (e: any) => {
+    setIsLiked(!isLiked);
+    onHeartPress?.(!isLiked);
+  };
+
+  const handleHeartPressIn = () => {
+    Animated.spring(heartScale, {
+      toValue: 0.9,
+      useNativeDriver: true,
+      speed: 20,
+      bounciness: 6,
+    }).start();
+  };
+
+  const handleHeartPressOut = () => {
+    Animated.spring(heartScale, {
+      toValue: 1,
+      useNativeDriver: true,
+      speed: 20,
+      bounciness: 6,
+    }).start();
+  };
 
   const handlePressIn = () => {
     Animated.spring(scale, {
@@ -51,7 +65,9 @@ export function PlaceCard({
     }).start();
   };
 
-  const typeLabel = type.replace(/_/g, ' ').toLowerCase();
+  if (!item) return null;
+
+  const typeLabel = item.type?.replace(/_/g, ' ').toLowerCase();
 
   return (
     <Animated.View style={{ transform: [{ scale }] }}>
@@ -59,14 +75,11 @@ export function PlaceCard({
         onPress={onPress}
         onPressIn={handlePressIn}
         onPressOut={handlePressOut}
-        style={[
-          styles.container,
-          { backgroundColor: colors.cardBackgroundElevated },
-        ]}
+        style={styles.container}
       >
         <View style={styles.imageContainer}>
-          {imageUrl ? (
-            <Image source={{ uri: imageUrl }} style={styles.image} />
+          {item.imageUrl ? (
+            <Image source={{ uri: item.imageUrl }} style={styles.image} />
           ) : (
             <View
               style={[
@@ -77,41 +90,51 @@ export function PlaceCard({
               <MapIcon width={32} height={32} opacity={0.3} />
             </View>
           )}
-          <View
-            style={[
-              styles.typeBadge,
-              { backgroundColor: colors.categoryPlace },
-            ]}
+
+          <Animated.View
+            style={[styles.heartButton, { transform: [{ scale: heartScale }] }]}
           >
-            <Text style={styles.typeBadgeText}>{typeLabel}</Text>
-          </View>
+            <Pressable
+              onPress={handleHeartPress}
+              onPressIn={handleHeartPressIn}
+              onPressOut={handleHeartPressOut}
+              hitSlop={8}
+              style={styles.heartButtonInner}
+            >
+              <Image
+                source={
+                  isLiked
+                    ? require('@/assets/icons/heart-fill.png')
+                    : require('@/assets/icons/heart.png')
+                }
+                style={styles.heartIcon}
+                resizeMode='contain'
+              />
+            </Pressable>
+          </Animated.View>
         </View>
 
         <View style={styles.textContainer}>
           <Text
             style={[styles.name, { color: colors.textPrimary }]}
-            numberOfLines={2}
+            numberOfLines={1}
           >
-            {name || 'Unnamed Place'}
+            {item.name}
           </Text>
+
           <View style={styles.metaRow}>
-            {city && (
-              <Text style={[styles.meta, { color: colors.textMuted }]}>
-                {city}
-              </Text>
-            )}
-            {cuisine && (
-              <Text style={[styles.meta, { color: colors.textMuted }]}>
-                {city ? ' · ' : ''}
-                {cuisine}
+            <View style={[styles.typeBadge]}>
+              <Text style={styles.typeBadgeText}>{typeLabel}</Text>
+            </View>
+            {item.city && (
+              <Text
+                style={[styles.cityText, { color: colors.textMuted }]}
+                numberOfLines={1}
+              >
+                {item.city}
               </Text>
             )}
           </View>
-          {priceRange && (
-            <Text style={[styles.price, { color: colors.textSecondary }]}>
-              {priceRange}
-            </Text>
-          )}
         </View>
       </Pressable>
     </Animated.View>
@@ -120,48 +143,61 @@ export function PlaceCard({
 
 const styles = StyleSheet.create({
   container: {
-    borderRadius: 16,
-    overflow: 'hidden',
-    shadowColor: '#000',
-    shadowOpacity: 0.02,
-    shadowRadius: 10,
-    shadowOffset: { width: 0, height: 4 },
-    elevation: 5,
+    flex: 1,
+    marginBottom: 8,
   },
   imageContainer: {
     width: '100%',
-    height: 140,
+    aspectRatio: 1,
     position: 'relative',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.15,
+    shadowRadius: 4,
+    elevation: 3,
   },
   image: {
     width: '100%',
     height: '100%',
     resizeMode: 'cover',
+    overflow: 'hidden',
+    borderRadius: 16,
   },
   imagePlaceholder: {
     width: '100%',
     height: '100%',
     justifyContent: 'center',
     alignItems: 'center',
+    borderRadius: 16,
+    overflow: 'hidden',
   },
-  typeBadge: {
+  heartButton: {
     position: 'absolute',
-    bottom: 8,
-    left: 8,
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-    borderRadius: 8,
+    top: 12,
+    right: 12,
+    width: 30,
+    height: 30,
+    borderRadius: 15,
+    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    overflow: 'visible',
+    elevation: 3,
+    zIndex: 10,
   },
-  typeBadgeText: {
-    color: '#FFFFFF',
-    fontSize: 10,
-    fontFamily: 'Poppins_400Regular',
-    fontWeight: '600',
-    textTransform: 'capitalize',
+  heartButtonInner: {
+    width: '100%',
+    height: '100%',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  heartIcon: {
+    width: 17,
+    height: 17,
   },
   textContainer: {
-    padding: 12,
-    gap: 4,
+    paddingTop: 10,
+    gap: 6,
   },
   name: {
     fontSize: 14,
@@ -171,14 +207,43 @@ const styles = StyleSheet.create({
   metaRow: {
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: 6,
   },
-  meta: {
-    fontSize: 12,
-    fontFamily: 'Poppins_400Regular',
-    lineHeight: 16,
+  typeBadge: {
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 6,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 2,
+    backgroundColor: 'rgba(255, 255, 255, 1)',
   },
-  price: {
-    fontSize: 12,
+  typeBadgeText: {
+    color: '#000000',
+    fontSize: 9,
     fontFamily: 'Poppins_400Regular',
+    fontWeight: '600',
+    textTransform: 'capitalize',
+  },
+  cityText: {
+    fontSize: 12,
+    fontFamily: 'Syne_400Regular',
+    flex: 1,
+  },
+  ratingContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+  },
+  ratingText: {
+    fontSize: 13,
+    fontFamily: 'Syne_500Medium',
+  },
+  starIcon: {
+    width: 14,
+    height: 14,
   },
 });

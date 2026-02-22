@@ -1,10 +1,10 @@
 import { ClockFillIcon, FireFillIcon } from '@/components/icons';
 import { useThemeColors } from '@/constants/useTheme';
+import { RecipeListItem } from '@culyn/shared/schemas';
 import React, { useRef, useState } from 'react';
 import {
   Animated,
   Image,
-  ImageSourcePropType,
   Pressable,
   StyleSheet,
   Text,
@@ -12,26 +12,18 @@ import {
 } from 'react-native';
 
 interface RecipeCardProps {
-  id: string;
-  title: string;
-  image: string | ImageSourcePropType;
-  cookTime?: number | null;
-  calories?: number | null;
+  item: RecipeListItem;
   onPress?: () => void;
   onHeartPress?: (liked: boolean) => void;
 }
 
 export function RecipeCard({
-  id,
-  title,
-  image,
-  cookTime,
-  calories,
+  item,
   onPress,
   onHeartPress,
 }: RecipeCardProps) {
   const colors = useThemeColors();
-  const [isLiked, setIsLiked] = useState(false);
+  const [isLiked, setIsLiked] = useState(item.RecipeFavorite?.length > 0);
   const scale = useRef(new Animated.Value(1)).current;
   const heartScale = useRef(new Animated.Value(1)).current;
 
@@ -115,7 +107,7 @@ export function RecipeCard({
             style={[styles.title, { color: colors.textPrimary }]}
             numberOfLines={2}
           >
-            {title}
+            {item.title}
           </Text>
         </View>
 
@@ -123,7 +115,7 @@ export function RecipeCard({
         <View style={styles.imageRow}>
           <View style={styles.imageWrapper}>
             <Image
-              source={typeof image === 'string' ? { uri: image } : image}
+              source={item.imageUrl ? { uri: item.imageUrl } : require('@/assets/images/logo.png')}
               style={styles.image}
             />
           </View>
@@ -131,19 +123,19 @@ export function RecipeCard({
 
         {/* Row 3: Footer Section */}
         <View style={styles.footerRow}>
-          {cookTime && (
+          {item.cookTime && (
             <View style={styles.footerItem}>
               <ClockFillIcon width={14} height={14} />
               <Text style={[styles.credit, { color: colors.textMuted }]}>
-                {cookTime} min
+                {item.cookTime} min
               </Text>
             </View>
           )}
-          {calories && (
+          {item.calories && (
             <View style={styles.footerItem}>
               <FireFillIcon width={14} height={14} />
               <Text style={[styles.credit, { color: colors.textMuted }]}>
-                {calories} kcal
+                {item.calories} kcal
               </Text>
             </View>
           )}

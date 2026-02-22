@@ -1,6 +1,7 @@
-import { BackIcon, HeartIcon } from '@/components/icons';
+import { BackIcon, HeartFillIcon, HeartIcon } from '@/components/icons';
 import { useThemeColors } from '@/constants/useTheme';
 import { useProductBySlug } from '@/hooks/products/useProductBySlug';
+import { useProductFavorite } from '@/hooks/products/useProductFavorite';
 import { Feather } from '@expo/vector-icons';
 import { GlassView } from 'expo-glass-effect';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -10,15 +11,33 @@ import {
   Image,
   Linking,
   Pressable,
-  ScrollView,
+  Share,
   StyleSheet,
   Text,
   View,
 } from 'react-native';
+import Animated, {
+  FadeInLeft,
+  FadeInUp,
+  interpolate,
+  useAnimatedScrollHandler,
+  useAnimatedStyle,
+  useSharedValue,
+} from 'react-native-reanimated';
 import {
   SafeAreaView,
   useSafeAreaInsets,
 } from 'react-native-safe-area-context';
+
+const HERO_HEIGHT = 400;
+
+const getSourceIcon = (sourceType?: string): string => {
+  if (!sourceType) return 'link';
+  if (sourceType.startsWith('INSTAGRAM')) return 'instagram';
+  if (sourceType === 'TIKTOK') return 'video';
+  if (sourceType.startsWith('YOUTUBE')) return 'youtube';
+  return 'link';
+};
 
 export default function ProductDetailScreen() {
   const colors = useThemeColors();
@@ -26,16 +45,40 @@ export default function ProductDetailScreen() {
   const insets = useSafeAreaInsets();
   const { slug } = useLocalSearchParams<{ slug: string }>();
   const { product } = useProductBySlug(slug);
+  const { addFavorite, removeFavorite } = useProductFavorite(slug);
+  const scrollY = useSharedValue(0);
+
+  const scrollHandler = useAnimatedScrollHandler({
+    onScroll: (event) => {
+      scrollY.value = event.contentOffset.y;
+    },
+  });
+
+  const heroAnimatedStyle = useAnimatedStyle(() => {
+    const translateY = interpolate(
+      scrollY.value,
+      [-200, 0, HERO_HEIGHT],
+      [-100, 0, HERO_HEIGHT * 0.5],
+    );
+    const scale = interpolate(scrollY.value, [-200, 0], [2, 1], 'clamp');
+    return {
+      transform: [{ translateY }, { scale }],
+    };
+  });
 
   if (!product) return null;
 
-  const formattedPrice =
-    product.price != null
-      ? new Intl.NumberFormat('en-US', {
-          style: 'currency',
-          currency: product.currency || 'USD',
-        }).format(Number(product.price))
-      : null;
+  const isFavorited =
+    product.ProductFavorite && product.ProductFavorite.length > 0;
+  const favoriteId = isFavorited ? product.ProductFavorite[0].id : null;
+
+  const handleToggleFavorite = () => {
+    if (isFavorited && favoriteId) {
+      removeFavorite.mutate(favoriteId);
+    } else {
+      addFavorite.mutate();
+    }
+  };
 
   const handleBuy = () => {
     const url = product.affiliateUrl || product.purchaseUrl;
@@ -49,60 +92,114 @@ export default function ProductDetailScreen() {
     });
   };
 
+  const handleShare = async () => {
+    try {
+      await Share.share({
+        message: `Check out ${product.name}${product.brand ? ` by ${product.brand}` : ''}`,
+      });
+    } catch {}
+  };
+
+  const handleOpenLink = () => {
+    if (product.sourceUrl) Linking.openURL(product.sourceUrl);
+  };
+
   const features = Array.isArray(product.features) ? product.features : [];
   const categoryLabel = product.category.replace(/_/g, ' ').toLowerCase();
+  const tags = product.tags || [];
+
+  // Parse specifications into key-value pairs
+  const specEntries = (() => {
+    if (!product.specifications) return [];
+    try {
+      const specs =
+        typeof product.specifications === 'string'
+          ? JSON.parse(product.specifications)
+          : product.specifications;
+      if (typeof specs === 'object' && !Array.isArray(specs)) {
+        return Object.entries(specs).map(([key, value]) => ({
+          label: key.replace(/_/g, ' '),
+          value: String(value),
+        }));
+      }
+    } catch {}
+    return [];
+  })();
+
+  // Chunk specs into rows of 2
+  const specRows: { label: string; value: string }[][] = [];
+  for (let i = 0; i < specEntries.length; i += 2) {
+    specRows.push(specEntries.slice(i, i + 2));
+  }
 
   return (
     <SafeAreaView
-      style={[styles.safeArea, { backgroundColor: colors.background }]}
+      style={[styles.container, { backgroundColor: colors.background }]}
       edges={['left', 'right']}
     >
-      <ScrollView
+      <Animated.ScrollView
+        onScroll={scrollHandler}
+        scrollEventThrottle={16}
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
+        bounces={false}
       >
-        {product.imageUrl ? (
-          <Image source={{ uri: product.imageUrl }} style={styles.heroImage} />
-        ) : (
-          <View
-            style={[
-              styles.heroPlaceholder,
-              { backgroundColor: colors.backgroundSecondary },
-            ]}
-          >
-            <Feather name='shopping-bag' size={64} color={colors.textMuted} />
-          </View>
-        )}
-
+        {/* Hero Image */}
+        <View style={styles.heroContainer}>
+          <Animated.View style={[styles.heroImageWrapper, heroAnimatedStyle]}>
+            {product.imageUrl ? (
+              <Image
+                source={{ uri: product.imageUrl }}
+                style={styles.heroImage}
+              />
+            ) : (
+              <View
+                style={[
+                  styles.heroPlaceholder,
+                  { backgroundColor: colors.backgroundSecondary },
+                ]}
+              >
+                <Feather
+                  name='shopping-bag'
+                  size={64}
+                  color={colors.textMuted}
+                />
+              </View>
+            )}
+          </Animated.View>
+          <LinearGradient
+            colors={['transparent', 'rgba(255,255,255,1)']}
+            style={styles.heroGradient}
+            pointerEvents='none'
+          />
+        </View>
         <View style={styles.contentContainer}>
-          <View style={styles.infoContainer}>
+          {/* Header Info */}
+          <Animated.View
+            entering={FadeInUp.delay(100).duration(500)}
+            style={styles.infoContainer}
+          >
             <Text style={[styles.title, { color: colors.textPrimary }]}>
               {product.name}
             </Text>
 
             <View style={styles.metaRow}>
-              <View
-                style={[
-                  styles.categoryBadge,
-                  { backgroundColor: colors.categoryProduct },
-                ]}
-              >
+              <View style={[styles.categoryBadge]}>
                 <Text style={styles.categoryBadgeText}>{categoryLabel}</Text>
               </View>
-              {product.brand && (
+              {product.brand && product.brand !== 'Unspecified' && (
                 <Text
                   style={[styles.metaText, { color: colors.textSecondary }]}
                 >
                   {product.brand}
                 </Text>
               )}
+              {product.modelNumber && (
+                <Text style={[styles.metaText, { color: colors.textMuted }]}>
+                  {product.modelNumber}
+                </Text>
+              )}
             </View>
-
-            {formattedPrice && (
-              <Text style={[styles.price, { color: colors.textPrimary }]}>
-                {formattedPrice}
-              </Text>
-            )}
 
             {product.description && (
               <Text
@@ -111,29 +208,155 @@ export default function ProductDetailScreen() {
                 {product.description}
               </Text>
             )}
-          </View>
+          </Animated.View>
 
+          {/* Source Info */}
+          {product.sourceName && (
+            <Animated.View
+              entering={FadeInUp.delay(200).duration(500)}
+              style={styles.metaRow}
+            >
+              <Feather
+                name={getSourceIcon(product.sourceType) as any}
+                size={14}
+                color={colors.textMuted}
+              />
+              <Text
+                style={[styles.sourceText, { color: colors.textSecondary }]}
+              >
+                By {product.sourceName}
+              </Text>
+              {product.sourceUrl && (
+                <>
+                  <Text
+                    style={[
+                      styles.metaSeparator,
+                      { color: colors.textSecondary },
+                    ]}
+                  >
+                    ·
+                  </Text>
+                  <Pressable onPress={handleOpenLink} hitSlop={8}>
+                    <Text
+                      style={[styles.link, { color: colors.textSecondary }]}
+                    >
+                      Original Link
+                    </Text>
+                  </Pressable>
+                </>
+              )}
+            </Animated.View>
+          )}
+
+          {/* Specifications Grid */}
+          {specRows.length > 0 && (
+            <Animated.View
+              entering={FadeInUp.delay(300).duration(500)}
+              style={styles.section}
+            >
+              <Text
+                style={[styles.sectionTitle, { color: colors.textPrimary }]}
+              >
+                Specifications
+              </Text>
+              <View style={[styles.specGrid, { borderColor: colors.border }]}>
+                {specRows.map((row, rowIndex) => (
+                  <View key={`row-${rowIndex}`} style={styles.specRow}>
+                    {row.map((item, itemIndex) => {
+                      const isLastInRow = itemIndex === row.length - 1;
+                      const isLastRow = rowIndex === specRows.length - 1;
+                      return (
+                        <View
+                          key={item.label}
+                          style={[
+                            styles.specCard,
+                            {
+                              borderRightWidth: isLastInRow ? 0 : 1,
+                              borderBottomWidth: isLastRow ? 0 : 1,
+                              borderColor: colors.border,
+                              backgroundColor: colors.background,
+                            },
+                          ]}
+                        >
+                          <Text
+                            style={[
+                              styles.specLabel,
+                              { color: colors.textMuted },
+                            ]}
+                          >
+                            {item.label}
+                          </Text>
+                          <Text
+                            style={[
+                              styles.specValue,
+                              { color: colors.textPrimary },
+                            ]}
+                          >
+                            {item.value}
+                          </Text>
+                        </View>
+                      );
+                    })}
+                    {row.length === 1 && (
+                      <View
+                        style={[
+                          styles.specCard,
+                          {
+                            borderRightWidth: 0,
+                            borderBottomWidth: 0,
+                            borderColor: colors.border,
+                            backgroundColor: colors.background,
+                          },
+                        ]}
+                      />
+                    )}
+                  </View>
+                ))}
+              </View>
+            </Animated.View>
+          )}
+
+          {/* Features Checklist */}
           {features.length > 0 && (
-            <View style={styles.section}>
-              <Text style={[styles.sectionTitle, { color: colors.textPrimary }]}>
+            <Animated.View
+              entering={FadeInUp.delay(400).duration(500)}
+              style={styles.section}
+            >
+              <Text
+                style={[styles.sectionTitle, { color: colors.textPrimary }]}
+              >
                 Features
               </Text>
               {features.map((feature: string, index: number) => (
-                <View key={index} style={styles.featureRow}>
-                  <Feather name='check' size={16} color={colors.success} />
+                <Animated.View
+                  key={index}
+                  entering={FadeInLeft.delay(450 + index * 60)}
+                  style={styles.featureRow}
+                >
+                  <Feather
+                    name='check-circle'
+                    size={16}
+                    color={colors.categoryProduct}
+                  />
                   <Text
                     style={[styles.featureText, { color: colors.textPrimary }]}
                   >
                     {feature}
                   </Text>
-                </View>
+                </Animated.View>
               ))}
-            </View>
+            </Animated.View>
           )}
 
+          {/* Notes */}
           {product.notes && (
-            <View style={styles.section}>
-              <Text style={[styles.sectionTitle, { color: colors.textPrimary }]}>
+            <Animated.View
+              entering={FadeInUp.delay(500).duration(500)}
+              style={styles.section}
+            >
+              <Text
+                style={[styles.sectionTitle, { color: colors.textPrimary }]}
+              >
                 Notes
               </Text>
               <Text
@@ -141,11 +364,46 @@ export default function ProductDetailScreen() {
               >
                 {product.notes}
               </Text>
-            </View>
+            </Animated.View>
+          )}
+
+          {/* Tags */}
+          {tags.length > 0 && (
+            <Animated.View
+              entering={FadeInUp.delay(550).duration(500)}
+              style={styles.section}
+            >
+              <Text
+                style={[styles.sectionTitle, { color: colors.textPrimary }]}
+              >
+                Tags
+              </Text>
+              <View style={styles.tagsRow}>
+                {tags.map((t) => (
+                  <View
+                    key={t.tag.id}
+                    style={[
+                      styles.tagChip,
+                      { backgroundColor: colors.categoryProductSoft },
+                    ]}
+                  >
+                    <Text
+                      style={[
+                        styles.tagText,
+                        { color: colors.categoryProduct },
+                      ]}
+                    >
+                      {t.tag.name}
+                    </Text>
+                  </View>
+                ))}
+              </View>
+            </Animated.View>
           )}
         </View>
-      </ScrollView>
+      </Animated.ScrollView>
 
+      {/* Back Button */}
       <Pressable
         style={[styles.backButton, { top: insets.top }]}
         onPress={() => router.back()}
@@ -159,47 +417,54 @@ export default function ProductDetailScreen() {
         </GlassView>
       </Pressable>
 
-      <Pressable
-        style={[styles.heartButton, { top: insets.top }]}
-        hitSlop={8}
+      {/* Glass Footer Bar */}
+      <GlassView
+        style={[styles.footer, { backgroundColor: colors.background }]}
       >
-        <GlassView
-          isInteractive={true}
-          style={[styles.glassButton, { backgroundColor: colors.background }]}
+        <Pressable
+          onPress={handleToggleFavorite}
+          hitSlop={8}
+          style={styles.footerAction}
         >
-          <HeartIcon width={22} height={22} />
-        </GlassView>
-      </Pressable>
+          {isFavorited ? (
+            <HeartFillIcon width={22} height={22} color='#EF4444' />
+          ) : (
+            <HeartIcon width={22} height={22} />
+          )}
+        </Pressable>
 
-      <View style={styles.bottomBar}>
+        <Pressable
+          onPress={handleAskAI}
+          hitSlop={8}
+          style={styles.footerAction}
+        >
+          <Feather name='message-circle' size={20} color={colors.textPrimary} />
+        </Pressable>
+
+        <Pressable
+          onPress={handleShare}
+          hitSlop={8}
+          style={styles.footerAction}
+        >
+          <Feather name='share' size={20} color={colors.textPrimary} />
+        </Pressable>
+
         {(product.purchaseUrl || product.affiliateUrl) && (
-          <Pressable onPress={handleBuy} style={{ flex: 1 }}>
+          <Pressable onPress={handleBuy} hitSlop={8}>
             <LinearGradient
-              colors={[
-                colors.primaryGradientStart,
-                colors.primaryGradientEnd,
-              ]}
+              colors={[colors.primaryGradientStart, colors.primaryGradientEnd]}
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 1 }}
               style={styles.buyButton}
             >
-              <Feather name='external-link' size={18} color='#FFFFFF' />
+              <Feather name='external-link' size={16} color='#FFFFFF' />
               <Text style={styles.buyButtonText}>Buy</Text>
             </LinearGradient>
           </Pressable>
         )}
-        <Pressable onPress={handleAskAI}>
-          <LinearGradient
-            colors={[colors.primaryGradientStart, colors.primaryGradientEnd]}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 1 }}
-            style={styles.askAiSmall}
-          >
-            <Feather name='message-circle' size={20} color='#FFFFFF' />
-          </LinearGradient>
-        </Pressable>
-      </View>
+      </GlassView>
 
+      {/* Bottom gradient */}
       <LinearGradient
         colors={[colors.gradientStart, colors.gradientEnd]}
         start={{ x: 0, y: 0 }}
@@ -212,22 +477,42 @@ export default function ProductDetailScreen() {
 }
 
 const styles = StyleSheet.create({
-  safeArea: {
+  container: {
     flex: 1,
   },
   scrollContent: {
     paddingBottom: 120,
   },
+  heroContainer: {
+    height: HERO_HEIGHT,
+    overflow: 'hidden',
+    backgroundColor: '#000',
+  },
+  heroImageWrapper: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    width: '100%',
+    height: HERO_HEIGHT,
+  },
   heroImage: {
     width: '100%',
-    height: 360,
+    height: '100%',
     resizeMode: 'cover',
   },
   heroPlaceholder: {
     width: '100%',
-    height: 360,
+    height: '100%',
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  heroGradient: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    bottom: 0,
+    height: HERO_HEIGHT / 3,
   },
   contentContainer: {
     paddingHorizontal: 18,
@@ -245,16 +530,22 @@ const styles = StyleSheet.create({
   metaRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 10,
+    gap: 8,
     flexWrap: 'wrap',
   },
   categoryBadge: {
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 8,
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 6,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 2,
+    backgroundColor: 'rgba(255, 255, 255, 1)',
   },
   categoryBadgeText: {
-    color: '#FFFFFF',
+    color: '#000',
     fontSize: 11,
     fontFamily: 'Poppins_400Regular',
     fontWeight: '600',
@@ -274,12 +565,54 @@ const styles = StyleSheet.create({
     lineHeight: 22,
     fontFamily: 'Syne_400Regular',
   },
+  sourceText: {
+    fontSize: 12,
+    lineHeight: 14,
+    fontFamily: 'Syne_400Regular',
+    textDecorationLine: 'underline',
+  },
+  metaSeparator: {
+    fontSize: 12,
+    fontFamily: 'Syne_400Regular',
+  },
+  link: {
+    fontSize: 12,
+    fontFamily: 'Syne_400Regular',
+    textDecorationLine: 'underline',
+  },
   section: {
     gap: 12,
   },
   sectionTitle: {
     fontSize: 18,
     fontFamily: 'Syne_500Medium',
+  },
+  specGrid: {
+    borderWidth: 1,
+    borderRadius: 16,
+    overflow: 'hidden',
+  },
+  specRow: {
+    flexDirection: 'row',
+  },
+  specCard: {
+    flex: 1,
+    paddingVertical: 12,
+    paddingHorizontal: 14,
+    borderRightWidth: 1,
+    borderBottomWidth: 1,
+  },
+  specLabel: {
+    fontSize: 12,
+    lineHeight: 14,
+    fontFamily: 'Syne_400Regular',
+    marginBottom: 8,
+    textTransform: 'capitalize',
+  },
+  specValue: {
+    fontSize: 14,
+    lineHeight: 18,
+    fontFamily: 'Syne_400Regular',
   },
   featureRow: {
     flexDirection: 'row',
@@ -293,14 +626,23 @@ const styles = StyleSheet.create({
     fontFamily: 'Syne_400Regular',
     lineHeight: 20,
   },
+  tagsRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+  },
+  tagChip: {
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 8,
+  },
+  tagText: {
+    fontSize: 13,
+    fontFamily: 'Syne_400Regular',
+  },
   backButton: {
     position: 'absolute',
     left: 18,
-    zIndex: 9999,
-  },
-  heartButton: {
-    position: 'absolute',
-    right: 18,
     zIndex: 9999,
   },
   glassButton: {
@@ -312,42 +654,39 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     elevation: 8,
   },
-  bottomBar: {
+  footer: {
     position: 'absolute',
-    bottom: 30,
-    left: 20,
-    right: 20,
+    bottom: 25,
+    left: '50%',
+    transform: [{ translateX: '-50%' }],
+    borderRadius: 9999,
+    zIndex: 9996,
+    shadowColor: '#000',
+    shadowOpacity: 0.15,
+    shadowRadius: 4,
+    shadowOffset: { width: 0, height: 2 },
+    elevation: 8,
     flexDirection: 'row',
-    gap: 12,
-    zIndex: 9998,
+    alignItems: 'center',
+    paddingVertical: 8,
+    paddingHorizontal: 14,
+    gap: 16,
+  },
+  footerAction: {
+    padding: 4,
   },
   buyButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
-    gap: 8,
-    paddingVertical: 14,
+    gap: 6,
+    paddingHorizontal: 14,
+    paddingVertical: 10,
     borderRadius: 9999,
-    shadowColor: '#8b5cf6',
-    shadowOpacity: 0.4,
-    shadowRadius: 12,
-    shadowOffset: { width: 0, height: 6 },
   },
   buyButtonText: {
     color: '#FFFFFF',
-    fontSize: 16,
+    fontSize: 14,
     fontFamily: 'Syne_500Medium',
-  },
-  askAiSmall: {
-    width: 50,
-    height: 50,
-    borderRadius: 9999,
-    justifyContent: 'center',
-    alignItems: 'center',
-    shadowColor: '#8b5cf6',
-    shadowOpacity: 0.4,
-    shadowRadius: 12,
-    shadowOffset: { width: 0, height: 6 },
   },
   gradientOverlay: {
     zIndex: 9995,

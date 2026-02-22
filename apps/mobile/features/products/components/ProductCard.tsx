@@ -1,5 +1,7 @@
 import { useThemeColors } from '@/constants/useTheme';
-import React, { useRef } from 'react';
+import { ProductListItem } from '@culyn/shared/schemas';
+import { Feather } from '@expo/vector-icons';
+import React, { useRef, useState } from 'react';
 import {
   Animated,
   Image,
@@ -10,27 +12,39 @@ import {
 } from 'react-native';
 
 interface ProductCardProps {
-  id: string;
-  name: string | null;
-  imageUrl: string | null;
-  brand: string | null;
-  price: number | null;
-  currency: string | null;
-  category: string;
+  item: ProductListItem;
   onPress?: () => void;
+  onHeartPress?: (liked: boolean) => void;
 }
 
-export function ProductCard({
-  name,
-  imageUrl,
-  brand,
-  price,
-  currency,
-  category,
-  onPress,
-}: ProductCardProps) {
+export function ProductCard({ item, onPress, onHeartPress }: ProductCardProps) {
   const colors = useThemeColors();
+  const [isLiked, setIsLiked] = useState(false);
   const scale = useRef(new Animated.Value(1)).current;
+  const heartScale = useRef(new Animated.Value(1)).current;
+
+  const handleHeartPress = (e: any) => {
+    setIsLiked(!isLiked);
+    onHeartPress?.(!isLiked);
+  };
+
+  const handleHeartPressIn = () => {
+    Animated.spring(heartScale, {
+      toValue: 0.9,
+      useNativeDriver: true,
+      speed: 20,
+      bounciness: 6,
+    }).start();
+  };
+
+  const handleHeartPressOut = () => {
+    Animated.spring(heartScale, {
+      toValue: 1,
+      useNativeDriver: true,
+      speed: 20,
+      bounciness: 6,
+    }).start();
+  };
 
   const handlePressIn = () => {
     Animated.spring(scale, {
@@ -50,13 +64,9 @@ export function ProductCard({
     }).start();
   };
 
-  const formattedPrice =
-    price != null
-      ? new Intl.NumberFormat('en-US', {
-          style: 'currency',
-          currency: currency || 'USD',
-        }).format(price)
-      : null;
+  const categoryLabel = item.category.replace(/_/g, ' ').toLowerCase();
+
+  if (!item) return null;
 
   return (
     <Animated.View style={{ transform: [{ scale }] }}>
@@ -64,49 +74,66 @@ export function ProductCard({
         onPress={onPress}
         onPressIn={handlePressIn}
         onPressOut={handlePressOut}
-        style={[
-          styles.container,
-          { backgroundColor: colors.cardBackgroundElevated },
-        ]}
+        style={styles.container}
       >
         <View style={styles.imageContainer}>
-          {imageUrl ? (
-            <Image source={{ uri: imageUrl }} style={styles.image} />
+          {item.imageUrl ? (
+            <Image source={{ uri: item.imageUrl }} style={styles.image} />
           ) : (
             <View
               style={[
                 styles.imagePlaceholder,
                 { backgroundColor: colors.backgroundSecondary },
               ]}
-            />
-          )}
-          {formattedPrice && (
-            <View
-              style={[
-                styles.priceBadge,
-                { backgroundColor: colors.categoryProduct },
-              ]}
             >
-              <Text style={styles.priceText}>{formattedPrice}</Text>
+              <Feather name='shopping-bag' size={32} color={colors.textMuted} />
             </View>
           )}
+
+          <Animated.View
+            style={[styles.heartButton, { transform: [{ scale: heartScale }] }]}
+          >
+            <Pressable
+              onPress={handleHeartPress}
+              onPressIn={handleHeartPressIn}
+              onPressOut={handleHeartPressOut}
+              hitSlop={8}
+              style={styles.heartButtonInner}
+            >
+              <Image
+                source={
+                  isLiked
+                    ? require('@/assets/icons/heart-fill.png')
+                    : require('@/assets/icons/heart.png')
+                }
+                style={styles.heartIcon}
+                resizeMode='contain'
+              />
+            </Pressable>
+          </Animated.View>
         </View>
 
         <View style={styles.textContainer}>
           <Text
             style={[styles.name, { color: colors.textPrimary }]}
-            numberOfLines={2}
+            numberOfLines={1}
           >
-            {name || 'Unnamed Product'}
+            {item.name}
           </Text>
-          {brand && (
-            <Text style={[styles.brand, { color: colors.textMuted }]}>
-              {brand}
-            </Text>
-          )}
-          <Text style={[styles.category, { color: colors.textMuted }]}>
-            {category.replace(/_/g, ' ').toLowerCase()}
-          </Text>
+
+          <View style={styles.metaRow}>
+            <View style={[styles.categoryBadge]}>
+              <Text style={styles.categoryBadgeText}>{categoryLabel}</Text>
+            </View>
+            {item.brand && (
+              <Text
+                style={[styles.brandText, { color: colors.textMuted }]}
+                numberOfLines={1}
+              >
+                {item.brand}
+              </Text>
+            )}
+          </View>
         </View>
       </Pressable>
     </Animated.View>
@@ -115,59 +142,93 @@ export function ProductCard({
 
 const styles = StyleSheet.create({
   container: {
-    borderRadius: 16,
-    overflow: 'hidden',
-    shadowColor: '#000',
-    shadowOpacity: 0.02,
-    shadowRadius: 10,
-    shadowOffset: { width: 0, height: 4 },
-    elevation: 5,
+    flex: 1,
+    marginBottom: 8,
   },
   imageContainer: {
     width: '100%',
-    height: 140,
+    aspectRatio: 1,
     position: 'relative',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.15,
+    shadowRadius: 4,
+    elevation: 3,
   },
   image: {
     width: '100%',
     height: '100%',
     resizeMode: 'cover',
+    overflow: 'hidden',
+    borderRadius: 16,
   },
   imagePlaceholder: {
     width: '100%',
     height: '100%',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: 16,
+    overflow: 'hidden',
   },
-  priceBadge: {
+  heartButton: {
     position: 'absolute',
-    top: 8,
-    right: 8,
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-    borderRadius: 8,
+    top: 12,
+    right: 12,
+    width: 30,
+    height: 30,
+    borderRadius: 15,
+    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    overflow: 'visible',
+    elevation: 3,
+    zIndex: 10,
   },
-  priceText: {
-    color: '#FFFFFF',
-    fontSize: 11,
-    fontFamily: 'Poppins_400Regular',
-    fontWeight: '600',
+  heartButtonInner: {
+    width: '100%',
+    height: '100%',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  heartIcon: {
+    width: 17,
+    height: 17,
   },
   textContainer: {
-    padding: 12,
-    gap: 2,
+    paddingTop: 10,
+    gap: 6,
   },
   name: {
     fontSize: 14,
     fontFamily: 'Syne_500Medium',
     lineHeight: 20,
   },
-  brand: {
-    fontSize: 12,
-    fontFamily: 'Poppins_400Regular',
-    lineHeight: 16,
+  metaRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
   },
-  category: {
-    fontSize: 11,
+  categoryBadge: {
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 6,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 2,
+    backgroundColor: 'rgba(255, 255, 255, 1)',
+  },
+  categoryBadgeText: {
+    color: '#000000',
+    fontSize: 9,
     fontFamily: 'Poppins_400Regular',
+    fontWeight: '600',
     textTransform: 'capitalize',
+  },
+  brandText: {
+    fontSize: 12,
+    fontFamily: 'Syne_400Regular',
+    flex: 1,
   },
 });

@@ -154,6 +154,11 @@ export const ProductDetailSchema = z.object({
       id: z.string(),
     })
   ),
+  tags: z.array(
+    z.object({
+      tag: ProductTagSchema,
+    })
+  ),
 });
 
 export type ProductDetail = z.infer<typeof ProductDetailSchema>;

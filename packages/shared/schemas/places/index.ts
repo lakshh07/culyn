@@ -179,6 +179,11 @@ export const PlaceDetailSchema = z.object({
       id: z.string(),
     }),
   ),
+  tags: z.array(
+    z.object({
+      tag: PlaceTagSchema,
+    }),
+  ),
 });
 
 export type PlaceDetail = z.infer<typeof PlaceDetailSchema>;
