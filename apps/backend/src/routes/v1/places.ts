@@ -137,6 +137,14 @@ places.get('/:slug', async c => {
         where: { deletedAt: null },
         select: { id: true },
       },
+      tags: {
+        where: { deletedAt: null },
+        include: {
+          tag: {
+            select: { id: true, name: true, type: true },
+          },
+        },
+      },
     },
   })
 

@@ -80,7 +80,9 @@ export default function OnboardingScreen() {
       router.replace('/(tabs)/discover');
     } catch (err) {
       const message =
-        err instanceof Error ? err.message : 'An error occurred. Please try again.';
+        err instanceof Error
+          ? err.message
+          : 'An error occurred. Please try again.';
       setError(__DEV__ ? message : 'An error occurred. Please try again.');
       setLoading(false);
     }
@@ -125,7 +127,9 @@ export default function OnboardingScreen() {
       router.replace('/(tabs)/discover');
     } catch (err) {
       const message =
-        err instanceof Error ? err.message : 'An error occurred. Please try again.';
+        err instanceof Error
+          ? err.message
+          : 'An error occurred. Please try again.';
       setError(__DEV__ ? message : 'An error occurred. Please try again.');
       setLoading(false);
     }

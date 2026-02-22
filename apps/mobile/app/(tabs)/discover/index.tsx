@@ -9,8 +9,16 @@ import { PlaceCard } from '@/features/places/components/PlaceCard';
 import { ProductCard } from '@/features/products/components/ProductCard';
 import { RecipeCard } from '@/features/recipes/components/RecipeCard';
 import { HomeHeader } from '@/features/home/components/HomeHeader';
-import { useUnifiedContent, UnifiedContentFilters } from '@/hooks/content/useUnifiedContent';
-import { ContentCategory, UnifiedContentItem } from '@culyn/shared/schemas';
+import {
+  useUnifiedContent,
+  UnifiedContentFilters,
+} from '@/hooks/content/useUnifiedContent';
+import {
+  ContentCategory,
+  RecipeListItem,
+  PlaceListItem,
+  ProductListItem,
+} from '@culyn/shared/schemas';
 import { Feather } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 import { useRouter } from 'expo-router';
@@ -84,22 +92,9 @@ export default function DiscoverScreen() {
     handleSearchClose();
   }, [clearAll, handleSearchClose]);
 
-  const handleCategoryChange = useCallback(
-    (category: ContentCategory) => {
-      setSelectedCategory(category);
-    },
-    [],
-  );
-
-  const handleCardPress = (category: ContentCategory, slug: string) => {
-    if (category === 'RECIPE') {
-      router.push({ pathname: '/recipes/[slug]', params: { slug } });
-    } else if (category === 'PLACE') {
-      router.push({ pathname: '/places/[slug]', params: { slug } });
-    } else if (category === 'PRODUCT') {
-      router.push({ pathname: '/products/[slug]', params: { slug } });
-    }
-  };
+  const handleCategoryChange = useCallback((category: ContentCategory) => {
+    setSelectedCategory(category);
+  }, []);
 
   const handleEndReached = useCallback(() => {
     if (hasNextPage && !isFetchingNextPage) {
@@ -108,49 +103,62 @@ export default function DiscoverScreen() {
   }, [fetchNextPage, hasNextPage, isFetchingNextPage]);
 
   const renderItem = useCallback(
-    ({ item }: { item: UnifiedContentItem }) => {
-      const onPress = () => handleCardPress(item.category, item.slug);
-
-      return (
-        <View style={styles.gridItem}>
-          {item.category === 'RECIPE' && (
+    ({ item }: { item: RecipeListItem | PlaceListItem | ProductListItem }) => {
+      if (selectedCategory === 'RECIPE') {
+        const recipeItem = item as RecipeListItem;
+        return (
+          <View style={styles.gridItem}>
             <RecipeCard
-              id={item.id}
-              title={item.title ?? ''}
-              image={item.imageUrl ?? ''}
-              cookTime={item.cookTime}
-              calories={item.calories}
-              onPress={onPress}
+              item={recipeItem}
+              onPress={() =>
+                router.push({
+                  pathname: '/recipes/[slug]',
+                  params: { slug: recipeItem.slug },
+                })
+              }
             />
-          )}
-          {item.category === 'PLACE' && (
+          </View>
+        );
+      }
+
+      if (selectedCategory === 'PLACE') {
+        const placeItem = item as PlaceListItem;
+        return (
+          <View style={styles.gridItem}>
             <PlaceCard
-              id={item.id}
-              name={item.title}
-              imageUrl={item.imageUrl}
-              city={item.city ?? null}
-              cuisine={null}
-              priceRange={null}
-              type={item.placeType ?? 'RESTAURANT'}
-              onPress={onPress}
+              id={placeItem.id}
+              item={placeItem}
+              onPress={() =>
+                router.push({
+                  pathname: '/places/[slug]',
+                  params: { slug: placeItem.slug },
+                })
+              }
             />
-          )}
-          {item.category === 'PRODUCT' && (
+          </View>
+        );
+      }
+
+      if (selectedCategory === 'PRODUCT') {
+        const productItem = item as ProductListItem;
+        return (
+          <View style={styles.gridItem}>
             <ProductCard
-              id={item.id}
-              name={item.title}
-              imageUrl={item.imageUrl}
-              brand={item.brand ?? null}
-              price={item.price ?? null}
-              currency={null}
-              category="PRODUCT"
-              onPress={onPress}
+              item={productItem}
+              onPress={() =>
+                router.push({
+                  pathname: '/products/[slug]',
+                  params: { slug: productItem.slug },
+                })
+              }
             />
-          )}
-        </View>
-      );
+          </View>
+        );
+      }
+
+      return null;
     },
-    [],
+    [selectedCategory, router],
   );
 
   const ListEmptyComponent = useCallback(() => {
@@ -213,6 +221,7 @@ export default function DiscoverScreen() {
         selectedCategory={selectedCategory}
         onCategoryChange={handleCategoryChange}
         onSearchPress={handleSearchOpen}
+        onMapPress={() => router.push('/places/map')}
         headerFadeStyle={headerFadeStyle}
         hasActiveFilters={hasActiveFilters(selectedCategory)}
       />
@@ -221,7 +230,7 @@ export default function DiscoverScreen() {
         data={items ?? []}
         numColumns={2}
         renderItem={renderItem}
-        keyExtractor={(item) => `${item.category}-${item.id}`}
+        keyExtractor={(item) => item.id}
         onEndReached={handleEndReached}
         onEndReachedThreshold={0.3}
         ListEmptyComponent={ListEmptyComponent}
@@ -267,7 +276,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   gridItem: {
-    width: '48.5%',
+    width: '48%',
   },
   emptyContainer: {
     paddingTop: 80,

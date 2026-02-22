@@ -92,6 +92,7 @@ export default function LibraryScreen() {
       <HomeHeader
         selectedCategory={selectedCategory}
         onCategoryChange={setSelectedCategory}
+        onMapPress={() => router.push('/places/map')}
       />
       <FlatList
         key={selectedCategory}

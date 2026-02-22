@@ -4,7 +4,7 @@ import Constants from 'expo-constants';
 
 const getApiUrl = () => {
   if (__DEV__) {
-    return process.env.CULYN_API_URL;
+    return process.env.EXPO_PUBLIC_CULYN_API_URL;
   }
   return Constants.expoConfig?.extra?.apiUrl || 'https://your-api-domain.com';
 };

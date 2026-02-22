@@ -23,6 +23,7 @@ interface HomeHeaderProps {
   selectedCategory: ContentCategory;
   onCategoryChange: (category: ContentCategory) => void;
   onSearchPress?: () => void;
+  onMapPress?: () => void;
   headerFadeStyle?: any;
   hasActiveFilters?: boolean;
 }
@@ -94,6 +95,7 @@ export function HomeHeader({
   selectedCategory,
   onCategoryChange,
   onSearchPress,
+  onMapPress,
   headerFadeStyle,
   hasActiveFilters,
 }: HomeHeaderProps) {
@@ -171,6 +173,11 @@ export function HomeHeader({
             <View style={[styles.filterDot, { backgroundColor: colors.primary }]} />
           )}
         </Pressable>
+        {selectedCategory === 'PLACE' && onMapPress && (
+          <Pressable onPress={onMapPress} style={styles.mapButton} hitSlop={8}>
+            <Feather name="map" size={20} color={colors.textPrimary} />
+          </Pressable>
+        )}
       </View>
 
       {/* Category tabs */}
@@ -233,8 +240,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingTop: 8,
     paddingBottom: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
   },
   searchBar: {
+    flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
     height: 52,
@@ -284,5 +295,12 @@ const styles = StyleSheet.create({
     height: 8,
     borderRadius: 4,
     marginLeft: 'auto',
+  },
+  mapButton: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });
