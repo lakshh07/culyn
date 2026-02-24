@@ -1,9 +1,9 @@
 import { auth } from '@/lib/auth'
 import db from '@/lib/prisma'
+import { zValidator } from '@hono/zod-validator'
 import { Hono } from 'hono'
 import { HTTPException } from 'hono/http-exception'
 import { z } from 'zod'
-import { zValidator } from '@hono/zod-validator'
 
 const user = new Hono()
 
@@ -21,6 +21,19 @@ const getAuthUser = async (c: any) => {
 
   return session.user
 }
+
+user.get('lookup', async c => {
+  const email = c.req.query('email')
+  const user = await db.user.findUnique({
+    where: { email },
+  })
+
+  if (!user) {
+    throw new HTTPException(404, { message: 'User not found' })
+  }
+
+  return c.json(user)
+})
 
 // Get user stats
 user.get('/stats', async c => {
@@ -125,50 +138,46 @@ const dietaryPreferenceSchema = z.object({
   preferences: z.string().optional(),
 })
 
-user.post(
-  '/dietary',
-  zValidator('json', dietaryPreferenceSchema),
-  async c => {
-    const currentUser = await getAuthUser(c)
-    const { dietTypes, allergens, dislikes, preferences } = c.req.valid('json')
+user.post('/dietary', zValidator('json', dietaryPreferenceSchema), async c => {
+  const currentUser = await getAuthUser(c)
+  const { dietTypes, allergens, dislikes, preferences } = c.req.valid('json')
 
-    // Delete existing preferences
-    await db.dietaryPreference.deleteMany({
-      where: { userId: currentUser.id },
-    })
+  // Delete existing preferences
+  await db.dietaryPreference.deleteMany({
+    where: { userId: currentUser.id },
+  })
 
-    // Create new preferences for each diet type
-    const newPreferences = await Promise.all(
-      dietTypes.map(type =>
-        db.dietaryPreference.create({
-          data: {
-            userId: currentUser.id,
-            type: type as any,
-            allergens,
-            dislikes,
-            preferences,
-          },
-        })
-      )
-    )
-
-    // If no diet types selected but user has other preferences, create a generic one
-    if (dietTypes.length === 0 && (allergens.length > 0 || dislikes.length > 0 || preferences)) {
-      const genericPref = await db.dietaryPreference.create({
+  // Create new preferences for each diet type
+  const newPreferences = await Promise.all(
+    dietTypes.map(type =>
+      db.dietaryPreference.create({
         data: {
           userId: currentUser.id,
-          type: 'VEGETARIAN' as any, // Default type
+          type: type as any,
           allergens,
           dislikes,
           preferences,
         },
       })
-      newPreferences.push(genericPref)
-    }
+    )
+  )
 
-    return c.json(newPreferences)
+  // If no diet types selected but user has other preferences, create a generic one
+  if (dietTypes.length === 0 && (allergens.length > 0 || dislikes.length > 0 || preferences)) {
+    const genericPref = await db.dietaryPreference.create({
+      data: {
+        userId: currentUser.id,
+        type: 'VEGETARIAN' as any, // Default type
+        allergens,
+        dislikes,
+        preferences,
+      },
+    })
+    newPreferences.push(genericPref)
   }
-)
+
+  return c.json(newPreferences)
+})
 
 // Delete dietary preference
 user.delete('/dietary/:id', async c => {
