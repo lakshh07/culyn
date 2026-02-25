@@ -2,6 +2,7 @@ import { QUEUE_NAMES } from '@/bull/config'
 import { contentImportQueue } from '@/bull/queues'
 import { auth } from '@/lib/auth'
 import db from '@/lib/prisma'
+import { enforceLibraryLimit } from '@/lib/subscription'
 import { ImportContentRequestSchema } from '@culyn/shared/schemas'
 import { JobType } from '@prisma/client'
 import { Hono } from 'hono'
@@ -38,6 +39,8 @@ content.post('/import', async c => {
       message: 'User or organization not found',
     })
   }
+
+  await enforceLibraryLimit(session.user.id)
 
   const payload = await ImportContentRequestSchema.parseAsync(await c.req.json())
 

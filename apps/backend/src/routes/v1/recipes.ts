@@ -1,5 +1,6 @@
 import { auth } from '@/lib/auth'
 import db from '@/lib/prisma'
+import { enforceLibraryLimit } from '@/lib/subscription'
 import {
   ListRecipesQuerySchema,
   UpdateListItemRequestSchema,
@@ -283,8 +284,7 @@ recipes.post('/:slug/cookbook', async c => {
     })
   }
 
-  // Note: SubscriptionService is deferred, so we skip the limit check for now
-  // await SubscriptionService.enforceCookbookLimit(session.user.id)
+  await enforceLibraryLimit(session.user.id)
 
   const { slug } = c.req.param()
 

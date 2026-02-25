@@ -1,5 +1,6 @@
 import { auth } from '@/lib/auth'
 import db from '@/lib/prisma'
+import { enforceLibraryLimit } from '@/lib/subscription'
 import { ListPlacesQuerySchema } from '@culyn/shared/schemas'
 import { Hono } from 'hono'
 import { HTTPException } from 'hono/http-exception'
@@ -168,6 +169,8 @@ places.post('/:slug/favorite', async c => {
       message: 'You are not authenticated, please login',
     })
   }
+
+  await enforceLibraryLimit(session.user.id)
 
   const { slug } = c.req.param()
 
