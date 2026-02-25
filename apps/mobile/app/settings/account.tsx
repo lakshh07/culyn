@@ -28,7 +28,7 @@ export default function AccountScreen() {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [isChangingPassword, setIsChangingPassword] = useState(false);
 
-  const isEmailPasswordAuth = session?.user?.provider === null;
+  // const isEmailPasswordAuth = !session?.user?.provider;
 
   const handleChangePassword = async () => {
     if (!currentPassword || !newPassword || !confirmPassword) {
@@ -60,10 +60,7 @@ export default function AccountScreen() {
       setNewPassword('');
       setConfirmPassword('');
     } catch (error: any) {
-      Alert.alert(
-        'Error',
-        error.message || 'Failed to change password'
-      );
+      Alert.alert('Error', error.message || 'Failed to change password');
     } finally {
       setIsChangingPassword(false);
     }
@@ -85,12 +82,12 @@ export default function AccountScreen() {
             // TODO: Implement account deletion API
             Alert.alert(
               'Coming Soon',
-              'Account deletion will be available soon'
+              'Account deletion will be available soon',
             );
           },
         },
       ],
-      { cancelable: true }
+      { cancelable: true },
     );
   };
 
@@ -111,7 +108,10 @@ export default function AccountScreen() {
 
   return (
     <SafeAreaView
-      style={[styles.container, { backgroundColor: colors.backgroundSecondary }]}
+      style={[
+        styles.container,
+        { backgroundColor: colors.backgroundSecondary },
+      ]}
       edges={['bottom']}
     >
       <ScrollView
@@ -120,7 +120,7 @@ export default function AccountScreen() {
         showsVerticalScrollIndicator={false}
       >
         <SettingsSection title='Authentication'>
-          {isEmailPasswordAuth && (
+          {/* {isEmailPasswordAuth && (
             <SettingsRow
               icon={<Text style={styles.icon}>🔑</Text>}
               title='Change Password'
@@ -128,7 +128,7 @@ export default function AccountScreen() {
               chevron
               onPress={() => setShowChangePasswordModal(true)}
             />
-          )}
+          )} */}
           <SettingsRow
             icon={<Text style={styles.icon}>📧</Text>}
             title='Email Verification'
@@ -142,7 +142,7 @@ export default function AccountScreen() {
         </SettingsSection>
 
         <SettingsSection title='Connected Accounts'>
-          <SettingsRow
+          {/* <SettingsRow
             icon={<Text style={styles.icon}>🔗</Text>}
             title='Google'
             subtitle={
@@ -151,7 +151,7 @@ export default function AccountScreen() {
                 : 'Not connected'
             }
             value={session?.user?.provider === 'google' ? '✓' : ''}
-          />
+          /> */}
         </SettingsSection>
 
         <SettingsSection title='Danger Zone'>
@@ -180,10 +180,7 @@ export default function AccountScreen() {
           ]}
         >
           <View
-            style={[
-              styles.modalHeader,
-              { borderBottomColor: colors.border },
-            ]}
+            style={[styles.modalHeader, { borderBottomColor: colors.border }]}
           >
             <TouchableOpacity onPress={() => setShowChangePasswordModal(false)}>
               <Text

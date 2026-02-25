@@ -11,10 +11,7 @@ model User {
   email              String              @unique
   name               String?
   image              String?
-  passwordHash       String?
   emailVerified      Boolean             @default(false)
-  provider           String?
-  providerId         String?
   defaultOrgId       String?
   createdAt          DateTime            @default(now())
   updatedAt          DateTime            @updatedAt
@@ -129,7 +126,6 @@ model Organization {
   id             String    @id @default(cuid(2))
   name           String
   slug           String    @unique
-  logo           String?
   description    String?
   subscriptionId String?   @unique
   ownerId        String
@@ -173,22 +169,11 @@ model Subscription {
   id                     String             @id @default(cuid(2))
   plan                   SubscriptionPlan   @default(FREE)
   status                 SubscriptionStatus @default(ACTIVE)
-  stripeCustomerId       String?            @unique
-  stripeSubscriptionId   String?            @unique
-  stripePriceId          String?
-  stripeCurrentPeriodEnd DateTime?
-  maxRecipes             Int                @default(12)
-  maxUsers               Int                @default(1)
-  maxLists               Int                @default(5)
-  aiCreditsLimit         Int                @default(100)
-  aiCreditsUsed          Int                @default(0)
   createdAt              DateTime           @default(now())
   updatedAt              DateTime           @updatedAt
   deletedAt              DateTime?
   organization           Organization?
 
-  @@index([stripeCustomerId])
-  @@index([stripeSubscriptionId])
   @@index([deletedAt])
   @@map("subscriptions")
 }

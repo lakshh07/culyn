@@ -24,8 +24,6 @@ interface BillingInfo {
     maxUsers: number;
     maxLists: number;
     aiCreditsLimit: number;
-    aiCreditsUsed: number;
-    stripeCurrentPeriodEnd?: string;
   };
   usage: {
     recipeCount: number;
@@ -199,7 +197,7 @@ export default function BillingScreen() {
                     {
                       width: `${getUsagePercentage(
                         usage?.recipeCount || 0,
-                        subscription?.maxRecipes || 1
+                        subscription?.maxRecipes || 1,
                       )}%`,
                       backgroundColor: colors.primary,
                     },
@@ -231,25 +229,25 @@ export default function BillingScreen() {
                     },
                   ]}
                 >
-                  {subscription?.aiCreditsUsed || 0} /{' '}
+                  {/* {subscription?.aiCreditsUsed || 0} /{' '} */}
                   {subscription?.aiCreditsLimit || 0}
                 </Text>
               </View>
               <View
                 style={[styles.progressBar, { backgroundColor: colors.border }]}
               >
-                <View
+                {/* <View
                   style={[
                     styles.progressFill,
                     {
                       width: `${getUsagePercentage(
                         subscription?.aiCreditsUsed || 0,
-                        subscription?.aiCreditsLimit || 1
+                        subscription?.aiCreditsLimit || 1,
                       )}%`,
                       backgroundColor: colors.ai,
                     },
                   ]}
-                />
+                /> */}
               </View>
             </View>
 
@@ -288,7 +286,7 @@ export default function BillingScreen() {
                     {
                       width: `${getUsagePercentage(
                         usage?.listCount || 0,
-                        subscription?.maxLists || 1
+                        subscription?.maxLists || 1,
                       )}%`,
                       backgroundColor: colors.food,
                     },
@@ -327,7 +325,7 @@ export default function BillingScreen() {
               onPress={() =>
                 Alert.alert(
                   'Coming Soon',
-                  'Subscription management coming soon'
+                  'Subscription management coming soon',
                 )
               }
             />

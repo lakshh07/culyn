@@ -1,4 +1,5 @@
 import { auth } from '@/lib/auth'
+import { PLAN_DEFAULTS } from '@/lib/plans'
 import db from '@/lib/prisma'
 import { zValidator } from '@hono/zod-validator'
 import { Hono } from 'hono'
@@ -74,7 +75,6 @@ user.get('/profile', async c => {
       name: true,
       image: true,
       emailVerified: true,
-      provider: true,
       createdAt: true,
       updatedAt: true,
     },
@@ -105,7 +105,6 @@ user.patch('/profile', zValidator('json', updateProfileSchema), async c => {
       name: true,
       image: true,
       emailVerified: true,
-      provider: true,
       createdAt: true,
       updatedAt: true,
     },
@@ -251,16 +250,13 @@ user.get('/billing', async c => {
     }),
   ])
 
+  const planLimits = PLAN_DEFAULTS[subscription.plan]
+
   return c.json({
     subscription: {
       plan: subscription.plan,
       status: subscription.status,
-      maxRecipes: subscription.maxRecipes,
-      maxUsers: subscription.maxUsers,
-      maxLists: subscription.maxLists,
-      aiCreditsLimit: subscription.aiCreditsLimit,
-      aiCreditsUsed: subscription.aiCreditsUsed,
-      stripeCurrentPeriodEnd: subscription.stripeCurrentPeriodEnd,
+      ...planLimits,
     },
     usage: {
       recipeCount,

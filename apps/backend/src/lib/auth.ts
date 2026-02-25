@@ -1,4 +1,5 @@
 import prisma from '@/lib/prisma'
+import { SubscriptionPlan } from '@prisma/client'
 import { expo } from '@better-auth/expo'
 import { passkey } from '@better-auth/passkey'
 import { betterAuth } from 'better-auth'
@@ -50,13 +51,8 @@ export const auth = betterAuth({
 
               const subscription = await tx.subscription.create({
                 data: {
-                  plan: 'FREE',
+                  plan: SubscriptionPlan.FREE,
                   status: 'ACTIVE',
-                  maxRecipes: 12,
-                  maxUsers: 1,
-                  maxLists: 5,
-                  aiCreditsLimit: 100,
-                  aiCreditsUsed: 0,
                 },
               })
 

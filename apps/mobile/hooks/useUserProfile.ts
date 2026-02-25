@@ -8,7 +8,6 @@ export interface UserProfile {
   name: string | null;
   image: string | null;
   emailVerified: boolean;
-  provider: string | null;
   createdAt: string;
   updatedAt: string;
 }
