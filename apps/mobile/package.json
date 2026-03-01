@@ -8,7 +8,9 @@
     "android": "expo run:android",
     "ios": "expo run:ios",
     "web": "expo start --web",
-    "lint": "expo lint"
+    "lint": "expo lint",
+    "format": "bunx prettier --write \"**/*.{ts,tsx,js,json}\"",
+    "format:check": "bunx prettier --check \"**/*.{ts,tsx,js,json}\""
   },
   "dependencies": {
     "@better-auth/expo": "^1.4.10",
@@ -70,6 +72,7 @@
     "@types/react-query": "^1.2.9",
     "eslint": "^9.25.0",
     "eslint-config-expo": "~10.0.0",
+    "prettier": "^3.8.1",
     "prettier-plugin-tailwindcss": "^0.5.11",
     "tailwindcss": "^3.4.17",
     "typescript": "~5.9.2"
