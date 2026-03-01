@@ -94,6 +94,20 @@ export async function notifyProcessingComplete(
   });
 }
 
+export async function notifyUpgradeRequired() {
+  const Notifications = getNotificationsModule();
+  if (!Notifications) return;
+  ensureHandler();
+
+  await Notifications.scheduleNotificationAsync({
+    content: {
+      title: 'Action not completed',
+      body: "You've reached your library limit. Upgrade to Pro to save more.",
+    },
+    trigger: null,
+  });
+}
+
 export async function notifyProcessingFailed() {
   const Notifications = getNotificationsModule();
   if (!Notifications) return;

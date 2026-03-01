@@ -50,7 +50,10 @@ const SAMPLE_PLACES: Array<{
     priceRange: '$$',
     rating: 4.5,
     website: 'https://bluebottlecoffee.com',
-    tags: [{ type: 'CUISINE', value: 'Coffee' }, { type: 'MEAL_TYPE', value: 'Breakfast' }],
+    tags: [
+      { type: 'CUISINE', value: 'Coffee' },
+      { type: 'MEAL_TYPE', value: 'Breakfast' },
+    ],
   },
   {
     name: 'Tartine Bakery',
@@ -66,7 +69,10 @@ const SAMPLE_PLACES: Array<{
     cuisine: 'Bakery',
     priceRange: '$$',
     rating: 4.7,
-    tags: [{ type: 'CUISINE', value: 'French' }, { type: 'MEAL_TYPE', value: 'Breakfast' }],
+    tags: [
+      { type: 'CUISINE', value: 'French' },
+      { type: 'MEAL_TYPE', value: 'Breakfast' },
+    ],
   },
   {
     name: 'Bar Agricole',
@@ -81,7 +87,10 @@ const SAMPLE_PLACES: Array<{
     cuisine: 'American',
     priceRange: '$$$',
     rating: 4.4,
-    tags: [{ type: 'CUISINE', value: 'American' }, { type: 'OCCASION', value: 'Date Night' }],
+    tags: [
+      { type: 'CUISINE', value: 'American' },
+      { type: 'OCCASION', value: 'Date Night' },
+    ],
   },
   {
     name: 'Bi-Rite Creamery',
@@ -97,7 +106,10 @@ const SAMPLE_PLACES: Array<{
     cuisine: 'Ice Cream',
     priceRange: '$',
     rating: 4.6,
-    tags: [{ type: 'MEAL_TYPE', value: 'Dessert' }, { type: 'SEASON', value: 'Summer' }],
+    tags: [
+      { type: 'MEAL_TYPE', value: 'Dessert' },
+      { type: 'SEASON', value: 'Summer' },
+    ],
   },
   {
     name: 'The Ferry Building Marketplace',
@@ -114,7 +126,10 @@ const SAMPLE_PLACES: Array<{
     priceRange: '$$',
     rating: 4.8,
     website: 'https://ferrybuildingmarketplace.com',
-    tags: [{ type: 'OCCASION', value: 'Weekend Brunch' }, { type: 'CUSTOM', value: 'Local' }],
+    tags: [
+      { type: 'OCCASION', value: 'Weekend Brunch' },
+      { type: 'CUSTOM', value: 'Local' },
+    ],
   },
   {
     name: 'Zuni Cafe',
@@ -130,7 +145,10 @@ const SAMPLE_PLACES: Array<{
     cuisine: 'Mediterranean',
     priceRange: '$$$',
     rating: 4.5,
-    tags: [{ type: 'CUISINE', value: 'Mediterranean' }, { type: 'MEAL_TYPE', value: 'Dinner' }],
+    tags: [
+      { type: 'CUISINE', value: 'Mediterranean' },
+      { type: 'MEAL_TYPE', value: 'Dinner' },
+    ],
   },
   {
     name: 'Tacolicious',
@@ -145,7 +163,10 @@ const SAMPLE_PLACES: Array<{
     cuisine: 'Mexican',
     priceRange: '$$',
     rating: 4.2,
-    tags: [{ type: 'CUISINE', value: 'Mexican' }, { type: 'MEAL_TYPE', value: 'Lunch' }],
+    tags: [
+      { type: 'CUISINE', value: 'Mexican' },
+      { type: 'MEAL_TYPE', value: 'Lunch' },
+    ],
   },
   {
     name: 'Sightglass Coffee',
@@ -161,7 +182,10 @@ const SAMPLE_PLACES: Array<{
     cuisine: 'Coffee',
     priceRange: '$$',
     rating: 4.5,
-    tags: [{ type: 'CUISINE', value: 'Coffee' }, { type: 'CUSTOM', value: 'Third Wave' }],
+    tags: [
+      { type: 'CUISINE', value: 'Coffee' },
+      { type: 'CUSTOM', value: 'Third Wave' },
+    ],
   },
 ]
 
@@ -185,7 +209,10 @@ const SAMPLE_PRODUCTS: Array<{
     price: 379.99,
     currency: 'USD',
     features: ['Enameled cast iron', 'Oven-safe to 500°F', 'Lifetime warranty'],
-    tags: [{ type: 'OCCASION', value: 'Everyday' }, { type: 'CUSTOM', value: 'Essential' }],
+    tags: [
+      { type: 'OCCASION', value: 'Everyday' },
+      { type: 'CUSTOM', value: 'Essential' },
+    ],
   },
   {
     name: 'Dyson Airwrap Complete',
@@ -207,7 +234,10 @@ const SAMPLE_PRODUCTS: Array<{
     price: 449.99,
     currency: 'USD',
     features: ['6-quart capacity', '10 speeds', 'Durable metal construction'],
-    tags: [{ type: 'OCCASION', value: 'Baking' }, { type: 'CUSTOM', value: 'Baker Essential' }],
+    tags: [
+      { type: 'OCCASION', value: 'Baking' },
+      { type: 'CUSTOM', value: 'Baker Essential' },
+    ],
   },
   {
     name: 'The Ordinary Niacinamide 10% + Zinc 1%',
@@ -218,7 +248,10 @@ const SAMPLE_PRODUCTS: Array<{
     price: 5.9,
     currency: 'USD',
     features: ['Oil-free', 'Vegan', 'Cruelty-free'],
-    tags: [{ type: 'CUSTOM', value: 'Skincare' }, { type: 'DIET', value: 'Vegan' }],
+    tags: [
+      { type: 'CUSTOM', value: 'Skincare' },
+      { type: 'DIET', value: 'Vegan' },
+    ],
   },
   {
     name: 'Vitamix A3500 Ascent',
@@ -229,7 +262,10 @@ const SAMPLE_PRODUCTS: Array<{
     price: 549.95,
     currency: 'USD',
     features: ['Variable speed control', 'Self-detect technology', '64oz container'],
-    tags: [{ type: 'MEAL_TYPE', value: 'Breakfast' }, { type: 'CUSTOM', value: 'Smoothies' }],
+    tags: [
+      { type: 'MEAL_TYPE', value: 'Breakfast' },
+      { type: 'CUSTOM', value: 'Smoothies' },
+    ],
   },
   {
     name: 'Apple AirPods Pro',
@@ -251,7 +287,10 @@ const SAMPLE_PRODUCTS: Array<{
     price: 98,
     currency: 'USD',
     features: ['Nulu fabric', 'High-rise', '4-way stretch'],
-    tags: [{ type: 'CUSTOM', value: 'Athleisure' }, { type: 'SEASON', value: 'Year-round' }],
+    tags: [
+      { type: 'CUSTOM', value: 'Athleisure' },
+      { type: 'SEASON', value: 'Year-round' },
+    ],
   },
   {
     name: 'Hydro Flask 32oz Wide Mouth',
@@ -262,7 +301,10 @@ const SAMPLE_PRODUCTS: Array<{
     price: 44.95,
     currency: 'USD',
     features: ['TempShield insulation', 'BPA-free', 'Lifetime warranty'],
-    tags: [{ type: 'CUSTOM', value: 'Hydration' }, { type: 'CUSTOM', value: 'Eco-friendly' }],
+    tags: [
+      { type: 'CUSTOM', value: 'Hydration' },
+      { type: 'CUSTOM', value: 'Eco-friendly' },
+    ],
   },
 ]
 
@@ -358,10 +400,12 @@ async function main(): Promise<void> {
     const uid = user.id
     const orgId =
       user.defaultOrgId ??
-      (await db.organization.findFirst({
-        where: { ownerId: uid },
-        select: { id: true },
-      }))?.id
+      (
+        await db.organization.findFirst({
+          where: { ownerId: uid },
+          select: { id: true },
+        })
+      )?.id
 
     if (!orgId) {
       console.error(`Error: User has no organization. Cannot seed.`)
@@ -372,7 +416,9 @@ async function main(): Promise<void> {
     const productCount = Math.min(products, SAMPLE_PRODUCTS.length)
 
     if (dryRun) {
-      console.log(`[dry-run] Would create ${placeCount} places and ${productCount} products for ${email}`)
+      console.log(
+        `[dry-run] Would create ${placeCount} places and ${productCount} products for ${email}`
+      )
       const placeNames = SAMPLE_PLACES.slice(0, placeCount).map(p => p.name)
       const productNames = SAMPLE_PRODUCTS.slice(0, productCount).map(p => p.name)
       console.log('Places:', placeNames.join(', '))
@@ -426,9 +472,11 @@ async function main(): Promise<void> {
               create: { slug: tagSlug, name: tagData.value, type: tagData.type as any },
               update: {},
             })
-            await db.placeTag.create({
-              data: { placeId: place.id, tagId: tag.id },
-            }).catch(() => {})
+            await db.placeTag
+              .create({
+                data: { placeId: place.id, tagId: tag.id },
+              })
+              .catch(() => {})
           }
         }
       }
@@ -474,9 +522,11 @@ async function main(): Promise<void> {
               create: { slug: tagSlug, name: tagData.value, type: tagData.type as any },
               update: {},
             })
-            await db.productTag.create({
-              data: { productId: product.id, tagId: tag.id },
-            }).catch(() => {})
+            await db.productTag
+              .create({
+                data: { productId: product.id, tagId: tag.id },
+              })
+              .catch(() => {})
           }
         }
       }
@@ -485,7 +535,9 @@ async function main(): Promise<void> {
       console.log(`  Created product: ${sample.name} (${slug})`)
     }
 
-    console.log(`\nDone. Created ${createdPlaces} places and ${createdProducts} products for ${email}.`)
+    console.log(
+      `\nDone. Created ${createdPlaces} places and ${createdProducts} products for ${email}.`
+    )
   } catch (err) {
     console.error('Error:', err)
     process.exit(1)

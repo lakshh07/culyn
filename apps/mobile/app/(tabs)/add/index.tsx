@@ -1,9 +1,11 @@
+import { UpgradeSheet } from '@/components/UpgradeSheet';
 import { useThemeColors } from '@/constants/useTheme';
 import { useContentImport } from '@/hooks/content/useContentImport';
 import { useJobPolling } from '@/hooks/useJobPolling';
 import { Feather } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
+import axios from 'axios';
 import React, { useEffect, useState } from 'react';
 import {
   ActivityIndicator,
@@ -19,6 +21,7 @@ export default function AddScreen() {
   const colors = useThemeColors();
   const router = useRouter();
   const [url, setUrl] = useState('');
+  const [showUpgradeSheet, setShowUpgradeSheet] = useState(false);
   const { importAsync, isImporting, jobId, error: importError, reset: resetImport } = useContentImport();
   const { status, progress, result, error: pollError, isPolling, reset: resetPolling } = useJobPolling(jobId);
 
@@ -124,18 +127,34 @@ export default function AddScreen() {
           />
         </View>
 
-        {error && (
-          <View style={styles.errorContainer}>
-            <Text style={[styles.errorText, { color: colors.error }]}>
-              {typeof error === 'string' ? error : 'Import failed. Please try again.'}
-            </Text>
-            <Pressable onPress={handleReset}>
-              <Text style={[styles.retryText, { color: colors.primary }]}>
-                Try again
+        {error && (() => {
+          const isLimitError = axios.isAxiosError(error) &&
+            (error as any).response?.status === 403;
+          return (
+            <View style={styles.errorContainer}>
+              <Text style={[styles.errorText, { color: colors.error }]}>
+                {isLimitError
+                  ? 'Library limit reached.'
+                  : typeof error === 'string'
+                    ? error
+                    : 'Import failed. Please try again.'}
               </Text>
-            </Pressable>
-          </View>
-        )}
+              {isLimitError ? (
+                <Pressable onPress={() => setShowUpgradeSheet(true)}>
+                  <Text style={[styles.retryText, { color: colors.primary }]}>
+                    Upgrade to Pro
+                  </Text>
+                </Pressable>
+              ) : (
+                <Pressable onPress={handleReset}>
+                  <Text style={[styles.retryText, { color: colors.primary }]}>
+                    Try again
+                  </Text>
+                </Pressable>
+              )}
+            </View>
+          );
+        })()}
 
         {isPolling && (
           <View style={styles.progressSection}>
@@ -177,6 +196,11 @@ export default function AddScreen() {
           </LinearGradient>
         </Pressable>
       </View>
+
+      <UpgradeSheet
+        visible={showUpgradeSheet}
+        onClose={() => setShowUpgradeSheet(false)}
+      />
 
       <View style={[styles.divider, { backgroundColor: colors.border }]} />
 

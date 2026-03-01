@@ -19,6 +19,7 @@ interface SettingsRowProps {
   toggleValue?: boolean;
   onToggle?: (value: boolean) => void;
   destructive?: boolean;
+  rightElement?: ReactNode;
 }
 
 export function SettingsRow({
@@ -32,6 +33,7 @@ export function SettingsRow({
   toggleValue = false,
   onToggle,
   destructive = false,
+  rightElement,
 }: SettingsRowProps) {
   const colors = useThemeColors();
 
@@ -70,6 +72,7 @@ export function SettingsRow({
             </Text>
           )}
         </View>
+        {rightElement}
         {value && !toggle && (
           <Text
             style={[

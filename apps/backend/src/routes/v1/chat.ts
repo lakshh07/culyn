@@ -260,9 +260,7 @@ chat.post('/conversations/:id/messages', async c => {
           if (chunk.type === 'token' && chunk.content) {
             fullContent += chunk.content
             controller.enqueue(
-              encoder.encode(
-                JSON.stringify({ type: 'token', content: chunk.content }) + '\n'
-              )
+              encoder.encode(JSON.stringify({ type: 'token', content: chunk.content }) + '\n')
             )
           }
         }
@@ -280,9 +278,7 @@ chat.post('/conversations/:id/messages', async c => {
         // Update conversation title if first message
         if (conversation.messages.length === 0) {
           const title =
-            payload.content.length > 50
-              ? payload.content.substring(0, 50) + '...'
-              : payload.content
+            payload.content.length > 50 ? payload.content.substring(0, 50) + '...' : payload.content
           await db.chatConversation.update({
             where: { id },
             data: { title },

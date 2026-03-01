@@ -3,9 +3,11 @@ import {
   notifyProcessingComplete,
   notifyProcessingFailed,
   notifyProcessingStarted,
+  notifyUpgradeRequired,
   requestNotificationPermissions,
 } from '@/lib/notifications';
 import { ImportContentResponse } from '@culyn/shared/schemas';
+import axios from 'axios';
 import { useRouter } from 'expo-router';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { AppState } from 'react-native';
@@ -36,7 +38,13 @@ export function useShareImport() {
       setJobId(response.data.jobId);
     } catch (err) {
       console.error('[ShareImport] Failed to start import:', err);
-      await notifyProcessingFailed();
+      const isLimitError = axios.isAxiosError(err) &&
+        (err as any).response?.status === 403;
+      if (isLimitError) {
+        await notifyUpgradeRequired();
+      } else {
+        await notifyProcessingFailed();
+      }
       isProcessing.current = false;
     }
   }, []);

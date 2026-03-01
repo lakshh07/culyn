@@ -3,7 +3,9 @@ import { SettingsSection } from '@/components/settings/SettingsSection';
 import { Avatar } from '@/components/ui/Avatar';
 import { useThemeColors } from '@/constants/useTheme';
 import { useUserProfile } from '@/hooks/useUserProfile';
+import { apiClient } from '@/lib/api';
 import { authClient } from '@/lib/auth-client';
+import { useQuery } from '@tanstack/react-query';
 import { useRouter } from 'expo-router';
 import React from 'react';
 import {
@@ -20,6 +22,19 @@ export default function ProfileScreen() {
   const colors = useThemeColors();
   const router = useRouter();
   const { session, profile, isLoading } = useUserProfile();
+
+  const { data: billingInfo } = useQuery({
+    queryKey: ['billing'],
+    queryFn: async () => {
+      const res = await apiClient().get<{ subscription: { plan: string } }>(
+        '/user/billing',
+      );
+      return res.data;
+    },
+    enabled: !!session,
+  });
+
+  const isFree = !billingInfo || billingInfo.subscription.plan === 'FREE';
 
   const handleSignOut = async () => {
     Alert.alert(
@@ -39,7 +54,7 @@ export default function ProfileScreen() {
           },
         },
       ],
-      { cancelable: true }
+      { cancelable: true },
     );
   };
 
@@ -142,9 +157,29 @@ export default function ProfileScreen() {
           <SettingsRow
             icon={<Text style={styles.icon}>💳</Text>}
             title='Billing & Subscription'
-            subtitle='Plans, usage, and payment'
+            subtitle={
+              isFree
+                ? 'Upgrade to Pro — ₹49/month'
+                : 'Plans, usage, and payment'
+            }
             chevron
             onPress={() => router.push('/(tabs)/profile/billing')}
+            rightElement={
+              isFree ? (
+                <View
+                  style={[styles.proBadge, { backgroundColor: colors.primary }]}
+                >
+                  <Text
+                    style={[
+                      styles.proBadgeText,
+                      { fontFamily: 'Poppins_500Medium' },
+                    ]}
+                  >
+                    PRO
+                  </Text>
+                </View>
+              ) : undefined
+            }
           />
           <SettingsRow
             icon={<Text style={styles.icon}>🔒</Text>}
@@ -227,5 +262,15 @@ const styles = StyleSheet.create({
   footerText: {
     fontSize: 12,
     lineHeight: 18,
+  },
+  proBadge: {
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 8,
+    marginRight: 8,
+  },
+  proBadgeText: {
+    color: '#fff',
+    fontSize: 11,
   },
 });

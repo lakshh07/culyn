@@ -252,11 +252,32 @@ user.get('/billing', async c => {
 
   const planLimits = PLAN_DEFAULTS[subscription.plan]
 
+  const daysLeft = subscription.currentPeriodEnd
+    ? Math.max(
+        0,
+        Math.ceil((subscription.currentPeriodEnd.getTime() - Date.now()) / (1000 * 60 * 60 * 24))
+      )
+    : undefined
+
   return c.json({
     subscription: {
       plan: subscription.plan,
       status: subscription.status,
-      ...planLimits,
+      currentPeriodEnd: subscription.currentPeriodEnd?.toISOString() ?? null,
+      chargeAt: subscription.chargeAt?.toISOString() ?? null,
+      paidCount: subscription.paidCount ?? null,
+      daysLeft: daysLeft ?? null,
+      cancelAtPeriodEnd: subscription.cancelAtPeriodEnd,
+      paymentMethod: subscription.paymentMethodLast4
+        ? {
+            last4: subscription.paymentMethodLast4,
+            type: subscription.paymentMethodType,
+            brand: subscription.paymentMethodBrand,
+          }
+        : null,
+      maxRecipes: planLimits.maxImports,
+      maxLists: planLimits.maxLists,
+      aiCreditsLimit: planLimits.aiCreditsLimit,
     },
     usage: {
       recipeCount,

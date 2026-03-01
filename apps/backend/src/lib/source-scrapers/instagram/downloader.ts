@@ -11,27 +11,23 @@ export async function downloadInstagramMedia(scrapedData: ScrapedData): Promise<
 
   if (scrapedData.videoUrl) {
     downloadPromises.push(
-      axios
-        .get(scrapedData.videoUrl, { responseType: 'arraybuffer' })
-        .then(response => {
-          media.video = {
-            buffer: Buffer.from(response.data),
-            url: scrapedData.videoUrl!,
-          }
-        })
+      axios.get(scrapedData.videoUrl, { responseType: 'arraybuffer' }).then(response => {
+        media.video = {
+          buffer: Buffer.from(response.data),
+          url: scrapedData.videoUrl!,
+        }
+      })
     )
   }
 
   if (scrapedData.displayUrl) {
     downloadPromises.push(
-      axios
-        .get(scrapedData.displayUrl, { responseType: 'arraybuffer' })
-        .then(response => {
-          media.thumbnail = {
-            buffer: Buffer.from(response.data),
-            url: scrapedData.displayUrl!,
-          }
-        })
+      axios.get(scrapedData.displayUrl, { responseType: 'arraybuffer' }).then(response => {
+        media.thumbnail = {
+          buffer: Buffer.from(response.data),
+          url: scrapedData.displayUrl!,
+        }
+      })
     )
   }
 

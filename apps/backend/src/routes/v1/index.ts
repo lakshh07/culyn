@@ -11,8 +11,10 @@ import lists from './lists'
 import places from './places'
 import products from './products'
 import recipes from './recipes'
+import subscription from './subscription'
 import tags from './tags'
 import user from './user'
+import webhooks from './webhooks'
 
 const v1 = new Hono()
 
@@ -36,5 +38,7 @@ v1.route('/lists', lists)
 v1.route('/jobs', jobs)
 v1.route('/admin', admin)
 v1.route('/api-keys', apiKeys)
+v1.route('/subscription', subscription)
+v1.route('/webhooks', webhooks)
 
 export default v1

@@ -169,13 +169,66 @@ model Subscription {
   id                     String             @id @default(cuid(2))
   plan                   SubscriptionPlan   @default(FREE)
   status                 SubscriptionStatus @default(ACTIVE)
+  razorpaySubscriptionId String?            @unique
+  razorpayCustomerId     String?
+  currentPeriodStart     DateTime?
+  currentPeriodEnd       DateTime?
+  cancelAtPeriodEnd      Boolean            @default(false)
+  paymentMethodLast4     String?
+  paymentMethodType      String?
+  paymentMethodBrand     String?
+  chargeAt               DateTime?
+  paidCount              Int?
+  remainingCount         Int?
   createdAt              DateTime           @default(now())
   updatedAt              DateTime           @updatedAt
   deletedAt              DateTime?
   organization           Organization?
+  invoices               Invoice[]
 
   @@index([deletedAt])
   @@map("subscriptions")
+}
+
+model Invoice {
+  id                String       @id @default(cuid(2))
+  subscriptionId    String
+  razorpayPaymentId String       @unique
+  razorpayOrderId   String?
+  razorpayInvoiceId String?
+  amount            Int
+  currency          String       @default("INR")
+  status            String
+  method            String?
+  // Card details
+  cardLast4         String?
+  cardNetwork       String?
+  cardIssuer        String?
+  cardSubType       String?
+  cardInternational Boolean?
+  // UPI
+  upiVpa            String?
+  // Netbanking
+  bankCode          String?
+  bankTransactionId String?
+  // Wallet
+  wallet            String?
+  // Fees
+  fee               Int?
+  tax               Int?
+  // Error info
+  errorCode         String?
+  errorDescription  String?
+  // Acquirer data
+  acquirerData      Json?
+  description       String?
+  paidAt            DateTime?
+  createdAt         DateTime     @default(now())
+  subscription      Subscription @relation(fields: [subscriptionId], references: [id])
+
+  @@index([subscriptionId])
+  @@index([method])
+  @@map("invoices")
 }
 
 model Job {
@@ -214,8 +267,8 @@ model Job {
 // ============================================
 
 model Recipe {
-  id                 String             @id @default(cuid(2))
-  slug               String             @unique
+  id                 String            @id @default(cuid(2))
+  slug               String            @unique
   title              String?
   shortTitle         String?
   description        String?
@@ -228,34 +281,34 @@ model Recipe {
   ingredients        Json?
   notes              String?
   sourceMetadata     Json?
-  sourceType         RecipeSourceType   @default(MANUAL)
+  sourceType         RecipeSourceType  @default(MANUAL)
   sourceUrl          String?
   sourceName         String?
   sourceVideoUrl     String?
   sourceThumbnailUrl String?
   calories           Int?
-  protein            Decimal?           @db.Decimal(10, 2)
-  carbs              Decimal?           @db.Decimal(10, 2)
-  fat                Decimal?           @db.Decimal(10, 2)
+  protein            Decimal?          @db.Decimal(10, 2)
+  carbs              Decimal?          @db.Decimal(10, 2)
+  fat                Decimal?          @db.Decimal(10, 2)
   metadata           Json?
 
   userId String?
   orgId  String?
 
-  isPublic           Boolean            @default(false)
-  createdAt          DateTime           @default(now())
-  updatedAt          DateTime           @updatedAt
-  deletedAt          DateTime?
-  user               User?              @relation(fields: [userId], references: [id], onDelete: SetNull)
-  organization       Organization?      @relation(fields: [orgId], references: [id], onDelete: SetNull)
-  tags               RecipeTag[]
-  listItems          ListItem[]
-  RecipeIngredient   RecipeIngredient[]
-  RecipeRating       RecipeRating[]
-  RecipeFavorite     RecipeFavorite[]
-  RecipeSuggestion   RecipeSuggestion[]
-  MealPlanRecipe     MealPlanRecipe[]
-  chatConversations  ChatConversation[]
+  isPublic          Boolean            @default(false)
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+  deletedAt         DateTime?
+  user              User?              @relation(fields: [userId], references: [id], onDelete: SetNull)
+  organization      Organization?      @relation(fields: [orgId], references: [id], onDelete: SetNull)
+  tags              RecipeTag[]
+  listItems         ListItem[]
+  RecipeIngredient  RecipeIngredient[]
+  RecipeRating      RecipeRating[]
+  RecipeFavorite    RecipeFavorite[]
+  RecipeSuggestion  RecipeSuggestion[]
+  MealPlanRecipe    MealPlanRecipe[]
+  chatConversations ChatConversation[]
 
   @@index([userId])
   @@index([orgId])
@@ -388,44 +441,44 @@ model RecipeFavorite {
 // ============================================
 
 model Place {
-  id             String          @id @default(cuid(2))
-  slug           String          @unique
-  name           String?
-  shortName      String?
-  description    String?         @db.Text
-  type           PlaceType       @default(OTHER)
-  address        String?
-  city           String?
-  state          String?
-  country        String?
-  postalCode     String?
-  latitude       Decimal?        @db.Decimal(10, 8)
-  longitude      Decimal?        @db.Decimal(11, 8)
-  imageUrl       String?
-  thumbnailUrl   String?
-  videoUrl       String?
-  sourceType     SourcePlatform  @default(MANUAL)
-  sourceUrl      String?
-  sourceName     String?
-  sourceMetadata Json?
-  phoneNumber    String?
-  website        String?
-  priceRange     String?
-  cuisine        String?
-  hours          Json?
-  rating         Decimal?        @db.Decimal(3, 2)
-  notes          String?         @db.Text
-  metadata       Json?
-  userId         String?
-  orgId          String?
-  isPublic       Boolean         @default(false)
-  createdAt      DateTime        @default(now())
-  updatedAt      DateTime        @updatedAt
-  deletedAt      DateTime?
-  user           User?           @relation(fields: [userId], references: [id], onDelete: SetNull)
-  organization   Organization?   @relation(fields: [orgId], references: [id], onDelete: SetNull)
-  tags           PlaceTag[]
-  PlaceFavorite  PlaceFavorite[]
+  id                String             @id @default(cuid(2))
+  slug              String             @unique
+  name              String?
+  shortName         String?
+  description       String?            @db.Text
+  type              PlaceType          @default(OTHER)
+  address           String?
+  city              String?
+  state             String?
+  country           String?
+  postalCode        String?
+  latitude          Decimal?           @db.Decimal(10, 8)
+  longitude         Decimal?           @db.Decimal(11, 8)
+  imageUrl          String?
+  thumbnailUrl      String?
+  videoUrl          String?
+  sourceType        SourcePlatform     @default(MANUAL)
+  sourceUrl         String?
+  sourceName        String?
+  sourceMetadata    Json?
+  phoneNumber       String?
+  website           String?
+  priceRange        String?
+  cuisine           String?
+  hours             Json?
+  rating            Decimal?           @db.Decimal(3, 2)
+  notes             String?            @db.Text
+  metadata          Json?
+  userId            String?
+  orgId             String?
+  isPublic          Boolean            @default(false)
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+  deletedAt         DateTime?
+  user              User?              @relation(fields: [userId], references: [id], onDelete: SetNull)
+  organization      Organization?      @relation(fields: [orgId], references: [id], onDelete: SetNull)
+  tags              PlaceTag[]
+  PlaceFavorite     PlaceFavorite[]
   chatConversations ChatConversation[]
 
   @@index([userId])
@@ -477,39 +530,39 @@ model PlaceFavorite {
 // ============================================
 
 model Product {
-  id              String            @id @default(cuid(2))
-  slug            String            @unique
-  name            String?
-  shortName       String?
-  description     String?           @db.Text
-  category        ProductCategory   @default(OTHER)
-  brand           String?
-  modelNumber     String?
-  price           Decimal?          @db.Decimal(10, 2)
-  currency        String?           @default("USD")
-  imageUrl        String?
-  thumbnailUrl    String?
-  videoUrl        String?
-  sourceType      SourcePlatform    @default(MANUAL)
-  sourceUrl       String?
-  sourceName      String?
-  sourceMetadata  Json?
-  purchaseUrl     String?
-  affiliateUrl    String?
-  specifications  Json?
-  features        Json?
-  notes           String?           @db.Text
-  metadata        Json?
-  userId          String?
-  orgId           String?
-  isPublic        Boolean           @default(false)
-  createdAt       DateTime          @default(now())
-  updatedAt       DateTime          @updatedAt
-  deletedAt       DateTime?
-  user            User?             @relation(fields: [userId], references: [id], onDelete: SetNull)
-  organization    Organization?     @relation(fields: [orgId], references: [id], onDelete: SetNull)
-  tags            ProductTag[]
-  ProductFavorite ProductFavorite[]
+  id                String             @id @default(cuid(2))
+  slug              String             @unique
+  name              String?
+  shortName         String?
+  description       String?            @db.Text
+  category          ProductCategory    @default(OTHER)
+  brand             String?
+  modelNumber       String?
+  price             Decimal?           @db.Decimal(10, 2)
+  currency          String?            @default("USD")
+  imageUrl          String?
+  thumbnailUrl      String?
+  videoUrl          String?
+  sourceType        SourcePlatform     @default(MANUAL)
+  sourceUrl         String?
+  sourceName        String?
+  sourceMetadata    Json?
+  purchaseUrl       String?
+  affiliateUrl      String?
+  specifications    Json?
+  features          Json?
+  notes             String?            @db.Text
+  metadata          Json?
+  userId            String?
+  orgId             String?
+  isPublic          Boolean            @default(false)
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+  deletedAt         DateTime?
+  user              User?              @relation(fields: [userId], references: [id], onDelete: SetNull)
+  organization      Organization?      @relation(fields: [orgId], references: [id], onDelete: SetNull)
+  tags              ProductTag[]
+  ProductFavorite   ProductFavorite[]
   chatConversations ChatConversation[]
 
   @@index([userId])
@@ -780,9 +833,7 @@ enum OrgRole {
 
 enum SubscriptionPlan {
   FREE
-  BASIC
   PRO
-  ENTERPRISE
 }
 
 enum SubscriptionStatus {

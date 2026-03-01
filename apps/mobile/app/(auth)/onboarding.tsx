@@ -400,7 +400,10 @@ export default function OnboardingScreen() {
         return;
       }
       requestNotificationPermissions();
-      router.replace('/(tabs)/discover');
+      router.replace({
+        pathname: '/(tabs)/discover',
+        params: { showUpgrade: '1' },
+      });
     } catch (err) {
       dispatch({
         type: 'SET_ERROR',

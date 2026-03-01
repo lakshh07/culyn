@@ -14,22 +14,12 @@ export const PLAN_DEFAULTS: Record<SubscriptionPlan, PlanLimits> = {
     maxLists: 5,
     aiCreditsLimit: 100,
   },
-  [SubscriptionPlan.BASIC]: {
-    maxImports: 50,
-    maxUsers: 3,
-    maxLists: 20,
-    aiCreditsLimit: 500,
-  },
   [SubscriptionPlan.PRO]: {
     maxImports: -1,
     maxUsers: -1,
     maxLists: -1,
     aiCreditsLimit: -1,
   },
-  [SubscriptionPlan.ENTERPRISE]: {
-    maxImports: -1,
-    maxUsers: -1,
-    maxLists: -1,
-    aiCreditsLimit: -1,
-  },
 }
+
+export const RAZORPAY_PLAN_ID = process.env.RAZORPAY_PLAN_ID_PRO!

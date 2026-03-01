@@ -19,10 +19,11 @@ import {
   PlaceListItem,
   ProductListItem,
 } from '@culyn/shared/schemas';
+import { UpgradeSheet } from '@/components/UpgradeSheet';
 import { Feather } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
-import { useRouter } from 'expo-router';
-import React, { useCallback, useState } from 'react';
+import { useLocalSearchParams, useRouter } from 'expo-router';
+import React, { useCallback, useEffect, useState } from 'react';
 import {
   ActivityIndicator,
   FlatList,
@@ -35,9 +36,18 @@ import {
 export default function DiscoverScreen() {
   const colors = useThemeColors();
   const router = useRouter();
+  const { showUpgrade } = useLocalSearchParams<{ showUpgrade?: string }>();
+  const [showUpgradeSheet, setShowUpgradeSheet] = useState(false);
   const [selectedCategory, setSelectedCategory] =
     useState<ContentCategory>('RECIPE');
   const [searchOpen, setSearchOpen] = useState(false);
+
+  useEffect(() => {
+    if (showUpgrade === '1') {
+      setShowUpgradeSheet(true);
+      router.setParams({ showUpgrade: undefined });
+    }
+  }, [showUpgrade, router]);
   const [appliedFilters, setAppliedFilters] =
     useState<UnifiedContentFilters | null>(null);
 
@@ -252,6 +262,11 @@ export default function DiscoverScreen() {
         overlayStyle={overlayStyle}
         backdropStyle={backdropStyle}
         bottomBarStyle={bottomBarStyle}
+      />
+
+      <UpgradeSheet
+        visible={showUpgradeSheet}
+        onClose={() => setShowUpgradeSheet(false)}
       />
     </View>
   );
