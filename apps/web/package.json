@@ -7,6 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
+    "typecheck": "bunx tsc --noEmit",
     "format": "prettier --write \"**/*.{js,jsx,ts,tsx,json,css,md,prisma}\"",
     "format:check": "prettier --check \"**/*.{js,jsx,ts,tsx,json,css,md,prisma}\"",
     "queue": "tsx bull/workers/index.ts",

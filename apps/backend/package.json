@@ -4,6 +4,8 @@
   "private": true,
   "scripts": {
     "dev": "NODE_ENV=development bun run --hot src/index.ts",
+    "typecheck": "bunx tsc --noEmit",
+    "lint": "eslint .",
     "start": "NODE_ENV=production bun run src/index.ts",
     "format": "prettier --write \"**/*.{js,jsx,ts,tsx,json,css,md,prisma}\"",
     "format:check": "prettier --check \"**/*.{js,jsx,ts,tsx,json,css,md,prisma}\"",
@@ -33,8 +35,10 @@
   },
   "devDependencies": {
     "@types/bun": "latest",
+    "eslint": "^9.25.0",
     "prettier": "^3.7.4",
     "prettier-plugin-prisma": "^5.0.0",
-    "prisma": "^7.2.0"
+    "prisma": "^7.2.0",
+    "typescript-eslint": "^8.32.0"
   }
 }

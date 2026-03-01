@@ -11,8 +11,8 @@
     "build:mobile": "bun --cwd apps/mobile build",
     "build:web": "bun --cwd apps/web build",
     "build:backend": "bun --cwd apps/backend build",
-    "lint": "bun run --parallel lint",
-    "typecheck": "bun run --parallel typecheck"
+    "lint": "bun run --filter '*' lint",
+    "typecheck": "bun run --filter '*' typecheck"
   },
   "workspaces": [
     "apps/*",

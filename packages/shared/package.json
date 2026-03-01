@@ -12,6 +12,9 @@
     "./utils": "./utils/index.ts",
     "./lib": "./lib/index.ts"
   },
+  "scripts": {
+    "typecheck": "bunx tsc --noEmit"
+  },
   "dependencies": {
     "luxon": "^3.7.2",
     "zod": "^4.3.5"
