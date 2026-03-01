@@ -1,13 +1,8 @@
 import { z } from 'zod'
-import { AiPricing } from './usage'
 
 export enum AiProvider {
   Google = 'google',
 }
-
-type GoogleModels = keyof (typeof AiPricing)[AiProvider.Google]
-
-export type AiModel = GoogleModels
 
 export const UsageDataSchema = z.object({
   input_tokens: z.number().nonnegative(),

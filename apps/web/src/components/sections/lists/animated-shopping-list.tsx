@@ -1,7 +1,5 @@
 'use client'
 
-import React, { useState, useMemo } from 'react'
-import { motion, AnimatePresence } from 'motion/react'
 import { LoadingIcon, TrashIcon, XIcon } from '@/components/icons'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
@@ -10,13 +8,15 @@ import { Api } from '@/lib/api'
 import { ClientErrorHandler } from '@/lib/errors'
 import { getIngredientImageUrl } from '@/lib/recipe/ingredient-assets'
 import { cn } from '@/lib/utils'
-import { GroceryList } from '@/types/lists'
+import { ShoppingList } from '@culyn/shared/schemas'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { AnimatePresence, motion } from 'motion/react'
 import Link from 'next/link'
+import React, { useMemo, useState } from 'react'
 import { toast } from 'sonner'
 
 interface AnimatedShoppingListProps {
-  groceryLists: GroceryList[]
+  groceryLists: ShoppingList[]
   isInitialLoad: boolean
 }
 
@@ -289,7 +289,7 @@ const DeleteListButton = ({
   )
 }
 
-const ItemCard = ({ item }: { item: GroceryList['items'][number] }) => {
+const ItemCard = ({ item }: { item: ShoppingList['items'][number] }) => {
   const queryClient = useQueryClient()
 
   const { mutate: updateItemMutation, isPending: isUpdatingItem } = useMutation({

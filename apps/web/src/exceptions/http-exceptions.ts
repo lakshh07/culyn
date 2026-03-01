@@ -1,5 +1,5 @@
 import { HttpStatusCodes } from '@/exceptions/status'
-import type { HttpErrorResponseBody } from '@/types/http'
+import type { HttpErrorResponseBody } from '@culyn/shared/types'
 
 export class HttpException extends Error {
   public code: number

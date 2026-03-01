@@ -2,6 +2,7 @@
 
 import { EllipsisIcon, LoadingIcon, TrashIcon } from '@/components/icons'
 import { Button } from '@/components/ui/button'
+import { CircularProgress } from '@/components/ui/circular-progress'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -9,27 +10,26 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { Skeleton } from '@/components/ui/skeleton'
+import { Job } from '@/generated/prisma/client'
+import { JobStatus } from '@/generated/prisma/enums'
 import { useBatchJobs } from '@/hooks/use-batch-jobs'
 import { Api } from '@/lib/api'
 import { ClientErrorHandler } from '@/lib/errors'
 import { getCurrentDate } from '@/lib/utils'
-import { RecipeCookbook } from '@/types/recipes'
-import { Job } from '@/generated/prisma/client'
-import { JobStatus } from '@/generated/prisma/enums'
+import { CookbookItem } from '@culyn/shared/schemas'
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { motion } from 'motion/react'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { FC, useEffect, useState } from 'react'
 import { toast } from 'sonner'
-import { motion } from 'motion/react'
-import { CircularProgress } from '@/components/ui/circular-progress'
 
 export default function CookbookPage() {
   const [isInitialLoad, setIsInitialLoad] = useState(true)
   const { data: cookbook, isPending: isPendingCookbook } = useQuery({
     queryKey: ['v1', 'cookbook'],
     queryFn: async () => {
-      const response = await Api.v1.get<RecipeCookbook[]>('/cookbook')
+      const response = await Api.v1.get<CookbookItem[]>('/cookbook')
       return response.data
     },
     placeholderData: keepPreviousData,
@@ -204,7 +204,7 @@ export default function CookbookPage() {
 }
 
 interface CookbookCardProps {
-  cookbook: RecipeCookbook
+  cookbook: CookbookItem
   job: Job | null
   index: number
   isInitialLoad: boolean

@@ -106,17 +106,17 @@ export const RecipeListItemSchema = z.object({
   tags: z.array(
     z.object({
       tag: RecipeTagSchema,
-    })
+    }),
   ),
   RecipeIngredient: z.array(
     z.object({
       ingredient: RecipeIngredientSchema,
-    })
+    }),
   ),
   RecipeFavorite: z.array(
     z.object({
       id: z.string(),
-    })
+    }),
   ),
   _count: z.object({
     RecipeFavorite: z.number(),
@@ -130,6 +130,7 @@ export type RecipeListItem = z.infer<typeof RecipeListItemSchema>;
  */
 export const DetailedRecipeIngredientSchema = z.object({
   amount: z.string(),
+  scaledAmount: z.string().nullable(),
   unit: z.string().nullable(),
   ingredient: z.object({
     id: z.string(),
@@ -150,7 +151,7 @@ export const CookingStepSchema = z.object({
     z.object({
       name: z.string(),
       quantity: z.string(),
-    })
+    }),
   ),
 });
 
@@ -177,6 +178,14 @@ export const RecipeDetailSchema = z.object({
   fat: z.number().nullable(),
   tagline: z.string().nullable(),
   cookingSteps: z.array(CookingStepSchema),
+  ingredients: z.array(
+    z.object({
+      name: z.string(),
+      quantity: z.string(),
+    }),
+  ),
+  sourceVideoUrl: z.string().nullable(),
+  sourceThumbnailUrl: z.string().nullable(),
   sourceUrl: z.string().nullable(),
   sourceType: z.enum([
     'MANUAL',
@@ -197,7 +206,7 @@ export const RecipeDetailSchema = z.object({
   RecipeFavorite: z.array(
     z.object({
       id: z.string(),
-    })
+    }),
   ),
 });
 

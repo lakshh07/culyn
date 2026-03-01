@@ -1,5 +1,5 @@
 import { appConfig as app } from '@/configs/app'
-import type { HttpErrorResponseBody } from '@/types/http'
+import type { HttpErrorResponseBody } from '@culyn/shared/types'
 import { AxiosError } from 'axios'
 import { toast, type ExternalToast } from 'sonner'
 

@@ -1,38 +1,23 @@
-import { FC, useMemo, useState, useEffect } from 'react'
-import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { Api } from '@/lib/api'
-import { Ingredient, Tag } from '@/generated/prisma/client'
-import { Card, CardTitle } from '@/components/ui/card'
-import { useQueryState } from 'nuqs'
-import { Skeleton } from '@/components/ui/skeleton'
-import { cn } from '@/lib/utils'
-import Image from 'next/image'
-import Link from 'next/link'
-import { Button } from '@/components/ui/button'
-import { useRouter } from 'next/navigation'
-import { toast } from 'sonner'
-import { ClientErrorHandler } from '@/lib/errors'
-import { FullRecipe } from '@/types/recipes'
-import { AnimatePresence, motion } from 'motion/react'
-import { inView } from 'motion'
 import {
+  BookmarkIcon,
   FilterIcon,
+  HeartIcon,
   SearchIcon,
   SortIcon,
   XDashedIcon,
-  BookmarkIcon,
   XIcon,
-  HeartIcon,
 } from '@/components/icons'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { Card, CardTitle } from '@/components/ui/card'
 import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectLabel,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from '@/components/ui/command'
 import {
   Drawer,
   DrawerClose,
@@ -43,19 +28,34 @@ import {
   DrawerTitle,
   DrawerTrigger,
 } from '@/components/ui/drawer'
-import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList,
-} from '@/components/ui/command'
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
-import { ChevronDownIcon } from 'lucide-react'
 import { InputGroup, InputGroupAddon, InputGroupInput } from '@/components/ui/input-group'
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
+import { Skeleton } from '@/components/ui/skeleton'
+import { Ingredient, Tag } from '@/generated/prisma/client'
+import { Api } from '@/lib/api'
+import { ClientErrorHandler } from '@/lib/errors'
+import { cn } from '@/lib/utils'
+import { RecipeDetail } from '@culyn/shared/schemas'
+import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { ChevronDownIcon } from 'lucide-react'
+import { inView } from 'motion'
+import { AnimatePresence, motion } from 'motion/react'
+import Image from 'next/image'
+import Link from 'next/link'
+import { useRouter } from 'next/navigation'
+import { useQueryState } from 'nuqs'
+import { FC, useEffect, useMemo, useState } from 'react'
+import { toast } from 'sonner'
 import { useDebounceCallback, useMediaQuery } from 'usehooks-ts'
-import { Badge } from '@/components/ui/badge'
 
 interface RecipesSectionProps {
   className?: string
@@ -135,7 +135,7 @@ export const RecipesSection: FC<RecipesSectionProps> = ({ className, bgColor }) 
       selectedIngredients,
     ],
     queryFn: async ({ signal }) => {
-      const response = await Api.v1.get<FullRecipe[]>('/recipes', {
+      const response = await Api.v1.get<RecipeDetail[]>('/recipes', {
         signal,
         params: {
           ...(selectedTag && tagId && { tagId }),
@@ -715,7 +715,7 @@ export const RecipesSection: FC<RecipesSectionProps> = ({ className, bgColor }) 
 }
 
 interface RecipeCardProps {
-  recipe: FullRecipe
+  recipe: RecipeDetail
   className?: string
 }
 

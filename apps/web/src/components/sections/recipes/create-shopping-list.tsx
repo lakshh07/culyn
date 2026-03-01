@@ -25,26 +25,15 @@ import { Api } from '@/lib/api'
 import { ClientErrorHandler } from '@/lib/errors'
 import { getIngredientImageUrl } from '@/lib/recipe/ingredient-assets'
 import { cn } from '@/lib/utils'
-import { GroceryList } from '@/types/lists'
+import { DetailedRecipeIngredient, ShoppingList } from '@culyn/shared/schemas'
 import NumberFlow from '@number-flow/react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useEffect, useState } from 'react'
 import { toast } from 'sonner'
 import { useMediaQuery } from 'usehooks-ts'
 
-type scaledIngredients = {
-  scaledAmount: string
-  ingredient: {
-    id: string
-    name: string
-    slug: string
-  }
-  amount: string
-  unit: string
-}
-
 type CreateShoppingListProps = {
-  scaledIngredients: scaledIngredients[]
+  scaledIngredients: DetailedRecipeIngredient[]
   recipeId: string
   recipeSlug: string
 }
@@ -63,7 +52,7 @@ export const CreateShoppingList = ({
   const { data: groceryLists } = useQuery({
     queryKey: ['v1', 'lists', recipeId],
     queryFn: async () => {
-      const response = await Api.v1.get<GroceryList[]>(`/lists?recipeId=${recipeId}`)
+      const response = await Api.v1.get<ShoppingList[]>(`/lists?recipeId=${recipeId}`)
       return response.data
     },
     enabled: !!recipeId,

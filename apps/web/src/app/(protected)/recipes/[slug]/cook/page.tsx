@@ -1,18 +1,18 @@
 'use client'
 
-import React, { useState, useMemo } from 'react'
+import { CookPageSkeleton } from '@/components/sections/recipes/cook-page-skeleton'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { Button } from '@/components/ui/button'
 import { useRecipeBySlug } from '@/hooks/use-recipes'
+import { getIngredientImageUrl } from '@/lib/recipe/ingredient-assets'
+import { scaleIngredientQuantity } from '@/lib/utils'
+import { CookingStep } from '@culyn/shared/schemas'
+import { AnimatePresence, motion } from 'motion/react'
+import Image from 'next/image'
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
-import { Button } from '@/components/ui/button'
-import { CookingStep } from '@/types/recipes'
-import { scaleIngredientQuantity } from '@/lib/utils'
-import { motion, AnimatePresence } from 'motion/react'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import Image from 'next/image'
-import { getIngredientImageUrl } from '@/lib/recipe/ingredient-assets'
+import React, { useMemo, useState } from 'react'
 import { useMediaQuery } from 'usehooks-ts'
-import { CookPageSkeleton } from '@/components/sections/recipes/cook-page-skeleton'
 
 export default function RecipeCookingPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = React.use(params)

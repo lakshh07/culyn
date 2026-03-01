@@ -1,20 +1,20 @@
 'use client'
 
-import { GroceryList } from '@/types/lists'
-import { keepPreviousData, useQuery } from '@tanstack/react-query'
 import { AnimatedShoppingList } from '@/components/sections/lists/animated-shopping-list'
-import { Api } from '@/lib/api'
-import { motion } from 'motion/react'
-import { useEffect, useState } from 'react'
-import Image from 'next/image'
 import { Skeleton } from '@/components/ui/skeleton'
+import { Api } from '@/lib/api'
+import { ShoppingList } from '@culyn/shared/schemas'
+import { keepPreviousData, useQuery } from '@tanstack/react-query'
+import { motion } from 'motion/react'
+import Image from 'next/image'
+import { useEffect, useState } from 'react'
 
 export default function ListsPage() {
   const [isInitialLoad, setIsInitialLoad] = useState(true)
   const { data: groceryLists, isPending: isPendingLists } = useQuery({
     queryKey: ['v1', 'lists'],
     queryFn: async () => {
-      const response = await Api.v1.get<GroceryList[]>('/lists')
+      const response = await Api.v1.get<ShoppingList[]>('/lists')
       return response.data?.filter(list => !list.deletedAt)
     },
     placeholderData: keepPreviousData,
