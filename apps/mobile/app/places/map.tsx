@@ -1,101 +1,92 @@
-import { BackIcon } from '@/components/icons';
-import { useThemeColors } from '@/constants/useTheme';
-import { usePlaces } from '@/hooks/places/usePlaces';
-import { PlaceListItem } from '@culyn/shared/schemas';
-import { Feather } from '@expo/vector-icons';
-import { BottomSheet, Host } from '@expo/ui/swift-ui';
-import { GlassView } from 'expo-glass-effect';
-import { useRouter } from 'expo-router';
-import React, { useMemo, useRef, useState } from 'react';
-import {
-  Image,
-  Pressable,
-  StyleSheet,
-  Text,
-  View,
-} from 'react-native';
-import MapView, { Marker, Region } from 'react-native-maps';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { BackIcon } from '@/components/icons'
+import { useThemeColors } from '@/constants/useTheme'
+import { usePlaces } from '@/hooks/places/usePlaces'
+import { PlaceListItem } from '@culyn/shared/schemas'
+import { Feather } from '@expo/vector-icons'
+import { BottomSheet, Host } from '@expo/ui/swift-ui'
+import { GlassView } from 'expo-glass-effect'
+import { useRouter } from 'expo-router'
+import React, { useMemo, useRef, useState } from 'react'
+import { Image, Pressable, StyleSheet, Text, View } from 'react-native'
+import MapView, { Marker, Region } from 'react-native-maps'
+import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
 const DEFAULT_REGION: Region = {
   latitude: 37.78825,
   longitude: -122.4324,
   latitudeDelta: 0.5,
   longitudeDelta: 0.5,
-};
+}
 
-function computeBoundingRegion(
-  places: { latitude: number; longitude: number }[]
-): Region {
-  if (places.length === 0) return DEFAULT_REGION;
+function computeBoundingRegion(places: { latitude: number; longitude: number }[]): Region {
+  if (places.length === 0) return DEFAULT_REGION
   if (places.length === 1) {
     return {
       latitude: places[0].latitude,
       longitude: places[0].longitude,
       latitudeDelta: 0.02,
       longitudeDelta: 0.02,
-    };
+    }
   }
 
-  let minLat = places[0].latitude;
-  let maxLat = places[0].latitude;
-  let minLng = places[0].longitude;
-  let maxLng = places[0].longitude;
+  let minLat = places[0].latitude
+  let maxLat = places[0].latitude
+  let minLng = places[0].longitude
+  let maxLng = places[0].longitude
 
   for (const p of places) {
-    minLat = Math.min(minLat, p.latitude);
-    maxLat = Math.max(maxLat, p.latitude);
-    minLng = Math.min(minLng, p.longitude);
-    maxLng = Math.max(maxLng, p.longitude);
+    minLat = Math.min(minLat, p.latitude)
+    maxLat = Math.max(maxLat, p.latitude)
+    minLng = Math.min(minLng, p.longitude)
+    maxLng = Math.max(maxLng, p.longitude)
   }
 
-  const latDelta = Math.max((maxLat - minLat) * 1.4, 0.02);
-  const lngDelta = Math.max((maxLng - minLng) * 1.4, 0.02);
+  const latDelta = Math.max((maxLat - minLat) * 1.4, 0.02)
+  const lngDelta = Math.max((maxLng - minLng) * 1.4, 0.02)
 
   return {
     latitude: (minLat + maxLat) / 2,
     longitude: (minLng + maxLng) / 2,
     latitudeDelta: latDelta,
     longitudeDelta: lngDelta,
-  };
+  }
 }
 
 export default function PlacesMapScreen() {
-  const colors = useThemeColors();
-  const router = useRouter();
-  const insets = useSafeAreaInsets();
-  const mapRef = useRef<MapView>(null);
-  const { places } = usePlaces();
-  const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
-  const [selectedPlace, setSelectedPlace] = useState<PlaceListItem | null>(null);
+  const colors = useThemeColors()
+  const router = useRouter()
+  const insets = useSafeAreaInsets()
+  const mapRef = useRef<MapView>(null)
+  const { places } = usePlaces()
+  const [showFavoritesOnly, setShowFavoritesOnly] = useState(false)
+  const [selectedPlace, setSelectedPlace] = useState<PlaceListItem | null>(null)
 
   const placesWithCoords = useMemo(() => {
-    if (!places) return [];
-    return places.filter(
-      (p) => p.latitude != null && p.longitude != null
-    ) as (PlaceListItem & { latitude: number; longitude: number })[];
-  }, [places]);
+    if (!places) return []
+    return places.filter(p => p.latitude != null && p.longitude != null) as (PlaceListItem & {
+      latitude: number
+      longitude: number
+    })[]
+  }, [places])
 
   const filteredPlaces = useMemo(() => {
-    if (!showFavoritesOnly) return placesWithCoords;
-    return placesWithCoords.filter(
-      (p) => p.PlaceFavorite && p.PlaceFavorite.length > 0
-    );
-  }, [placesWithCoords, showFavoritesOnly]);
+    if (!showFavoritesOnly) return placesWithCoords
+    return placesWithCoords.filter(p => p.PlaceFavorite && p.PlaceFavorite.length > 0)
+  }, [placesWithCoords, showFavoritesOnly])
 
   const initialRegion = useMemo(
     () =>
       computeBoundingRegion(
-        filteredPlaces.map((p) => ({
+        filteredPlaces.map(p => ({
           latitude: Number(p.latitude),
           longitude: Number(p.longitude),
         }))
       ),
     [filteredPlaces]
-  );
+  )
 
   const handleMarkerPress = (place: PlaceListItem) => {
-    setSelectedPlace(place);
+    setSelectedPlace(place)
     if (place.latitude && place.longitude) {
       mapRef.current?.animateToRegion(
         {
@@ -105,22 +96,21 @@ export default function PlacesMapScreen() {
           longitudeDelta: 0.01,
         },
         300
-      );
+      )
     }
-  };
+  }
 
   const handleRecenter = () => {
     const region = computeBoundingRegion(
-      filteredPlaces.map((p) => ({
+      filteredPlaces.map(p => ({
         latitude: Number(p.latitude),
         longitude: Number(p.longitude),
       }))
-    );
-    mapRef.current?.animateToRegion(region, 300);
-  };
+    )
+    mapRef.current?.animateToRegion(region, 300)
+  }
 
-  const typeLabel = (type: string) =>
-    type.replace(/_/g, ' ').toLowerCase();
+  const typeLabel = (type: string) => type.replace(/_/g, ' ').toLowerCase()
 
   return (
     <View style={styles.container}>
@@ -128,9 +118,8 @@ export default function PlacesMapScreen() {
         ref={mapRef}
         style={styles.map}
         initialRegion={initialRegion}
-        showsUserLocation={true}
-      >
-        {filteredPlaces.map((place) => (
+        showsUserLocation={true}>
+        {filteredPlaces.map(place => (
           <Marker
             key={place.id}
             coordinate={{
@@ -147,12 +136,10 @@ export default function PlacesMapScreen() {
       <Pressable
         style={[styles.backButton, { top: insets.top + 8 }]}
         onPress={() => router.back()}
-        hitSlop={8}
-      >
+        hitSlop={8}>
         <GlassView
           isInteractive={true}
-          style={[styles.glassButton, { backgroundColor: colors.background }]}
-        >
+          style={[styles.glassButton, { backgroundColor: colors.background }]}>
           <BackIcon width={22} height={22} />
         </GlassView>
       </Pressable>
@@ -164,12 +151,9 @@ export default function PlacesMapScreen() {
           style={[
             styles.filterPill,
             {
-              backgroundColor: showFavoritesOnly
-                ? colors.categoryPlace
-                : colors.background,
+              backgroundColor: showFavoritesOnly ? colors.categoryPlace : colors.background,
             },
-          ]}
-        >
+          ]}>
           <Feather
             name={showFavoritesOnly ? 'heart' : 'map-pin'}
             size={14}
@@ -181,8 +165,7 @@ export default function PlacesMapScreen() {
               {
                 color: showFavoritesOnly ? '#FFFFFF' : colors.textPrimary,
               },
-            ]}
-          >
+            ]}>
             {showFavoritesOnly ? 'Favorites' : 'All Places'}
           </Text>
         </Pressable>
@@ -194,12 +177,10 @@ export default function PlacesMapScreen() {
       {/* Re-center button */}
       <Pressable
         style={[styles.recenterButton, { bottom: insets.bottom + 24 }]}
-        onPress={handleRecenter}
-      >
+        onPress={handleRecenter}>
         <GlassView
           isInteractive={true}
-          style={[styles.glassButton, { backgroundColor: colors.background }]}
-        >
+          style={[styles.glassButton, { backgroundColor: colors.background }]}>
           <Feather name="crosshair" size={20} color={colors.textPrimary} />
         </GlassView>
       </Pressable>
@@ -210,50 +191,34 @@ export default function PlacesMapScreen() {
           isOpened={!!selectedPlace}
           presentationDragIndicator="visible"
           presentationDetents={[0.2, 0.5]}
-          onIsOpenedChange={(open) => {
-            if (!open) setSelectedPlace(null);
-          }}
-        >
+          onIsOpenedChange={open => {
+            if (!open) setSelectedPlace(null)
+          }}>
           {selectedPlace && (
             <View style={[styles.sheetContent, { backgroundColor: colors.background }]}>
               <View style={styles.sheetRow}>
                 {selectedPlace.imageUrl ? (
-                  <Image
-                    source={{ uri: selectedPlace.imageUrl }}
-                    style={styles.sheetImage}
-                  />
+                  <Image source={{ uri: selectedPlace.imageUrl }} style={styles.sheetImage} />
                 ) : (
                   <View
                     style={[
                       styles.sheetImagePlaceholder,
                       { backgroundColor: colors.backgroundSecondary },
-                    ]}
-                  >
+                    ]}>
                     <Feather name="map-pin" size={24} color={colors.textMuted} />
                   </View>
                 )}
                 <View style={styles.sheetInfo}>
-                  <Text
-                    style={[styles.sheetName, { color: colors.textPrimary }]}
-                    numberOfLines={2}
-                  >
+                  <Text style={[styles.sheetName, { color: colors.textPrimary }]} numberOfLines={2}>
                     {selectedPlace.name}
                   </Text>
                   <View style={styles.sheetMeta}>
                     <View
-                      style={[
-                        styles.sheetTypeBadge,
-                        { backgroundColor: colors.categoryPlace },
-                      ]}
-                    >
-                      <Text style={styles.sheetTypeBadgeText}>
-                        {typeLabel(selectedPlace.type)}
-                      </Text>
+                      style={[styles.sheetTypeBadge, { backgroundColor: colors.categoryPlace }]}>
+                      <Text style={styles.sheetTypeBadgeText}>{typeLabel(selectedPlace.type)}</Text>
                     </View>
                     {selectedPlace.cuisine && (
-                      <Text
-                        style={[styles.sheetCuisine, { color: colors.textSecondary }]}
-                      >
+                      <Text style={[styles.sheetCuisine, { color: colors.textSecondary }]}>
                         {selectedPlace.cuisine}
                       </Text>
                     )}
@@ -261,12 +226,7 @@ export default function PlacesMapScreen() {
                   {selectedPlace.rating != null && (
                     <View style={styles.sheetRating}>
                       <Feather name="star" size={13} color="#FBBF24" />
-                      <Text
-                        style={[
-                          styles.sheetRatingText,
-                          { color: colors.textPrimary },
-                        ]}
-                      >
+                      <Text style={[styles.sheetRatingText, { color: colors.textPrimary }]}>
                         {Number(selectedPlace.rating).toFixed(1)}
                       </Text>
                     </View>
@@ -275,17 +235,13 @@ export default function PlacesMapScreen() {
               </View>
               <Pressable
                 onPress={() => {
-                  setSelectedPlace(null);
+                  setSelectedPlace(null)
                   router.push({
                     pathname: '/places/[slug]',
                     params: { slug: selectedPlace.slug },
-                  });
+                  })
                 }}
-                style={[
-                  styles.viewDetailsButton,
-                  { backgroundColor: colors.categoryPlace },
-                ]}
-              >
+                style={[styles.viewDetailsButton, { backgroundColor: colors.categoryPlace }]}>
                 <Text style={styles.viewDetailsText}>View Details</Text>
                 <Feather name="chevron-right" size={16} color="#FFFFFF" />
               </Pressable>
@@ -294,7 +250,7 @@ export default function PlacesMapScreen() {
         </BottomSheet>
       </Host>
     </View>
-  );
+  )
 }
 
 const styles = StyleSheet.create({
@@ -430,4 +386,4 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontFamily: 'Syne_500Medium',
   },
-});
+})

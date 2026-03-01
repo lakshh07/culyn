@@ -1,7 +1,7 @@
-import { useThemeColors } from '@/constants/useTheme';
-import { ProductCategory } from '@culyn/shared/schemas/products';
-import React from 'react';
-import { StyleSheet, TextInput, View } from 'react-native';
+import { useThemeColors } from '@/constants/useTheme'
+import { ProductCategory } from '@culyn/shared/schemas/products'
+import React from 'react'
+import { StyleSheet, TextInput, View } from 'react-native'
 
 import {
   PRICE_PRESETS,
@@ -10,10 +10,10 @@ import {
   type ProductFilterState,
   type ProductSortBy,
   type SearchFilterAction,
-} from '../types';
-import { FilterCard } from './FilterCard';
-import { FilterChip } from './FilterChip';
-import { SortPicker } from './SortPicker';
+} from '../types'
+import { FilterCard } from './FilterCard'
+import { FilterChip } from './FilterChip'
+import { SortPicker } from './SortPicker'
 
 const PRODUCT_SORT_OPTIONS: { key: ProductSortBy; label: string }[] = [
   { key: 'newest', label: 'Newest' },
@@ -22,21 +22,21 @@ const PRODUCT_SORT_OPTIONS: { key: ProductSortBy; label: string }[] = [
   { key: 'price_asc', label: 'Price Low→High' },
   { key: 'price_desc', label: 'Price High→Low' },
   { key: 'random', label: 'Random' },
-];
+]
 
 interface ProductFiltersProps {
-  filters: ProductFilterState;
-  dispatch: React.Dispatch<SearchFilterAction>;
+  filters: ProductFilterState
+  dispatch: React.Dispatch<SearchFilterAction>
 }
 
 export function ProductFilters({ filters, dispatch }: ProductFiltersProps) {
-  const colors = useThemeColors();
+  const colors = useThemeColors()
 
   return (
     <>
       <FilterCard title="Category">
         <View style={styles.chipRow}>
-          {PRODUCT_CATEGORY_OPTIONS.map((opt) => (
+          {PRODUCT_CATEGORY_OPTIONS.map(opt => (
             <FilterChip
               key={opt.key}
               label={opt.label}
@@ -44,10 +44,7 @@ export function ProductFilters({ filters, dispatch }: ProductFiltersProps) {
               onPress={() =>
                 dispatch({
                   type: 'SET_PRODUCT_CATEGORY',
-                  payload:
-                    filters.category === opt.key
-                      ? null
-                      : (opt.key as ProductCategory),
+                  payload: filters.category === opt.key ? null : (opt.key as ProductCategory),
                 })
               }
             />
@@ -68,16 +65,14 @@ export function ProductFilters({ filters, dispatch }: ProductFiltersProps) {
           placeholder="e.g. Apple"
           placeholderTextColor={colors.textMuted}
           value={filters.brand}
-          onChangeText={(text) =>
-            dispatch({ type: 'SET_PRODUCT_BRAND', payload: text })
-          }
+          onChangeText={text => dispatch({ type: 'SET_PRODUCT_BRAND', payload: text })}
           returnKeyType="done"
         />
       </FilterCard>
 
       <FilterCard title="Price">
         <View style={styles.chipRow}>
-          {PRICE_PRESETS.map((preset) => (
+          {PRICE_PRESETS.map(preset => (
             <FilterChip
               key={preset.key}
               label={preset.label}
@@ -85,10 +80,7 @@ export function ProductFilters({ filters, dispatch }: ProductFiltersProps) {
               onPress={() =>
                 dispatch({
                   type: 'SET_PRODUCT_PRICE',
-                  payload:
-                    filters.price === preset.key
-                      ? null
-                      : (preset.key as PricePreset),
+                  payload: filters.price === preset.key ? null : (preset.key as PricePreset),
                 })
               }
             />
@@ -100,13 +92,11 @@ export function ProductFilters({ filters, dispatch }: ProductFiltersProps) {
         <SortPicker
           options={PRODUCT_SORT_OPTIONS}
           value={filters.sortBy}
-          onChange={(v) =>
-            dispatch({ type: 'SET_PRODUCT_SORT', payload: v })
-          }
+          onChange={v => dispatch({ type: 'SET_PRODUCT_SORT', payload: v })}
         />
       </FilterCard>
     </>
-  );
+  )
 }
 
 const styles = StyleSheet.create({
@@ -122,4 +112,4 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontFamily: 'Syne_400Regular',
   },
-});
+})

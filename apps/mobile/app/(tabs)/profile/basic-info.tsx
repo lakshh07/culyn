@@ -1,10 +1,10 @@
-import { Avatar } from '@/components/ui/Avatar';
-import { useThemeColors } from '@/constants/useTheme';
-import { useUserProfile } from '@/hooks/useUserProfile';
-import { apiClient } from '@/lib/api';
-import { useMutation } from '@tanstack/react-query';
-import * as ImagePicker from 'expo-image-picker';
-import React, { useState } from 'react';
+import { Avatar } from '@/components/ui/Avatar'
+import { useThemeColors } from '@/constants/useTheme'
+import { useUserProfile } from '@/hooks/useUserProfile'
+import { apiClient } from '@/lib/api'
+import { useMutation } from '@tanstack/react-query'
+import * as ImagePicker from 'expo-image-picker'
+import React, { useState } from 'react'
 import {
   ActivityIndicator,
   Alert,
@@ -14,50 +14,46 @@ import {
   TextInput,
   TouchableOpacity,
   View,
-} from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+} from 'react-native'
+import { SafeAreaView } from 'react-native-safe-area-context'
 
 export default function BasicInfoScreen() {
-  const colors = useThemeColors();
-  const { profile, isLoading, refetch } = useUserProfile();
-  const [name, setName] = useState(profile?.name || '');
-  const [isSaving, setIsSaving] = useState(false);
+  const colors = useThemeColors()
+  const { profile, isLoading, refetch } = useUserProfile()
+  const [name, setName] = useState(profile?.name || '')
+  const [isSaving, setIsSaving] = useState(false)
 
   const updateProfileMutation = useMutation({
     mutationFn: async (data: { name: string }) => {
-      const response = await apiClient().patch('/user/profile', data);
-      return response.data;
+      const response = await apiClient().patch('/user/profile', data)
+      return response.data
     },
     onSuccess: () => {
-      refetch();
-      Alert.alert('Success', 'Profile updated successfully');
+      refetch()
+      Alert.alert('Success', 'Profile updated successfully')
     },
     onError: (error: any) => {
-      Alert.alert(
-        'Error',
-        error.response?.data?.message || 'Failed to update profile'
-      );
+      Alert.alert('Error', error.response?.data?.message || 'Failed to update profile')
     },
-  });
+  })
 
   const handleSave = async () => {
     if (!name.trim()) {
-      Alert.alert('Error', 'Name cannot be empty');
-      return;
+      Alert.alert('Error', 'Name cannot be empty')
+      return
     }
-    updateProfileMutation.mutate({ name: name.trim() });
-  };
+    updateProfileMutation.mutate({ name: name.trim() })
+  }
 
   const handleChangeAvatar = async () => {
-    const permissionResult =
-      await ImagePicker.requestMediaLibraryPermissionsAsync();
+    const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync()
 
     if (!permissionResult.granted) {
       Alert.alert(
         'Permission Required',
         'Please grant camera roll permissions to change your avatar'
-      );
-      return;
+      )
+      return
     }
 
     const result = await ImagePicker.launchImageLibraryAsync({
@@ -65,54 +61,43 @@ export default function BasicInfoScreen() {
       allowsEditing: true,
       aspect: [1, 1],
       quality: 0.8,
-    });
+    })
 
     if (!result.canceled && result.assets[0]) {
       // TODO: Implement avatar upload to S3
-      Alert.alert('Coming Soon', 'Avatar upload will be available soon');
+      Alert.alert('Coming Soon', 'Avatar upload will be available soon')
     }
-  };
+  }
 
   if (isLoading) {
     return (
-      <SafeAreaView
-        style={[
-          styles.container,
-          { backgroundColor: colors.backgroundSecondary },
-        ]}
-      >
+      <SafeAreaView style={[styles.container, { backgroundColor: colors.backgroundSecondary }]}>
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size='large' color={colors.primary} />
+          <ActivityIndicator size="large" color={colors.primary} />
         </View>
       </SafeAreaView>
-    );
+    )
   }
 
   return (
     <SafeAreaView
-      style={[
-        styles.container,
-        { backgroundColor: colors.backgroundSecondary },
-      ]}
-      edges={['bottom']}
-    >
+      style={[styles.container, { backgroundColor: colors.backgroundSecondary }]}
+      edges={['bottom']}>
       <ScrollView
         style={styles.scrollView}
         contentContainerStyle={styles.scrollContent}
-        showsVerticalScrollIndicator={false}
-      >
+        showsVerticalScrollIndicator={false}>
         {/* Avatar Section */}
         <View style={styles.avatarSection}>
           <Avatar
             imageUrl={profile?.image}
             name={name || profile?.name}
             email={profile?.email}
-            size='large'
+            size="large"
           />
           <TouchableOpacity
             style={[styles.changeAvatarButton, { borderColor: colors.primary }]}
-            onPress={handleChangeAvatar}
-          >
+            onPress={handleChangeAvatar}>
             <Text
               style={[
                 styles.changeAvatarText,
@@ -120,8 +105,7 @@ export default function BasicInfoScreen() {
                   color: colors.primary,
                   fontFamily: 'Poppins_500Medium',
                 },
-              ]}
-            >
+              ]}>
               Change Avatar
             </Text>
           </TouchableOpacity>
@@ -137,8 +121,7 @@ export default function BasicInfoScreen() {
                   color: colors.textSecondary,
                   fontFamily: 'Poppins_500Medium',
                 },
-              ]}
-            >
+              ]}>
               Full Name
             </Text>
             <TextInput
@@ -153,7 +136,7 @@ export default function BasicInfoScreen() {
               ]}
               value={name}
               onChangeText={setName}
-              placeholder='Enter your name'
+              placeholder="Enter your name"
               placeholderTextColor={colors.textMuted}
             />
           </View>
@@ -166,8 +149,7 @@ export default function BasicInfoScreen() {
                   color: colors.textSecondary,
                   fontFamily: 'Poppins_500Medium',
                 },
-              ]}
-            >
+              ]}>
               Email
             </Text>
             <TextInput
@@ -190,8 +172,7 @@ export default function BasicInfoScreen() {
                   color: colors.textMuted,
                   fontFamily: 'Poppins_400Regular',
                 },
-              ]}
-            >
+              ]}>
               Email cannot be changed
             </Text>
           </View>
@@ -204,31 +185,24 @@ export default function BasicInfoScreen() {
                   color: colors.textSecondary,
                   fontFamily: 'Poppins_500Medium',
                 },
-              ]}
-            >
+              ]}>
               Email Verification
             </Text>
             <View
               style={[
                 styles.verificationBadge,
                 {
-                  backgroundColor: profile?.emailVerified
-                    ? colors.successSoft
-                    : colors.warningSoft,
+                  backgroundColor: profile?.emailVerified ? colors.successSoft : colors.warningSoft,
                 },
-              ]}
-            >
+              ]}>
               <Text
                 style={[
                   styles.verificationText,
                   {
-                    color: profile?.emailVerified
-                      ? colors.success
-                      : colors.warning,
+                    color: profile?.emailVerified ? colors.success : colors.warning,
                     fontFamily: 'Poppins_500Medium',
                   },
-                ]}
-              >
+                ]}>
                 {profile?.emailVerified ? '✓ Verified' : '⚠ Not Verified'}
               </Text>
             </View>
@@ -246,10 +220,9 @@ export default function BasicInfoScreen() {
               },
             ]}
             onPress={handleSave}
-            disabled={updateProfileMutation.isPending}
-          >
+            disabled={updateProfileMutation.isPending}>
             {updateProfileMutation.isPending ? (
-              <ActivityIndicator size='small' color={colors.white} />
+              <ActivityIndicator size="small" color={colors.white} />
             ) : (
               <Text
                 style={[
@@ -258,8 +231,7 @@ export default function BasicInfoScreen() {
                     color: colors.white,
                     fontFamily: 'Poppins_500Medium',
                   },
-                ]}
-              >
+                ]}>
                 Save Changes
               </Text>
             )}
@@ -267,7 +239,7 @@ export default function BasicInfoScreen() {
         </View>
       </ScrollView>
     </SafeAreaView>
-  );
+  )
 }
 
 const styles = StyleSheet.create({
@@ -354,4 +326,4 @@ const styles = StyleSheet.create({
     fontSize: 16,
     lineHeight: 24,
   },
-});
+})

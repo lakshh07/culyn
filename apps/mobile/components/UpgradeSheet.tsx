@@ -1,46 +1,34 @@
-import { useThemeColors } from '@/constants/useTheme';
-import { Feather } from '@expo/vector-icons';
-import { LinearGradient } from 'expo-linear-gradient';
-import { useRouter } from 'expo-router';
-import React from 'react';
-import {
-  Modal,
-  Pressable,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useThemeColors } from '@/constants/useTheme'
+import { Feather } from '@expo/vector-icons'
+import { LinearGradient } from 'expo-linear-gradient'
+import { useRouter } from 'expo-router'
+import React from 'react'
+import { Modal, Pressable, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
 interface UpgradeSheetProps {
-  visible: boolean;
-  onClose: () => void;
+  visible: boolean
+  onClose: () => void
 }
 
 const BENEFITS = [
   'Unlimited library items (recipes, places & products)',
   'Unlimited AI credits',
   'Unlimited shopping lists',
-];
+]
 
 export function UpgradeSheet({ visible, onClose }: UpgradeSheetProps) {
-  const colors = useThemeColors();
-  const router = useRouter();
-  const insets = useSafeAreaInsets();
+  const colors = useThemeColors()
+  const router = useRouter()
+  const insets = useSafeAreaInsets()
 
   const handleUpgrade = () => {
-    onClose();
-    router.push('/(tabs)/profile/billing');
-  };
+    onClose()
+    router.push('/(tabs)/profile/billing')
+  }
 
   return (
-    <Modal
-      visible={visible}
-      transparent
-      animationType='slide'
-      onRequestClose={onClose}
-    >
+    <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
       <View style={styles.wrapper}>
         <Pressable style={styles.backdrop} onPress={onClose} />
 
@@ -51,48 +39,31 @@ export function UpgradeSheet({ visible, onClose }: UpgradeSheetProps) {
               backgroundColor: colors.background,
               paddingBottom: insets.bottom + 24,
             },
-          ]}
-        >
+          ]}>
           {/* Drag handle */}
           <View style={styles.handleRow}>
-            <View
-              style={[styles.handle, { backgroundColor: colors.border }]}
-            />
+            <View style={[styles.handle, { backgroundColor: colors.border }]} />
           </View>
 
           {/* PRO badge */}
-          <View
-            style={[styles.badge, { backgroundColor: colors.primarySoft }]}
-          >
-            <Text style={[styles.badgeText, { color: colors.primary }]}>
-              PRO
-            </Text>
+          <View style={[styles.badge, { backgroundColor: colors.primarySoft }]}>
+            <Text style={[styles.badgeText, { color: colors.primary }]}>PRO</Text>
           </View>
 
           {/* Title */}
-          <Text
-            style={[styles.title, { color: colors.textPrimary }]}
-          >
-            Upgrade to Pro
-          </Text>
+          <Text style={[styles.title, { color: colors.textPrimary }]}>Upgrade to Pro</Text>
 
           {/* Subtitle */}
-          <Text
-            style={[styles.subtitle, { color: colors.textSecondary }]}
-          >
+          <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
             Unlock everything. Save more, explore deeper.
           </Text>
 
           {/* Benefits */}
           <View style={styles.benefits}>
-            {BENEFITS.map((benefit) => (
+            {BENEFITS.map(benefit => (
               <View key={benefit} style={styles.benefitRow}>
-                <Feather name='check' size={16} color={colors.primary} />
-                <Text
-                  style={[styles.benefitText, { color: colors.textSecondary }]}
-                >
-                  {benefit}
-                </Text>
+                <Feather name="check" size={16} color={colors.primary} />
+                <Text style={[styles.benefitText, { color: colors.textSecondary }]}>{benefit}</Text>
               </View>
             ))}
           </View>
@@ -103,22 +74,19 @@ export function UpgradeSheet({ visible, onClose }: UpgradeSheetProps) {
               colors={[colors.primaryGradientStart, colors.primaryGradientEnd]}
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 1 }}
-              style={styles.gradientBtn}
-            >
+              style={styles.gradientBtn}>
               <Text style={styles.upgradeBtnText}>Try Pro — ₹49/month</Text>
             </LinearGradient>
           </TouchableOpacity>
 
           {/* Maybe later */}
           <TouchableOpacity onPress={onClose} style={styles.laterBtn}>
-            <Text style={[styles.laterText, { color: colors.textMuted }]}>
-              Maybe later
-            </Text>
+            <Text style={[styles.laterText, { color: colors.textMuted }]}>Maybe later</Text>
           </TouchableOpacity>
         </View>
       </View>
     </Modal>
-  );
+  )
 }
 
 const styles = StyleSheet.create({
@@ -216,4 +184,4 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontFamily: 'Poppins_400Regular',
   },
-});
+})

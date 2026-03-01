@@ -1,25 +1,19 @@
-import { useThemeColors } from '@/constants/useTheme';
-import React, { ReactNode } from 'react';
-import {
-  StyleSheet,
-  Switch,
-  Text,
-  TouchableOpacity,
-  View,
-} from 'react-native';
+import { useThemeColors } from '@/constants/useTheme'
+import React, { ReactNode } from 'react'
+import { StyleSheet, Switch, Text, TouchableOpacity, View } from 'react-native'
 
 interface SettingsRowProps {
-  icon?: ReactNode;
-  title: string;
-  subtitle?: string;
-  value?: string;
-  onPress?: () => void;
-  chevron?: boolean;
-  toggle?: boolean;
-  toggleValue?: boolean;
-  onToggle?: (value: boolean) => void;
-  destructive?: boolean;
-  rightElement?: ReactNode;
+  icon?: ReactNode
+  title: string
+  subtitle?: string
+  value?: string
+  onPress?: () => void
+  chevron?: boolean
+  toggle?: boolean
+  toggleValue?: boolean
+  onToggle?: (value: boolean) => void
+  destructive?: boolean
+  rightElement?: ReactNode
 }
 
 export function SettingsRow({
@@ -35,15 +29,14 @@ export function SettingsRow({
   destructive = false,
   rightElement,
 }: SettingsRowProps) {
-  const colors = useThemeColors();
+  const colors = useThemeColors()
 
   const content = (
     <View
       style={[
         styles.container,
         { backgroundColor: colors.background, borderBottomColor: colors.border },
-      ]}
-    >
+      ]}>
       {icon && <View style={styles.iconContainer}>{icon}</View>}
       <View style={styles.content}>
         <View style={styles.textContainer}>
@@ -54,8 +47,7 @@ export function SettingsRow({
                 color: destructive ? colors.error : colors.textPrimary,
                 fontFamily: 'Poppins_400Regular',
               },
-            ]}
-          >
+            ]}>
             {title}
           </Text>
           {subtitle && (
@@ -66,8 +58,7 @@ export function SettingsRow({
                   color: colors.textSecondary,
                   fontFamily: 'Poppins_400Regular',
                 },
-              ]}
-            >
+              ]}>
               {subtitle}
             </Text>
           )}
@@ -81,8 +72,7 @@ export function SettingsRow({
                 color: colors.textMuted,
                 fontFamily: 'Poppins_400Regular',
               },
-            ]}
-          >
+            ]}>
             {value}
           </Text>
         )}
@@ -93,8 +83,7 @@ export function SettingsRow({
               {
                 color: colors.textMuted,
               },
-            ]}
-          >
+            ]}>
             ›
           </Text>
         )}
@@ -111,17 +100,17 @@ export function SettingsRow({
         )}
       </View>
     </View>
-  );
+  )
 
   if (onPress && !toggle) {
     return (
       <TouchableOpacity onPress={onPress} activeOpacity={0.7}>
         {content}
       </TouchableOpacity>
-    );
+    )
   }
 
-  return content;
+  return content
 }
 
 const styles = StyleSheet.create({
@@ -167,4 +156,4 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: '300',
   },
-});
+})

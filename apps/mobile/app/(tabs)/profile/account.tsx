@@ -1,10 +1,10 @@
-import { SettingsRow } from '@/components/settings/SettingsRow';
-import { SettingsSection } from '@/components/settings/SettingsSection';
-import { useThemeColors } from '@/constants/useTheme';
-import { useUserProfile } from '@/hooks/useUserProfile';
-import { authClient } from '@/lib/auth-client';
-import { useRouter } from 'expo-router';
-import React, { useState } from 'react';
+import { SettingsRow } from '@/components/settings/SettingsRow'
+import { SettingsSection } from '@/components/settings/SettingsSection'
+import { useThemeColors } from '@/constants/useTheme'
+import { useUserProfile } from '@/hooks/useUserProfile'
+import { authClient } from '@/lib/auth-client'
+import { useRouter } from 'expo-router'
+import React, { useState } from 'react'
 import {
   ActivityIndicator,
   Alert,
@@ -15,56 +15,56 @@ import {
   TextInput,
   TouchableOpacity,
   View,
-} from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+} from 'react-native'
+import { SafeAreaView } from 'react-native-safe-area-context'
 
 export default function AccountScreen() {
-  const colors = useThemeColors();
-  const router = useRouter();
-  const { session, profile, isLoading } = useUserProfile();
-  const [showChangePasswordModal, setShowChangePasswordModal] = useState(false);
-  const [currentPassword, setCurrentPassword] = useState('');
-  const [newPassword, setNewPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-  const [isChangingPassword, setIsChangingPassword] = useState(false);
+  const colors = useThemeColors()
+  const router = useRouter()
+  const { session, profile, isLoading } = useUserProfile()
+  const [showChangePasswordModal, setShowChangePasswordModal] = useState(false)
+  const [currentPassword, setCurrentPassword] = useState('')
+  const [newPassword, setNewPassword] = useState('')
+  const [confirmPassword, setConfirmPassword] = useState('')
+  const [isChangingPassword, setIsChangingPassword] = useState(false)
 
   // const isEmailPasswordAuth = !session?.user?.provider;
 
   const handleChangePassword = async () => {
     if (!currentPassword || !newPassword || !confirmPassword) {
-      Alert.alert('Error', 'Please fill in all fields');
-      return;
+      Alert.alert('Error', 'Please fill in all fields')
+      return
     }
 
     if (newPassword !== confirmPassword) {
-      Alert.alert('Error', 'New passwords do not match');
-      return;
+      Alert.alert('Error', 'New passwords do not match')
+      return
     }
 
     if (newPassword.length < 8) {
-      Alert.alert('Error', 'Password must be at least 8 characters long');
-      return;
+      Alert.alert('Error', 'Password must be at least 8 characters long')
+      return
     }
 
-    setIsChangingPassword(true);
+    setIsChangingPassword(true)
     try {
       await authClient.changePassword({
         currentPassword,
         newPassword,
         revokeOtherSessions: false,
-      });
+      })
 
-      Alert.alert('Success', 'Password changed successfully');
-      setShowChangePasswordModal(false);
-      setCurrentPassword('');
-      setNewPassword('');
-      setConfirmPassword('');
+      Alert.alert('Success', 'Password changed successfully')
+      setShowChangePasswordModal(false)
+      setCurrentPassword('')
+      setNewPassword('')
+      setConfirmPassword('')
     } catch (error: any) {
-      Alert.alert('Error', error.message || 'Failed to change password');
+      Alert.alert('Error', error.message || 'Failed to change password')
     } finally {
-      setIsChangingPassword(false);
+      setIsChangingPassword(false)
     }
-  };
+  }
 
   const handleDeleteAccount = () => {
     Alert.alert(
@@ -80,46 +80,33 @@ export default function AccountScreen() {
           style: 'destructive',
           onPress: () => {
             // TODO: Implement account deletion API
-            Alert.alert(
-              'Coming Soon',
-              'Account deletion will be available soon',
-            );
+            Alert.alert('Coming Soon', 'Account deletion will be available soon')
           },
         },
       ],
-      { cancelable: true },
-    );
-  };
+      { cancelable: true }
+    )
+  }
 
   if (isLoading) {
     return (
-      <SafeAreaView
-        style={[
-          styles.container,
-          { backgroundColor: colors.backgroundSecondary },
-        ]}
-      >
+      <SafeAreaView style={[styles.container, { backgroundColor: colors.backgroundSecondary }]}>
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size='large' color={colors.primary} />
+          <ActivityIndicator size="large" color={colors.primary} />
         </View>
       </SafeAreaView>
-    );
+    )
   }
 
   return (
     <SafeAreaView
-      style={[
-        styles.container,
-        { backgroundColor: colors.backgroundSecondary },
-      ]}
-      edges={['bottom']}
-    >
+      style={[styles.container, { backgroundColor: colors.backgroundSecondary }]}
+      edges={['bottom']}>
       <ScrollView
         style={styles.scrollView}
         contentContainerStyle={styles.scrollContent}
-        showsVerticalScrollIndicator={false}
-      >
-        <SettingsSection title='Authentication'>
+        showsVerticalScrollIndicator={false}>
+        <SettingsSection title="Authentication">
           {/* {isEmailPasswordAuth && (
             <SettingsRow
               icon={<Text style={styles.icon}>🔑</Text>}
@@ -131,17 +118,15 @@ export default function AccountScreen() {
           )} */}
           <SettingsRow
             icon={<Text style={styles.icon}>📧</Text>}
-            title='Email Verification'
+            title="Email Verification"
             subtitle={
-              profile?.emailVerified
-                ? 'Your email is verified'
-                : 'Verify your email address'
+              profile?.emailVerified ? 'Your email is verified' : 'Verify your email address'
             }
             value={profile?.emailVerified ? 'Verified' : 'Not Verified'}
           />
         </SettingsSection>
 
-        <SettingsSection title='Connected Accounts'>
+        <SettingsSection title="Connected Accounts">
           {/* <SettingsRow
             icon={<Text style={styles.icon}>🔗</Text>}
             title='Google'
@@ -154,11 +139,11 @@ export default function AccountScreen() {
           /> */}
         </SettingsSection>
 
-        <SettingsSection title='Danger Zone'>
+        <SettingsSection title="Danger Zone">
           <SettingsRow
             icon={<Text style={styles.icon}>⚠️</Text>}
-            title='Delete Account'
-            subtitle='Permanently delete your account and data'
+            title="Delete Account"
+            subtitle="Permanently delete your account and data"
             destructive
             chevron
             onPress={handleDeleteAccount}
@@ -169,19 +154,12 @@ export default function AccountScreen() {
       {/* Change Password Modal */}
       <Modal
         visible={showChangePasswordModal}
-        animationType='slide'
-        presentationStyle='pageSheet'
-        onRequestClose={() => setShowChangePasswordModal(false)}
-      >
+        animationType="slide"
+        presentationStyle="pageSheet"
+        onRequestClose={() => setShowChangePasswordModal(false)}>
         <SafeAreaView
-          style={[
-            styles.modalContainer,
-            { backgroundColor: colors.backgroundSecondary },
-          ]}
-        >
-          <View
-            style={[styles.modalHeader, { borderBottomColor: colors.border }]}
-          >
+          style={[styles.modalContainer, { backgroundColor: colors.backgroundSecondary }]}>
+          <View style={[styles.modalHeader, { borderBottomColor: colors.border }]}>
             <TouchableOpacity onPress={() => setShowChangePasswordModal(false)}>
               <Text
                 style={[
@@ -190,8 +168,7 @@ export default function AccountScreen() {
                     color: colors.primary,
                     fontFamily: 'Poppins_400Regular',
                   },
-                ]}
-              >
+                ]}>
                 Cancel
               </Text>
             </TouchableOpacity>
@@ -202,17 +179,13 @@ export default function AccountScreen() {
                   color: colors.textPrimary,
                   fontFamily: 'EBGaramond_600SemiBold',
                 },
-              ]}
-            >
+              ]}>
               Change Password
             </Text>
             <View style={styles.modalHeaderSpacer} />
           </View>
 
-          <ScrollView
-            style={styles.modalContent}
-            contentContainerStyle={styles.modalScrollContent}
-          >
+          <ScrollView style={styles.modalContent} contentContainerStyle={styles.modalScrollContent}>
             <View style={styles.inputGroup}>
               <Text
                 style={[
@@ -221,8 +194,7 @@ export default function AccountScreen() {
                     color: colors.textSecondary,
                     fontFamily: 'Poppins_500Medium',
                   },
-                ]}
-              >
+                ]}>
                 Current Password
               </Text>
               <TextInput
@@ -237,10 +209,10 @@ export default function AccountScreen() {
                 ]}
                 value={currentPassword}
                 onChangeText={setCurrentPassword}
-                placeholder='Enter current password'
+                placeholder="Enter current password"
                 placeholderTextColor={colors.textMuted}
                 secureTextEntry
-                autoCapitalize='none'
+                autoCapitalize="none"
               />
             </View>
 
@@ -252,8 +224,7 @@ export default function AccountScreen() {
                     color: colors.textSecondary,
                     fontFamily: 'Poppins_500Medium',
                   },
-                ]}
-              >
+                ]}>
                 New Password
               </Text>
               <TextInput
@@ -268,10 +239,10 @@ export default function AccountScreen() {
                 ]}
                 value={newPassword}
                 onChangeText={setNewPassword}
-                placeholder='Enter new password'
+                placeholder="Enter new password"
                 placeholderTextColor={colors.textMuted}
                 secureTextEntry
-                autoCapitalize='none'
+                autoCapitalize="none"
               />
             </View>
 
@@ -283,8 +254,7 @@ export default function AccountScreen() {
                     color: colors.textSecondary,
                     fontFamily: 'Poppins_500Medium',
                   },
-                ]}
-              >
+                ]}>
                 Confirm New Password
               </Text>
               <TextInput
@@ -299,10 +269,10 @@ export default function AccountScreen() {
                 ]}
                 value={confirmPassword}
                 onChangeText={setConfirmPassword}
-                placeholder='Confirm new password'
+                placeholder="Confirm new password"
                 placeholderTextColor={colors.textMuted}
                 secureTextEntry
-                autoCapitalize='none'
+                autoCapitalize="none"
               />
             </View>
 
@@ -315,10 +285,9 @@ export default function AccountScreen() {
                 },
               ]}
               onPress={handleChangePassword}
-              disabled={isChangingPassword}
-            >
+              disabled={isChangingPassword}>
               {isChangingPassword ? (
-                <ActivityIndicator size='small' color={colors.white} />
+                <ActivityIndicator size="small" color={colors.white} />
               ) : (
                 <Text
                   style={[
@@ -327,8 +296,7 @@ export default function AccountScreen() {
                       color: colors.white,
                       fontFamily: 'Poppins_500Medium',
                     },
-                  ]}
-                >
+                  ]}>
                   Change Password
                 </Text>
               )}
@@ -337,7 +305,7 @@ export default function AccountScreen() {
         </SafeAreaView>
       </Modal>
     </SafeAreaView>
-  );
+  )
 }
 
 const styles = StyleSheet.create({
@@ -418,4 +386,4 @@ const styles = StyleSheet.create({
     fontSize: 16,
     lineHeight: 24,
   },
-});
+})

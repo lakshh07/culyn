@@ -1,19 +1,15 @@
-import { useThemeColors } from '@/constants/useTheme';
-import React, { ReactNode } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { useThemeColors } from '@/constants/useTheme'
+import React, { ReactNode } from 'react'
+import { StyleSheet, Text, View } from 'react-native'
 
 interface SettingsSectionProps {
-  title?: string;
-  children: ReactNode;
-  style?: any;
+  title?: string
+  children: ReactNode
+  style?: any
 }
 
-export function SettingsSection({
-  title,
-  children,
-  style,
-}: SettingsSectionProps) {
-  const colors = useThemeColors();
+export function SettingsSection({ title, children, style }: SettingsSectionProps) {
+  const colors = useThemeColors()
 
   return (
     <View style={[styles.container, style]}>
@@ -25,8 +21,7 @@ export function SettingsSection({
               color: colors.textSecondary,
               fontFamily: 'Poppins_500Medium',
             },
-          ]}
-        >
+          ]}>
           {title}
         </Text>
       )}
@@ -38,12 +33,11 @@ export function SettingsSection({
             borderRadius: 12,
             overflow: 'hidden',
           },
-        ]}
-      >
+        ]}>
         {children}
       </View>
     </View>
-  );
+  )
 }
 
 const styles = StyleSheet.create({
@@ -61,4 +55,4 @@ const styles = StyleSheet.create({
   content: {
     overflow: 'hidden',
   },
-});
+})

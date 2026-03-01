@@ -1,6 +1,6 @@
-import { useThemeColors } from '@/constants/useTheme';
-import React, { useEffect } from 'react';
-import { StyleSheet, ViewStyle } from 'react-native';
+import { useThemeColors } from '@/constants/useTheme'
+import React, { useEffect } from 'react'
+import { StyleSheet, ViewStyle } from 'react-native'
 import Animated, {
   Easing,
   interpolate,
@@ -8,35 +8,26 @@ import Animated, {
   useSharedValue,
   withRepeat,
   withTiming,
-} from 'react-native-reanimated';
+} from 'react-native-reanimated'
 
 interface SkeletonProps {
-  width: number | `${number}%`;
-  height: number;
-  borderRadius?: number;
-  style?: ViewStyle;
+  width: number | `${number}%`
+  height: number
+  borderRadius?: number
+  style?: ViewStyle
 }
 
-export function Skeleton({
-  width,
-  height,
-  borderRadius = 8,
-  style,
-}: SkeletonProps) {
-  const colors = useThemeColors();
-  const shimmer = useSharedValue(0);
+export function Skeleton({ width, height, borderRadius = 8, style }: SkeletonProps) {
+  const colors = useThemeColors()
+  const shimmer = useSharedValue(0)
 
   useEffect(() => {
-    shimmer.value = withRepeat(
-      withTiming(1, { duration: 1200, easing: Easing.ease }),
-      -1,
-      true
-    );
-  }, [shimmer]);
+    shimmer.value = withRepeat(withTiming(1, { duration: 1200, easing: Easing.ease }), -1, true)
+  }, [shimmer])
 
   const animatedStyle = useAnimatedStyle(() => ({
     opacity: interpolate(shimmer.value, [0, 1], [0.4, 0.8]),
-  }));
+  }))
 
   return (
     <Animated.View
@@ -51,14 +42,14 @@ export function Skeleton({
         style,
       ]}
     />
-  );
+  )
 }
 
 export function ContentCardSkeleton() {
   return (
     <Animated.View style={styles.cardContainer}>
-      <Skeleton width='70%' height={16} borderRadius={6} />
-      <Skeleton width='40%' height={14} borderRadius={6} />
+      <Skeleton width="70%" height={16} borderRadius={6} />
+      <Skeleton width="40%" height={14} borderRadius={6} />
       <Animated.View style={styles.cardImageContainer}>
         <Skeleton width={160} height={160} borderRadius={80} />
       </Animated.View>
@@ -67,19 +58,19 @@ export function ContentCardSkeleton() {
         <Skeleton width={60} height={14} borderRadius={6} />
       </Animated.View>
     </Animated.View>
-  );
+  )
 }
 
 export function PlaceRowSkeleton() {
   return (
     <Animated.View style={styles.rowContainer}>
       <Animated.View style={styles.rowContent}>
-        <Skeleton width='65%' height={16} borderRadius={6} />
-        <Skeleton width='40%' height={12} borderRadius={4} />
+        <Skeleton width="65%" height={16} borderRadius={6} />
+        <Skeleton width="40%" height={12} borderRadius={4} />
       </Animated.View>
       <Skeleton width={18} height={18} borderRadius={4} />
     </Animated.View>
-  );
+  )
 }
 
 export function ChatRowSkeleton() {
@@ -87,42 +78,42 @@ export function ChatRowSkeleton() {
     <Animated.View style={styles.chatRowContainer}>
       <Animated.View style={styles.chatRowContent}>
         <Animated.View style={styles.chatTitleRow}>
-          <Skeleton width='55%' height={16} borderRadius={6} />
+          <Skeleton width="55%" height={16} borderRadius={6} />
           <Skeleton width={50} height={18} borderRadius={6} />
         </Animated.View>
-        <Skeleton width='80%' height={13} borderRadius={4} />
+        <Skeleton width="80%" height={13} borderRadius={4} />
       </Animated.View>
       <Skeleton width={18} height={18} borderRadius={4} />
     </Animated.View>
-  );
+  )
 }
 
 export function PlaceCardSkeleton() {
   return (
     <Animated.View style={styles.placeCardContainer}>
-      <Skeleton width='100%' height={140} borderRadius={0} />
+      <Skeleton width="100%" height={140} borderRadius={0} />
       <Animated.View style={styles.placeCardText}>
-        <Skeleton width='70%' height={16} borderRadius={6} />
-        <Skeleton width='50%' height={12} borderRadius={4} />
+        <Skeleton width="70%" height={16} borderRadius={6} />
+        <Skeleton width="50%" height={12} borderRadius={4} />
       </Animated.View>
     </Animated.View>
-  );
+  )
 }
 
 export function DetailHeaderSkeleton() {
   return (
     <Animated.View style={styles.detailContainer}>
-      <Skeleton width='100%' height={320} borderRadius={0} />
+      <Skeleton width="100%" height={320} borderRadius={0} />
       <Animated.View style={styles.detailContent}>
-        <Skeleton width='80%' height={28} borderRadius={8} />
+        <Skeleton width="80%" height={28} borderRadius={8} />
         <Animated.View style={styles.detailMeta}>
           <Skeleton width={60} height={22} borderRadius={8} />
           <Skeleton width={80} height={16} borderRadius={6} />
         </Animated.View>
-        <Skeleton width='100%' height={60} borderRadius={8} />
+        <Skeleton width="100%" height={60} borderRadius={8} />
       </Animated.View>
     </Animated.View>
-  );
+  )
 }
 
 const styles = StyleSheet.create({
@@ -195,4 +186,4 @@ const styles = StyleSheet.create({
     gap: 10,
     alignItems: 'center',
   },
-});
+})

@@ -1,7 +1,7 @@
-import { useThemeColors } from '@/constants/useTheme';
-import { ContentCategory } from '@culyn/shared/schemas';
-import { Feather } from '@expo/vector-icons';
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { useThemeColors } from '@/constants/useTheme'
+import { ContentCategory } from '@culyn/shared/schemas'
+import { Feather } from '@expo/vector-icons'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
 import {
   Dimensions,
   Image,
@@ -10,28 +10,28 @@ import {
   StyleSheet,
   Text,
   View,
-} from 'react-native';
+} from 'react-native'
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
   withSpring,
   withTiming,
-} from 'react-native-reanimated';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+} from 'react-native-reanimated'
+import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
 interface HomeHeaderProps {
-  selectedCategory: ContentCategory;
-  onCategoryChange: (category: ContentCategory) => void;
-  onSearchPress?: () => void;
-  onMapPress?: () => void;
-  headerFadeStyle?: any;
-  hasActiveFilters?: boolean;
+  selectedCategory: ContentCategory
+  onCategoryChange: (category: ContentCategory) => void
+  onSearchPress?: () => void
+  onMapPress?: () => void
+  headerFadeStyle?: any
+  hasActiveFilters?: boolean
 }
 
 const TABS: {
-  key: ContentCategory;
-  label: string;
-  image: ImageSourcePropType;
+  key: ContentCategory
+  label: string
+  image: ImageSourcePropType
 }[] = [
   {
     key: 'RECIPE',
@@ -48,47 +48,39 @@ const TABS: {
     label: 'Products',
     image: require('@/assets/icons/products.png'),
   },
-];
+]
 
 const SEARCH_LABELS: Record<ContentCategory, string> = {
   RECIPE: 'Search recipes',
   PLACE: 'Search places',
   PRODUCT: 'Search products',
-};
+}
 
-const SCREEN_WIDTH = Dimensions.get('window').width;
-const TAB_WIDTH = SCREEN_WIDTH / 3;
+const SCREEN_WIDTH = Dimensions.get('window').width
+const TAB_WIDTH = SCREEN_WIDTH / 3
 
-const AnimatedImage = Animated.createAnimatedComponent(Image);
+const AnimatedImage = Animated.createAnimatedComponent(Image)
 
-function TabIcon({
-  image,
-  isActive,
-}: {
-  image: ImageSourcePropType;
-  isActive: boolean;
-}) {
-  const scale = useSharedValue(isActive ? 1.15 : 1);
+function TabIcon({ image, isActive }: { image: ImageSourcePropType; isActive: boolean }) {
+  const scale = useSharedValue(isActive ? 1.15 : 1)
 
   useEffect(() => {
     scale.value = withSpring(isActive ? 1.15 : 1, {
       damping: 20,
       stiffness: 250,
-    });
-  }, [isActive]);
+    })
+  }, [isActive])
 
   const animatedStyle = useAnimatedStyle(() => ({
     transform: [{ scale: scale.value }],
-  }));
+  }))
 
-  return (
-    <AnimatedImage source={image} style={[styles.tabImage, animatedStyle]} />
-  );
+  return <AnimatedImage source={image} style={[styles.tabImage, animatedStyle]} />
 }
 
 interface LabelLayout {
-  x: number;
-  width: number;
+  x: number
+  width: number
 }
 
 export function HomeHeader({
@@ -99,73 +91,64 @@ export function HomeHeader({
   headerFadeStyle,
   hasActiveFilters,
 }: HomeHeaderProps) {
-  const colors = useThemeColors();
-  const insets = useSafeAreaInsets();
-  const underlineX = useSharedValue(0);
-  const underlineWidth = useSharedValue(0);
-  const tabsRowRef = useRef<View>(null);
-  const labelRefs = useRef<Record<string, Text | null>>({});
-  const labelLayouts = useRef<Record<string, LabelLayout>>({});
-  const [layoutReady, setLayoutReady] = useState(false);
+  const colors = useThemeColors()
+  const insets = useSafeAreaInsets()
+  const underlineX = useSharedValue(0)
+  const underlineWidth = useSharedValue(0)
+  const tabsRowRef = useRef<View>(null)
+  const labelRefs = useRef<Record<string, Text | null>>({})
+  const labelLayouts = useRef<Record<string, LabelLayout>>({})
+  const [layoutReady, setLayoutReady] = useState(false)
 
   const measureAllLabels = useCallback(() => {
-    const rowNode = tabsRowRef.current;
-    if (!rowNode) return;
+    const rowNode = tabsRowRef.current
+    if (!rowNode) return
 
-    let measured = 0;
-    TABS.forEach((tab) => {
-      const labelNode = labelRefs.current[tab.key];
-      if (!labelNode) return;
+    let measured = 0
+    TABS.forEach(tab => {
+      const labelNode = labelRefs.current[tab.key]
+      if (!labelNode) return
 
       labelNode.measureLayout(rowNode as any, (x, _y, width, _height) => {
-        labelLayouts.current[tab.key] = { x, width };
-        measured++;
+        labelLayouts.current[tab.key] = { x, width }
+        measured++
 
         if (measured === TABS.length && !layoutReady) {
-          setLayoutReady(true);
-          const layout = labelLayouts.current[selectedCategory];
+          setLayoutReady(true)
+          const layout = labelLayouts.current[selectedCategory]
           if (layout) {
-            underlineX.value = layout.x;
-            underlineWidth.value = layout.width;
+            underlineX.value = layout.x
+            underlineWidth.value = layout.width
           }
         }
-      });
-    });
-  }, [layoutReady, selectedCategory]);
+      })
+    })
+  }, [layoutReady, selectedCategory])
 
   useEffect(() => {
-    if (!layoutReady) return;
-    const layout = labelLayouts.current[selectedCategory];
-    if (!layout) return;
-    underlineX.value = withTiming(layout.x, { duration: 400 });
-    underlineWidth.value = withTiming(layout.width, { duration: 400 });
-  }, [selectedCategory, layoutReady]);
+    if (!layoutReady) return
+    const layout = labelLayouts.current[selectedCategory]
+    if (!layout) return
+    underlineX.value = withTiming(layout.x, { duration: 400 })
+    underlineWidth.value = withTiming(layout.width, { duration: 400 })
+  }, [selectedCategory, layoutReady])
 
   const underlineStyle = useAnimatedStyle(() => ({
     left: underlineX.value,
     width: underlineWidth.value,
-  }));
+  }))
 
   return (
     <Animated.View
-      style={[
-        styles.container,
-        { backgroundColor: colors.headerBackground },
-        headerFadeStyle,
-      ]}
-    >
+      style={[styles.container, { backgroundColor: colors.headerBackground }, headerFadeStyle]}>
       <View style={{ height: insets.top }} />
 
       {/* Search bar */}
       <View style={styles.searchBarWrapper}>
         <Pressable
           onPress={onSearchPress}
-          style={[
-            styles.searchBar,
-            { backgroundColor: colors.searchBarBackground },
-          ]}
-        >
-          <Feather name='search' size={18} color={colors.searchBarIcon} />
+          style={[styles.searchBar, { backgroundColor: colors.searchBarBackground }]}>
+          <Feather name="search" size={18} color={colors.searchBarIcon} />
           <Text style={[styles.searchBarText, { color: colors.searchBarText }]}>
             {SEARCH_LABELS[selectedCategory]}
           </Text>
@@ -182,49 +165,38 @@ export function HomeHeader({
 
       {/* Category tabs */}
       <View ref={tabsRowRef} style={styles.tabsRow} onLayout={measureAllLabels}>
-        {TABS.map((tab) => {
-          const isActive = selectedCategory === tab.key;
+        {TABS.map(tab => {
+          const isActive = selectedCategory === tab.key
           return (
-            <Pressable
-              key={tab.key}
-              style={styles.tab}
-              onPress={() => onCategoryChange(tab.key)}
-            >
+            <Pressable key={tab.key} style={styles.tab} onPress={() => onCategoryChange(tab.key)}>
               <TabIcon image={tab.image} isActive={isActive} />
               <Text
-                ref={(ref) => {
-                  labelRefs.current[tab.key] = ref;
+                ref={ref => {
+                  labelRefs.current[tab.key] = ref
                 }}
                 style={[
                   styles.tabLabel,
                   {
                     color: isActive ? colors.textPrimary : colors.textMuted,
-                    fontFamily: isActive
-                      ? 'Syne_600SemiBold'
-                      : 'Syne_400Regular',
+                    fontFamily: isActive ? 'Syne_600SemiBold' : 'Syne_400Regular',
                   },
-                ]}
-              >
+                ]}>
                 {tab.label}
               </Text>
             </Pressable>
-          );
+          )
         })}
 
         {/* Animated underline */}
         <Animated.View
-          style={[
-            styles.underline,
-            { backgroundColor: colors.tabIndicator },
-            underlineStyle,
-          ]}
+          style={[styles.underline, { backgroundColor: colors.tabIndicator }, underlineStyle]}
         />
       </View>
 
       {/* Bottom divider */}
       <View style={[styles.divider, { backgroundColor: colors.tabDivider }]} />
     </Animated.View>
-  );
+  )
 }
 
 const styles = StyleSheet.create({
@@ -303,4 +275,4 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-});
+})

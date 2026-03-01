@@ -1,79 +1,73 @@
-import { useThemeColors } from '@/constants/useTheme';
-import { useShoppingList } from '@/hooks/shopping-list/useShoppingList';
-import { getIngredientImageUrl } from '@culyn/shared/lib';
-import { ListItem } from '@culyn/shared/schemas';
-import React from 'react';
-import { Image, ScrollView, StyleSheet, Text, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { useThemeColors } from '@/constants/useTheme'
+import { useShoppingList } from '@/hooks/shopping-list/useShoppingList'
+import { getIngredientImageUrl } from '@culyn/shared/lib'
+import { ListItem } from '@culyn/shared/schemas'
+import React from 'react'
+import { Image, ScrollView, StyleSheet, Text, View } from 'react-native'
+import { SafeAreaView } from 'react-native-safe-area-context'
 
-const INGREDIENT_IMAGE_BASE_URL = `${process.env.EXPO_PUBLIC_AWS_PUBLIC_URL_BASE}`;
+const INGREDIENT_IMAGE_BASE_URL = `${process.env.EXPO_PUBLIC_AWS_PUBLIC_URL_BASE}`
 
 const getInitials = (name: string): string => {
-  const words = name.trim().split(/\s+/);
+  const words = name.trim().split(/\s+/)
   if (words.length >= 2) {
-    return (words[0][0] + words[1][0]).toUpperCase();
+    return (words[0][0] + words[1][0]).toUpperCase()
   }
-  return name.substring(0, 2).toUpperCase();
-};
+  return name.substring(0, 2).toUpperCase()
+}
 
 // Simple ingredient count icon (connected circles/atoms)
-const IngredientCountIcon = React.memo(
-  ({ size = 16, color }: { size?: number; color: string }) => {
-    return (
-      <View style={{ width: size, height: size, position: 'relative' }}>
-        <View
-          style={{
-            position: 'absolute',
-            width: size * 0.4,
-            height: size * 0.4,
-            borderRadius: size * 0.2,
-            backgroundColor: color,
-            top: 0,
-            left: 0,
-          }}
-        />
-        <View
-          style={{
-            position: 'absolute',
-            width: size * 0.4,
-            height: size * 0.4,
-            borderRadius: size * 0.2,
-            backgroundColor: color,
-            top: 0,
-            right: 0,
-          }}
-        />
-        <View
-          style={{
-            position: 'absolute',
-            width: size * 0.4,
-            height: size * 0.4,
-            borderRadius: size * 0.2,
-            backgroundColor: color,
-            bottom: 0,
-            left: size * 0.3,
-          }}
-        />
-      </View>
-    );
-  }
-);
+const IngredientCountIcon = React.memo(({ size = 16, color }: { size?: number; color: string }) => {
+  return (
+    <View style={{ width: size, height: size, position: 'relative' }}>
+      <View
+        style={{
+          position: 'absolute',
+          width: size * 0.4,
+          height: size * 0.4,
+          borderRadius: size * 0.2,
+          backgroundColor: color,
+          top: 0,
+          left: 0,
+        }}
+      />
+      <View
+        style={{
+          position: 'absolute',
+          width: size * 0.4,
+          height: size * 0.4,
+          borderRadius: size * 0.2,
+          backgroundColor: color,
+          top: 0,
+          right: 0,
+        }}
+      />
+      <View
+        style={{
+          position: 'absolute',
+          width: size * 0.4,
+          height: size * 0.4,
+          borderRadius: size * 0.2,
+          backgroundColor: color,
+          bottom: 0,
+          left: size * 0.3,
+        }}
+      />
+    </View>
+  )
+})
 
-IngredientCountIcon.displayName = 'IngredientCountIcon';
+IngredientCountIcon.displayName = 'IngredientCountIcon'
 
 export default function ShoppingListScreen() {
-  const colors = useThemeColors();
-  const { shoppingList, isLoading } = useShoppingList();
+  const colors = useThemeColors()
+  const { shoppingList, isLoading } = useShoppingList()
 
   return (
     <SafeAreaView
       style={[styles.safeArea, { backgroundColor: colors.backgroundSecondary }]}
-      edges={['left', 'right']}
-    >
-      <ScrollView
-        contentContainerStyle={styles.content}
-        showsVerticalScrollIndicator={false}
-      >
+      edges={['left', 'right']}>
+      <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         <Text style={[styles.subtitle, { color: colors.textMuted }]}>
           Your shopping list from saved recipes.
         </Text>
@@ -84,7 +78,7 @@ export default function ShoppingListScreen() {
           </Text>
         ) : shoppingList && shoppingList.length > 0 ? (
           <View style={styles.recipesList}>
-            {shoppingList.map((list) => (
+            {shoppingList.map(list => (
               <View
                 key={list.id}
                 style={[
@@ -93,8 +87,7 @@ export default function ShoppingListScreen() {
                     backgroundColor: colors.background,
                     borderColor: colors.border,
                   },
-                ]}
-              >
+                ]}>
                 {/* Header */}
                 <View style={styles.cardHeader}>
                   <View style={styles.cardHeaderLeft}>
@@ -103,9 +96,7 @@ export default function ShoppingListScreen() {
                     </Text>
                   </View>
                   <View style={styles.ingredientCountContainer}>
-                    <Text
-                      style={[styles.ingredientCountText, { color: colors.textMuted }]}
-                    >
+                    <Text style={[styles.ingredientCountText, { color: colors.textMuted }]}>
                       {list.items.length} {list.items.length === 1 ? 'item' : 'items'}
                     </Text>
                   </View>
@@ -114,7 +105,7 @@ export default function ShoppingListScreen() {
                 {/* Items List */}
                 {list.items.length > 0 ? (
                   <View style={styles.ingredientsList}>
-                    {list.items.map((item) => (
+                    {list.items.map(item => (
                       <IngredientCard key={item.id} ingredient={item} colors={colors} />
                     ))}
                   </View>
@@ -135,41 +126,21 @@ export default function ShoppingListScreen() {
         )}
       </ScrollView>
     </SafeAreaView>
-  );
+  )
 }
 
 const IngredientCard = React.memo(
-  ({
-    ingredient,
-    colors,
-  }: {
-    ingredient: ListItem;
-    colors: ReturnType<typeof useThemeColors>;
-  }) => {
-    const imageUrl = getIngredientImageUrl(
-      ingredient.name,
-      INGREDIENT_IMAGE_BASE_URL
-    );
+  ({ ingredient, colors }: { ingredient: ListItem; colors: ReturnType<typeof useThemeColors> }) => {
+    const imageUrl = getIngredientImageUrl(ingredient.name, INGREDIENT_IMAGE_BASE_URL)
 
     return (
       <View style={styles.ingredientRow}>
         <View style={styles.ingredientImageContainer}>
           {imageUrl ? (
-            <Image
-              source={{ uri: imageUrl }}
-              style={styles.ingredientImage}
-              resizeMode="cover"
-            />
+            <Image source={{ uri: imageUrl }} style={styles.ingredientImage} resizeMode="cover" />
           ) : (
-            <View
-              style={[
-                styles.ingredientImagePlaceholder,
-                { backgroundColor: colors.border },
-              ]}
-            >
-              <Text
-                style={[styles.ingredientImageInitials, { color: colors.textMuted }]}
-              >
+            <View style={[styles.ingredientImagePlaceholder, { backgroundColor: colors.border }]}>
+              <Text style={[styles.ingredientImageInitials, { color: colors.textMuted }]}>
                 {getInitials(ingredient.name)}
               </Text>
             </View>
@@ -185,11 +156,11 @@ const IngredientCard = React.memo(
         </View>
         {/* TODO: Add checkbox to mark as bought */}
       </View>
-    );
+    )
   }
-);
+)
 
-IngredientCard.displayName = 'IngredientCard';
+IngredientCard.displayName = 'IngredientCard'
 
 const styles = StyleSheet.create({
   safeArea: {
@@ -323,4 +294,4 @@ const styles = StyleSheet.create({
     fontFamily: 'Poppins_400Regular',
     marginTop: 8,
   },
-});
+})

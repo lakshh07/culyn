@@ -1,33 +1,26 @@
-import { ClockFillIcon, HeartFillIcon, HeartIcon } from '@/components/icons';
-import { useThemeColors } from '@/constants/useTheme';
-import { ContentCategory } from '@culyn/shared/schemas';
-import React, { useRef, useState } from 'react';
-import {
-  Animated,
-  Image,
-  Pressable,
-  StyleSheet,
-  Text,
-  View,
-} from 'react-native';
+import { ClockFillIcon, HeartFillIcon, HeartIcon } from '@/components/icons'
+import { useThemeColors } from '@/constants/useTheme'
+import { ContentCategory } from '@culyn/shared/schemas'
+import React, { useRef, useState } from 'react'
+import { Animated, Image, Pressable, StyleSheet, Text, View } from 'react-native'
 
 const CATEGORY_LABELS: Record<ContentCategory, string> = {
   RECIPE: 'Recipe',
   PLACE: 'Place',
   PRODUCT: 'Product',
-};
+}
 
 interface UnifiedContentCardProps {
-  id: string;
-  title: string | null;
-  imageUrl: string | null;
-  category: ContentCategory;
-  cookTime?: number | null;
-  city?: string | null;
-  brand?: string | null;
-  price?: number | null;
-  onPress?: () => void;
-  onHeartPress?: (liked: boolean) => void;
+  id: string
+  title: string | null
+  imageUrl: string | null
+  category: ContentCategory
+  cookTime?: number | null
+  city?: string | null
+  brand?: string | null
+  price?: number | null
+  onPress?: () => void
+  onHeartPress?: (liked: boolean) => void
 }
 
 export function UnifiedContentCard({
@@ -42,22 +35,22 @@ export function UnifiedContentCard({
   onPress,
   onHeartPress,
 }: UnifiedContentCardProps) {
-  const colors = useThemeColors();
-  const [isLiked, setIsLiked] = useState(false);
-  const scale = useRef(new Animated.Value(1)).current;
-  const heartScale = useRef(new Animated.Value(1)).current;
+  const colors = useThemeColors()
+  const [isLiked, setIsLiked] = useState(false)
+  const scale = useRef(new Animated.Value(1)).current
+  const heartScale = useRef(new Animated.Value(1)).current
 
   const categoryColor =
     category === 'RECIPE'
       ? colors.categoryRecipe
       : category === 'PLACE'
         ? colors.categoryPlace
-        : colors.categoryProduct;
+        : colors.categoryProduct
 
   const handleHeartPress = () => {
-    setIsLiked(!isLiked);
-    onHeartPress?.(!isLiked);
-  };
+    setIsLiked(!isLiked)
+    onHeartPress?.(!isLiked)
+  }
 
   const handlePressIn = () => {
     Animated.spring(scale, {
@@ -65,8 +58,8 @@ export function UnifiedContentCard({
       useNativeDriver: true,
       speed: 20,
       bounciness: 4,
-    }).start();
-  };
+    }).start()
+  }
 
   const handlePressOut = () => {
     Animated.spring(scale, {
@@ -74,8 +67,8 @@ export function UnifiedContentCard({
       useNativeDriver: true,
       speed: 20,
       bounciness: 4,
-    }).start();
-  };
+    }).start()
+  }
 
   const metaLine =
     category === 'RECIPE' && cookTime
@@ -84,7 +77,7 @@ export function UnifiedContentCard({
         ? city
         : category === 'PRODUCT' && brand
           ? brand
-          : null;
+          : null
 
   return (
     <Animated.View style={{ transform: [{ scale }] }}>
@@ -92,23 +85,14 @@ export function UnifiedContentCard({
         onPress={onPress}
         onPressIn={handlePressIn}
         onPressOut={handlePressOut}
-        style={[
-          styles.container,
-          { backgroundColor: colors.cardBackgroundElevated },
-        ]}
-      >
+        style={[styles.container, { backgroundColor: colors.cardBackgroundElevated }]}>
         <Animated.View
           style={[
             styles.heartButton,
             { borderColor: colors.backgroundSecondary },
             { transform: [{ scale: heartScale }] },
-          ]}
-        >
-          <Pressable
-            onPress={handleHeartPress}
-            hitSlop={8}
-            style={styles.heartButtonInner}
-          >
+          ]}>
+          <Pressable onPress={handleHeartPress} hitSlop={8} style={styles.heartButtonInner}>
             {isLiked ? (
               <HeartFillIcon width={20} height={20} />
             ) : (
@@ -118,10 +102,7 @@ export function UnifiedContentCard({
         </Animated.View>
 
         <View style={styles.titleRow}>
-          <Text
-            style={[styles.title, { color: colors.textPrimary }]}
-            numberOfLines={2}
-          >
+          <Text style={[styles.title, { color: colors.textPrimary }]} numberOfLines={2}>
             {title || 'Untitled'}
           </Text>
         </View>
@@ -132,10 +113,7 @@ export function UnifiedContentCard({
               <Image source={{ uri: imageUrl }} style={styles.image} />
             ) : (
               <View
-                style={[
-                  styles.imagePlaceholder,
-                  { backgroundColor: colors.backgroundSecondary },
-                ]}
+                style={[styles.imagePlaceholder, { backgroundColor: colors.backgroundSecondary }]}
               />
             )}
           </View>
@@ -143,24 +121,18 @@ export function UnifiedContentCard({
 
         <View style={styles.footerRow}>
           <View style={[styles.categoryBadge, { backgroundColor: categoryColor }]}>
-            <Text style={styles.categoryLabel}>
-              {CATEGORY_LABELS[category]}
-            </Text>
+            <Text style={styles.categoryLabel}>{CATEGORY_LABELS[category]}</Text>
           </View>
           {metaLine && (
             <View style={styles.footerItem}>
-              {category === 'RECIPE' && (
-                <ClockFillIcon width={12} height={12} />
-              )}
-              <Text style={[styles.metaText, { color: colors.textMuted }]}>
-                {metaLine}
-              </Text>
+              {category === 'RECIPE' && <ClockFillIcon width={12} height={12} />}
+              <Text style={[styles.metaText, { color: colors.textMuted }]}>{metaLine}</Text>
             </View>
           )}
         </View>
       </Pressable>
     </Animated.View>
-  );
+  )
 }
 
 const styles = StyleSheet.create({
@@ -262,4 +234,4 @@ const styles = StyleSheet.create({
     lineHeight: 14,
     marginTop: 2,
   },
-});
+})

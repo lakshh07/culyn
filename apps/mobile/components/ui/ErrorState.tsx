@@ -1,38 +1,28 @@
-import { useThemeColors } from '@/constants/useTheme';
-import { Feather } from '@expo/vector-icons';
-import React from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { useThemeColors } from '@/constants/useTheme'
+import { Feather } from '@expo/vector-icons'
+import React from 'react'
+import { Pressable, StyleSheet, Text, View } from 'react-native'
 
 interface ErrorStateProps {
-  message?: string;
-  onRetry?: () => void;
+  message?: string
+  onRetry?: () => void
 }
 
-export function ErrorState({
-  message = 'Something went wrong.',
-  onRetry,
-}: ErrorStateProps) {
-  const colors = useThemeColors();
+export function ErrorState({ message = 'Something went wrong.', onRetry }: ErrorStateProps) {
+  const colors = useThemeColors()
 
   return (
     <View style={styles.container}>
-      <Feather name='alert-circle' size={40} color={colors.error} />
-      <Text style={[styles.message, { color: colors.textPrimary }]}>
-        {message}
-      </Text>
+      <Feather name="alert-circle" size={40} color={colors.error} />
+      <Text style={[styles.message, { color: colors.textPrimary }]}>{message}</Text>
       {onRetry && (
-        <Pressable
-          onPress={onRetry}
-          style={[styles.retryButton, { borderColor: colors.border }]}
-        >
-          <Feather name='refresh-cw' size={16} color={colors.primary} />
-          <Text style={[styles.retryText, { color: colors.primary }]}>
-            Try Again
-          </Text>
+        <Pressable onPress={onRetry} style={[styles.retryButton, { borderColor: colors.border }]}>
+          <Feather name="refresh-cw" size={16} color={colors.primary} />
+          <Text style={[styles.retryText, { color: colors.primary }]}>Try Again</Text>
         </Pressable>
       )}
     </View>
-  );
+  )
 }
 
 const styles = StyleSheet.create({
@@ -63,4 +53,4 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontFamily: 'Syne_500Medium',
   },
-});
+})

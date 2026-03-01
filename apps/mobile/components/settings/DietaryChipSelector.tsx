@@ -1,18 +1,12 @@
-import { useThemeColors } from '@/constants/useTheme';
-import React from 'react';
-import {
-  ScrollView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from 'react-native';
+import { useThemeColors } from '@/constants/useTheme'
+import React from 'react'
+import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 
 interface DietaryChipSelectorProps {
-  options: { value: string; label: string }[];
-  selectedValues: string[];
-  onChange: (values: string[]) => void;
-  multiSelect?: boolean;
+  options: { value: string; label: string }[]
+  selectedValues: string[]
+  onChange: (values: string[]) => void
+  multiSelect?: boolean
 }
 
 export function DietaryChipSelector({
@@ -21,65 +15,58 @@ export function DietaryChipSelector({
   onChange,
   multiSelect = true,
 }: DietaryChipSelectorProps) {
-  const colors = useThemeColors();
+  const colors = useThemeColors()
 
   const handleToggle = (value: string) => {
     if (multiSelect) {
       if (selectedValues.includes(value)) {
-        onChange(selectedValues.filter((v) => v !== value));
+        onChange(selectedValues.filter(v => v !== value))
       } else {
-        onChange([...selectedValues, value]);
+        onChange([...selectedValues, value])
       }
     } else {
-      onChange([value]);
+      onChange([value])
     }
-  };
+  }
 
   return (
     <View style={styles.container}>
       <ScrollView
         horizontal={false}
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={styles.scrollContent}
-      >
+        contentContainerStyle={styles.scrollContent}>
         <View style={styles.chipsContainer}>
-          {options.map((option) => {
-            const isSelected = selectedValues.includes(option.value);
+          {options.map(option => {
+            const isSelected = selectedValues.includes(option.value)
             return (
               <TouchableOpacity
                 key={option.value}
                 style={[
                   styles.chip,
                   {
-                    backgroundColor: isSelected
-                      ? colors.primary
-                      : colors.backgroundSecondary,
+                    backgroundColor: isSelected ? colors.primary : colors.backgroundSecondary,
                     borderColor: isSelected ? colors.primary : colors.border,
                   },
                 ]}
                 onPress={() => handleToggle(option.value)}
-                activeOpacity={0.7}
-              >
+                activeOpacity={0.7}>
                 <Text
                   style={[
                     styles.chipLabel,
                     {
                       color: isSelected ? colors.white : colors.textPrimary,
-                      fontFamily: isSelected
-                        ? 'Poppins_500Medium'
-                        : 'Poppins_400Regular',
+                      fontFamily: isSelected ? 'Poppins_500Medium' : 'Poppins_400Regular',
                     },
-                  ]}
-                >
+                  ]}>
                   {option.label}
                 </Text>
               </TouchableOpacity>
-            );
+            )
           })}
         </View>
       </ScrollView>
     </View>
-  );
+  )
 }
 
 const styles = StyleSheet.create({
@@ -104,4 +91,4 @@ const styles = StyleSheet.create({
     fontSize: 14,
     lineHeight: 20,
   },
-});
+})

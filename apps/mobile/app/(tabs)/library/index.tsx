@@ -1,32 +1,31 @@
-import { ErrorState } from '@/components/ui/ErrorState';
-import { ContentCardSkeleton } from '@/components/ui/Skeleton';
-import { useThemeColors } from '@/constants/useTheme';
-import { UnifiedContentCard } from '@/features/content/components/UnifiedContentCard';
-import { HomeHeader } from '@/features/home/components/HomeHeader';
-import { useLibrary } from '@/hooks/library/useLibrary';
-import { ContentCategory, UnifiedContentItem } from '@culyn/shared/schemas';
-import { Feather } from '@expo/vector-icons';
-import { useRouter } from 'expo-router';
-import React, { useCallback, useState } from 'react';
-import { FlatList, StyleSheet, Text, View } from 'react-native';
+import { ErrorState } from '@/components/ui/ErrorState'
+import { ContentCardSkeleton } from '@/components/ui/Skeleton'
+import { useThemeColors } from '@/constants/useTheme'
+import { UnifiedContentCard } from '@/features/content/components/UnifiedContentCard'
+import { HomeHeader } from '@/features/home/components/HomeHeader'
+import { useLibrary } from '@/hooks/library/useLibrary'
+import { ContentCategory, UnifiedContentItem } from '@culyn/shared/schemas'
+import { Feather } from '@expo/vector-icons'
+import { useRouter } from 'expo-router'
+import React, { useCallback, useState } from 'react'
+import { FlatList, StyleSheet, Text, View } from 'react-native'
 
 export default function LibraryScreen() {
-  const colors = useThemeColors();
-  const router = useRouter();
-  const [selectedCategory, setSelectedCategory] =
-    useState<ContentCategory>('RECIPE');
+  const colors = useThemeColors()
+  const router = useRouter()
+  const [selectedCategory, setSelectedCategory] = useState<ContentCategory>('RECIPE')
 
-  const { items, isLoading, error, refetch } = useLibrary(selectedCategory);
+  const { items, isLoading, error, refetch } = useLibrary(selectedCategory)
 
   const handleCardPress = (category: ContentCategory, slug: string) => {
     if (category === 'RECIPE') {
-      router.push({ pathname: '/recipes/[slug]', params: { slug } });
+      router.push({ pathname: '/recipes/[slug]', params: { slug } })
     } else if (category === 'PLACE') {
-      router.push({ pathname: '/places/[slug]', params: { slug } });
+      router.push({ pathname: '/places/[slug]', params: { slug } })
     } else if (category === 'PRODUCT') {
-      router.push({ pathname: '/products/[slug]', params: { slug } });
+      router.push({ pathname: '/products/[slug]', params: { slug } })
     }
-  };
+  }
 
   const renderItem = useCallback(
     ({ item }: { item: UnifiedContentItem }) => (
@@ -44,8 +43,8 @@ export default function LibraryScreen() {
         />
       </View>
     ),
-    [],
-  );
+    []
+  )
 
   const ListEmptyComponent = useCallback(() => {
     if (isLoading) {
@@ -57,38 +56,31 @@ export default function LibraryScreen() {
             </View>
           ))}
         </View>
-      );
+      )
     }
 
     if (error) {
       return (
         <ErrorState
-          message='Could not load your library. Check your connection and try again.'
+          message="Could not load your library. Check your connection and try again."
           onRetry={refetch}
         />
-      );
+      )
     }
 
     return (
       <View style={styles.emptyContainer}>
-        <Feather name='bookmark' size={44} color={colors.textMuted} />
-        <Text style={[styles.emptyTitle, { color: colors.textPrimary }]}>
-          No saved items yet
-        </Text>
+        <Feather name="bookmark" size={44} color={colors.textMuted} />
+        <Text style={[styles.emptyTitle, { color: colors.textPrimary }]}>No saved items yet</Text>
         <Text style={[styles.emptyText, { color: colors.textMuted }]}>
           Save recipes, places, or products to see them here.
         </Text>
       </View>
-    );
-  }, [isLoading, error, colors, refetch]);
+    )
+  }, [isLoading, error, colors, refetch])
 
   return (
-    <View
-      style={[
-        styles.container,
-        { backgroundColor: colors.backgroundSecondary },
-      ]}
-    >
+    <View style={[styles.container, { backgroundColor: colors.backgroundSecondary }]}>
       <HomeHeader
         selectedCategory={selectedCategory}
         onCategoryChange={setSelectedCategory}
@@ -99,14 +91,14 @@ export default function LibraryScreen() {
         data={items ?? []}
         numColumns={2}
         renderItem={renderItem}
-        keyExtractor={(item) => `${item.category}-${item.id}`}
+        keyExtractor={item => `${item.category}-${item.id}`}
         ListEmptyComponent={ListEmptyComponent}
         contentContainerStyle={styles.listContent}
         columnWrapperStyle={styles.columnWrapper}
         showsVerticalScrollIndicator={false}
       />
     </View>
-  );
+  )
 }
 
 const styles = StyleSheet.create({
@@ -146,4 +138,4 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     lineHeight: 20,
   },
-});
+})

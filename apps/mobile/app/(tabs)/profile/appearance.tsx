@@ -1,32 +1,30 @@
-import { ThemeSelector } from '@/components/settings/ThemeSelector';
-import { useThemeColors } from '@/constants/useTheme';
-import { useTheme } from '@/contexts/ThemeContext';
-import React from 'react';
-import { Alert, ScrollView, StyleSheet, Text, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { ThemeSelector } from '@/components/settings/ThemeSelector'
+import { useThemeColors } from '@/constants/useTheme'
+import { useTheme } from '@/contexts/ThemeContext'
+import React from 'react'
+import { Alert, ScrollView, StyleSheet, Text, View } from 'react-native'
+import { SafeAreaView } from 'react-native-safe-area-context'
 
 export default function AppearanceScreen() {
-  const colors = useThemeColors();
-  const { themeMode, setThemeMode, effectiveTheme } = useTheme();
+  const colors = useThemeColors()
+  const { themeMode, setThemeMode, effectiveTheme } = useTheme()
 
   const handleThemeChange = async (mode: 'light' | 'dark' | 'system') => {
     try {
-      await setThemeMode(mode);
+      await setThemeMode(mode)
     } catch (error) {
-      Alert.alert('Error', 'Failed to update theme preference');
+      Alert.alert('Error', 'Failed to update theme preference')
     }
-  };
+  }
 
   return (
     <SafeAreaView
       style={[styles.container, { backgroundColor: colors.backgroundSecondary }]}
-      edges={['bottom']}
-    >
+      edges={['bottom']}>
       <ScrollView
         style={styles.scrollView}
         contentContainerStyle={styles.scrollContent}
-        showsVerticalScrollIndicator={false}
-      >
+        showsVerticalScrollIndicator={false}>
         <View style={styles.section}>
           <Text
             style={[
@@ -35,8 +33,7 @@ export default function AppearanceScreen() {
                 color: colors.textPrimary,
                 fontFamily: 'EBGaramond_600SemiBold',
               },
-            ]}
-          >
+            ]}>
             Theme
           </Text>
           <Text
@@ -46,10 +43,8 @@ export default function AppearanceScreen() {
                 color: colors.textSecondary,
                 fontFamily: 'Poppins_400Regular',
               },
-            ]}
-          >
-            Choose how Culyn looks on your device. System mode will match your
-            device settings.
+            ]}>
+            Choose how Culyn looks on your device. System mode will match your device settings.
           </Text>
         </View>
 
@@ -57,12 +52,7 @@ export default function AppearanceScreen() {
           <ThemeSelector value={themeMode} onChange={handleThemeChange} />
         </View>
 
-        <View
-          style={[
-            styles.currentThemeInfo,
-            { backgroundColor: colors.background },
-          ]}
-        >
+        <View style={[styles.currentThemeInfo, { backgroundColor: colors.background }]}>
           <Text
             style={[
               styles.currentThemeLabel,
@@ -70,8 +60,7 @@ export default function AppearanceScreen() {
                 color: colors.textSecondary,
                 fontFamily: 'Poppins_400Regular',
               },
-            ]}
-          >
+            ]}>
             Currently using:
           </Text>
           <Text
@@ -81,8 +70,7 @@ export default function AppearanceScreen() {
                 color: colors.textPrimary,
                 fontFamily: 'Poppins_500Medium',
               },
-            ]}
-          >
+            ]}>
             {effectiveTheme === 'dark' ? 'Dark Mode' : 'Light Mode'}
           </Text>
         </View>
@@ -95,8 +83,7 @@ export default function AppearanceScreen() {
                 color: colors.textPrimary,
                 fontFamily: 'EBGaramond_600SemiBold',
               },
-            ]}
-          >
+            ]}>
             Preview
           </Text>
           <View
@@ -106,8 +93,7 @@ export default function AppearanceScreen() {
                 backgroundColor: colors.background,
                 borderColor: colors.border,
               },
-            ]}
-          >
+            ]}>
             <Text
               style={[
                 styles.previewTitle,
@@ -115,8 +101,7 @@ export default function AppearanceScreen() {
                   color: colors.textPrimary,
                   fontFamily: 'EBGaramond_600SemiBold',
                 },
-              ]}
-            >
+              ]}>
               Recipe Card
             </Text>
             <Text
@@ -126,17 +111,11 @@ export default function AppearanceScreen() {
                   color: colors.textSecondary,
                   fontFamily: 'Poppins_400Regular',
                 },
-              ]}
-            >
+              ]}>
               This is how your recipe cards will look with the current theme.
             </Text>
             <View style={styles.previewChips}>
-              <View
-                style={[
-                  styles.previewChip,
-                  { backgroundColor: colors.primarySoft },
-                ]}
-              >
+              <View style={[styles.previewChip, { backgroundColor: colors.primarySoft }]}>
                 <Text
                   style={[
                     styles.previewChipText,
@@ -144,17 +123,11 @@ export default function AppearanceScreen() {
                       color: colors.primary,
                       fontFamily: 'Poppins_400Regular',
                     },
-                  ]}
-                >
+                  ]}>
                   Vegetarian
                 </Text>
               </View>
-              <View
-                style={[
-                  styles.previewChip,
-                  { backgroundColor: colors.foodSoft },
-                ]}
-              >
+              <View style={[styles.previewChip, { backgroundColor: colors.foodSoft }]}>
                 <Text
                   style={[
                     styles.previewChipText,
@@ -162,8 +135,7 @@ export default function AppearanceScreen() {
                       color: colors.food,
                       fontFamily: 'Poppins_400Regular',
                     },
-                  ]}
-                >
+                  ]}>
                   Quick
                 </Text>
               </View>
@@ -172,7 +144,7 @@ export default function AppearanceScreen() {
         </View>
       </ScrollView>
     </SafeAreaView>
-  );
+  )
 }
 
 const styles = StyleSheet.create({
@@ -250,4 +222,4 @@ const styles = StyleSheet.create({
     fontSize: 12,
     lineHeight: 18,
   },
-});
+})

@@ -1,62 +1,47 @@
-import { useThemeColors } from '@/constants/useTheme';
-import * as Haptics from 'expo-haptics';
-import React from 'react';
-import { Pressable, StyleSheet, Text } from 'react-native';
-import Animated from 'react-native-reanimated';
+import { useThemeColors } from '@/constants/useTheme'
+import * as Haptics from 'expo-haptics'
+import React from 'react'
+import { Pressable, StyleSheet, Text } from 'react-native'
+import Animated from 'react-native-reanimated'
 
 interface SearchBottomBarProps {
-  onClearAll: () => void;
-  onSearch: () => void;
-  animatedStyle: any;
+  onClearAll: () => void
+  onSearch: () => void
+  animatedStyle: any
 }
 
-export function SearchBottomBar({
-  onClearAll,
-  onSearch,
-  animatedStyle,
-}: SearchBottomBarProps) {
-  const colors = useThemeColors();
+export function SearchBottomBar({ onClearAll, onSearch, animatedStyle }: SearchBottomBarProps) {
+  const colors = useThemeColors()
 
   return (
     <Animated.View
       style={[
         styles.container,
         {
-          backgroundColor:
-            colors.searchCardBackground ?? colors.cardBackgroundElevated,
+          backgroundColor: colors.searchCardBackground ?? colors.cardBackgroundElevated,
           borderTopColor: colors.border,
         },
         animatedStyle,
-      ]}
-    >
+      ]}>
       <Pressable
         onPress={() => {
-          Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-          onClearAll();
+          Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
+          onClearAll()
         }}
-        style={styles.clearButton}
-      >
-        <Text style={[styles.clearText, { color: colors.textSecondary }]}>
-          Clear all
-        </Text>
+        style={styles.clearButton}>
+        <Text style={[styles.clearText, { color: colors.textSecondary }]}>Clear all</Text>
       </Pressable>
 
       <Pressable
         onPress={() => {
-          Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-          onSearch();
+          Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium)
+          onSearch()
         }}
-        style={[
-          styles.searchButton,
-          { backgroundColor: colors.chipBackgroundActive },
-        ]}
-      >
-        <Text style={[styles.searchText, { color: colors.chipTextActive }]}>
-          Search
-        </Text>
+        style={[styles.searchButton, { backgroundColor: colors.chipBackgroundActive }]}>
+        <Text style={[styles.searchText, { color: colors.chipTextActive }]}>Search</Text>
       </Pressable>
     </Animated.View>
-  );
+  )
 }
 
 const styles = StyleSheet.create({
@@ -86,4 +71,4 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontFamily: 'Syne_600SemiBold',
   },
-});
+})

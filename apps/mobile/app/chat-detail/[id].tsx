@@ -1,14 +1,14 @@
-import { BackIcon } from '@/components/icons';
-import { useThemeColors } from '@/constants/useTheme';
-import { useChatConversation } from '@/hooks/chat/useChatConversation';
-import { useSendMessage } from '@/hooks/chat/useSendMessage';
-import { apiClient } from '@/lib/api';
-import { ChatMessage } from '@culyn/shared/schemas';
-import { Feather } from '@expo/vector-icons';
-import { GlassView } from 'expo-glass-effect';
-import { LinearGradient } from 'expo-linear-gradient';
-import { useLocalSearchParams, useRouter } from 'expo-router';
-import React, { useEffect, useRef, useState } from 'react';
+import { BackIcon } from '@/components/icons'
+import { useThemeColors } from '@/constants/useTheme'
+import { useChatConversation } from '@/hooks/chat/useChatConversation'
+import { useSendMessage } from '@/hooks/chat/useSendMessage'
+import { apiClient } from '@/lib/api'
+import { ChatMessage } from '@culyn/shared/schemas'
+import { Feather } from '@expo/vector-icons'
+import { GlassView } from 'expo-glass-effect'
+import { LinearGradient } from 'expo-linear-gradient'
+import { useLocalSearchParams, useRouter } from 'expo-router'
+import React, { useEffect, useRef, useState } from 'react'
 import {
   KeyboardAvoidingView,
   Platform,
@@ -18,34 +18,28 @@ import {
   Text,
   TextInput,
   View,
-} from 'react-native';
-import {
-  SafeAreaView,
-  useSafeAreaInsets,
-} from 'react-native-safe-area-context';
+} from 'react-native'
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 
 export default function ChatDetailScreen() {
-  const colors = useThemeColors();
-  const router = useRouter();
-  const insets = useSafeAreaInsets();
+  const colors = useThemeColors()
+  const router = useRouter()
+  const insets = useSafeAreaInsets()
   const params = useLocalSearchParams<{
-    id: string;
-    contextType?: string;
-    recipeId?: string;
-    placeId?: string;
-    productId?: string;
-  }>();
+    id: string
+    contextType?: string
+    recipeId?: string
+    placeId?: string
+    productId?: string
+  }>()
 
-  const [conversationId, setConversationId] = useState(
-    params.id !== 'new' ? params.id : ''
-  );
-  const [inputText, setInputText] = useState('');
-  const [localMessages, setLocalMessages] = useState<ChatMessage[]>([]);
-  const scrollViewRef = useRef<ScrollView>(null);
+  const [conversationId, setConversationId] = useState(params.id !== 'new' ? params.id : '')
+  const [inputText, setInputText] = useState('')
+  const [localMessages, setLocalMessages] = useState<ChatMessage[]>([])
+  const scrollViewRef = useRef<ScrollView>(null)
 
-  const { conversation, refetch } = useChatConversation(conversationId);
-  const { sendMessage, isStreaming, streamedContent } =
-    useSendMessage(conversationId);
+  const { conversation, refetch } = useChatConversation(conversationId)
+  const { sendMessage, isStreaming, streamedContent } = useSendMessage(conversationId)
 
   useEffect(() => {
     if (params.id === 'new') {
@@ -56,28 +50,28 @@ export default function ChatDetailScreen() {
             ...(params.recipeId && { recipeId: params.recipeId }),
             ...(params.placeId && { placeId: params.placeId }),
             ...(params.productId && { productId: params.productId }),
-          });
-          setConversationId(response.data.id);
+          })
+          setConversationId(response.data.id)
         } catch {
           // Handle error
         }
-      };
-      createConversation();
+      }
+      createConversation()
     }
-  }, [params.id, params.contextType, params.recipeId, params.placeId, params.productId]);
+  }, [params.id, params.contextType, params.recipeId, params.placeId, params.productId])
 
   useEffect(() => {
     if (conversation?.messages) {
-      setLocalMessages(conversation.messages);
+      setLocalMessages(conversation.messages)
     }
-  }, [conversation?.messages]);
+  }, [conversation?.messages])
 
   useEffect(() => {
-    scrollViewRef.current?.scrollToEnd({ animated: true });
-  }, [localMessages, streamedContent]);
+    scrollViewRef.current?.scrollToEnd({ animated: true })
+  }, [localMessages, streamedContent])
 
   const handleSend = async () => {
-    if (!inputText.trim() || !conversationId || isStreaming) return;
+    if (!inputText.trim() || !conversationId || isStreaming) return
 
     const userMessage: ChatMessage = {
       id: `temp-${Date.now()}`,
@@ -87,42 +81,33 @@ export default function ChatDetailScreen() {
       model: null,
       tokens: null,
       createdAt: new Date().toISOString(),
-    };
+    }
 
-    setLocalMessages((prev) => [...prev, userMessage]);
-    const messageText = inputText.trim();
-    setInputText('');
+    setLocalMessages(prev => [...prev, userMessage])
+    const messageText = inputText.trim()
+    setInputText('')
 
     try {
-      await sendMessage(messageText);
-      refetch();
+      await sendMessage(messageText)
+      refetch()
     } catch {
       // Handle error
     }
-  };
+  }
 
-  const allMessages = localMessages;
+  const allMessages = localMessages
 
   return (
-    <SafeAreaView
-      style={[styles.safeArea, { backgroundColor: colors.background }]}
-    >
+    <SafeAreaView style={[styles.safeArea, { backgroundColor: colors.background }]}>
       <View style={styles.header}>
         <Pressable onPress={() => router.back()} hitSlop={8}>
           <GlassView
             isInteractive={true}
-            style={[
-              styles.glassButton,
-              { backgroundColor: colors.backgroundSecondary },
-            ]}
-          >
+            style={[styles.glassButton, { backgroundColor: colors.backgroundSecondary }]}>
             <BackIcon width={20} height={20} />
           </GlassView>
         </Pressable>
-        <Text
-          style={[styles.headerTitle, { color: colors.textPrimary }]}
-          numberOfLines={1}
-        >
+        <Text style={[styles.headerTitle, { color: colors.textPrimary }]} numberOfLines={1}>
           {conversation?.title || 'New Chat'}
         </Text>
         <View style={{ width: 36 }} />
@@ -131,29 +116,23 @@ export default function ChatDetailScreen() {
       <KeyboardAvoidingView
         style={styles.flex}
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-        keyboardVerticalOffset={insets.top + 60}
-      >
+        keyboardVerticalOffset={insets.top + 60}>
         <ScrollView
           ref={scrollViewRef}
           style={styles.flex}
           contentContainerStyle={styles.messagesContent}
-          showsVerticalScrollIndicator={false}
-        >
+          showsVerticalScrollIndicator={false}>
           {allMessages.length === 0 && !isStreaming && (
             <View style={styles.emptyChat}>
-              <Feather
-                name='message-circle'
-                size={40}
-                color={colors.textMuted}
-              />
+              <Feather name="message-circle" size={40} color={colors.textMuted} />
               <Text style={[styles.emptyChatText, { color: colors.textMuted }]}>
                 Start a conversation...
               </Text>
             </View>
           )}
 
-          {allMessages.map((msg) => {
-            const isUser = msg.role === 'USER';
+          {allMessages.map(msg => {
+            const isUser = msg.role === 'USER'
             return (
               <View
                 key={msg.id}
@@ -161,24 +140,20 @@ export default function ChatDetailScreen() {
                   styles.messageBubble,
                   isUser ? styles.userBubble : styles.assistantBubble,
                   {
-                    backgroundColor: isUser
-                      ? colors.primary
-                      : colors.backgroundSecondary,
+                    backgroundColor: isUser ? colors.primary : colors.backgroundSecondary,
                   },
-                ]}
-              >
+                ]}>
                 <Text
                   style={[
                     styles.messageText,
                     {
                       color: isUser ? '#FFFFFF' : colors.textPrimary,
                     },
-                  ]}
-                >
+                  ]}>
                   {msg.content}
                 </Text>
               </View>
-            );
+            )
           })}
 
           {isStreaming && streamedContent && (
@@ -187,11 +162,8 @@ export default function ChatDetailScreen() {
                 styles.messageBubble,
                 styles.assistantBubble,
                 { backgroundColor: colors.backgroundSecondary },
-              ]}
-            >
-              <Text
-                style={[styles.messageText, { color: colors.textPrimary }]}
-              >
+              ]}>
+              <Text style={[styles.messageText, { color: colors.textPrimary }]}>
                 {streamedContent}
               </Text>
             </View>
@@ -202,8 +174,7 @@ export default function ChatDetailScreen() {
           style={[
             styles.inputBar,
             { backgroundColor: colors.background, borderTopColor: colors.border },
-          ]}
-        >
+          ]}>
           <TextInput
             style={[
               styles.textInput,
@@ -212,22 +183,16 @@ export default function ChatDetailScreen() {
                 color: colors.textPrimary,
               },
             ]}
-            placeholder='Type a message...'
+            placeholder="Type a message..."
             placeholderTextColor={colors.textMuted}
             value={inputText}
             onChangeText={setInputText}
             multiline
             maxLength={2000}
           />
-          <Pressable
-            onPress={handleSend}
-            disabled={isStreaming || !inputText.trim()}
-          >
+          <Pressable onPress={handleSend} disabled={isStreaming || !inputText.trim()}>
             <LinearGradient
-              colors={[
-                colors.primaryGradientStart,
-                colors.primaryGradientEnd,
-              ]}
+              colors={[colors.primaryGradientStart, colors.primaryGradientEnd]}
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 1 }}
               style={[
@@ -235,15 +200,14 @@ export default function ChatDetailScreen() {
                 {
                   opacity: isStreaming || !inputText.trim() ? 0.4 : 1,
                 },
-              ]}
-            >
-              <Feather name='send' size={18} color='#FFFFFF' />
+              ]}>
+              <Feather name="send" size={18} color="#FFFFFF" />
             </LinearGradient>
           </Pressable>
         </View>
       </KeyboardAvoidingView>
     </SafeAreaView>
-  );
+  )
 }
 
 const styles = StyleSheet.create({
@@ -331,4 +295,4 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-});
+})

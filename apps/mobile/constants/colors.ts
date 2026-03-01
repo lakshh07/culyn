@@ -164,7 +164,7 @@ export const Colors = {
     gradientStart: 'rgba(17,24,39,0)',
     gradientEnd: '#111827',
   },
-};
+}
 
-export type ColorScheme = keyof typeof Colors;
-export type ThemeColors = typeof Colors.light;
+export type ColorScheme = keyof typeof Colors
+export type ThemeColors = typeof Colors.light

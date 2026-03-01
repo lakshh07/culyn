@@ -1,29 +1,29 @@
-import { close, openHostApp, type InitialProps, Text, View } from 'expo-share-extension';
-import React, { useEffect, useState } from 'react';
-import { StyleSheet, TouchableOpacity } from 'react-native';
+import { close, openHostApp, type InitialProps, Text, View } from 'expo-share-extension'
+import React, { useEffect, useState } from 'react'
+import { StyleSheet, TouchableOpacity } from 'react-native'
 
 export default function ShareExtension({ url, text }: InitialProps) {
-  const [error, setError] = useState(false);
+  const [error, setError] = useState(false)
 
   useEffect(() => {
     // Try to extract a URL from the shared data
-    const sharedUrl = url || extractUrl(text);
+    const sharedUrl = url || extractUrl(text)
 
     if (!sharedUrl) {
-      setError(true);
-      return;
+      setError(true)
+      return
     }
 
     // Open the host app with the shared URL
-    openHostApp(`share?url=${encodeURIComponent(sharedUrl)}`);
+    openHostApp(`share?url=${encodeURIComponent(sharedUrl)}`)
 
     // Close the extension after a brief delay so the user sees confirmation
     const timeout = setTimeout(() => {
-      close();
-    }, 1000);
+      close()
+    }, 1000)
 
-    return () => clearTimeout(timeout);
-  }, [url, text]);
+    return () => clearTimeout(timeout)
+  }, [url, text])
 
   if (error) {
     return (
@@ -33,7 +33,7 @@ export default function ShareExtension({ url, text }: InitialProps) {
           <Text style={styles.dismissText}>Dismiss</Text>
         </TouchableOpacity>
       </View>
-    );
+    )
   }
 
   return (
@@ -42,13 +42,13 @@ export default function ShareExtension({ url, text }: InitialProps) {
       <Text style={styles.title}>Added to Culyn</Text>
       <Text style={styles.subtitle}>Processing your link...</Text>
     </View>
-  );
+  )
 }
 
 function extractUrl(text: string | undefined): string | undefined {
-  if (!text) return undefined;
-  const urlMatch = text.match(/https?:\/\/[^\s]+/);
-  return urlMatch?.[0];
+  if (!text) return undefined
+  const urlMatch = text.match(/https?:\/\/[^\s]+/)
+  return urlMatch?.[0]
 }
 
 const styles = StyleSheet.create({
@@ -91,4 +91,4 @@ const styles = StyleSheet.create({
     fontWeight: '500',
     color: '#FFFFFF',
   },
-});
+})

@@ -1,52 +1,49 @@
-import { ErrorState } from '@/components/ui/ErrorState';
-import { ChatRowSkeleton } from '@/components/ui/Skeleton';
-import { useThemeColors } from '@/constants/useTheme';
-import { useChatConversations } from '@/hooks/chat/useChatConversations';
-import { apiClient } from '@/lib/api';
-import { Feather } from '@expo/vector-icons';
-import { LinearGradient } from 'expo-linear-gradient';
-import { useRouter } from 'expo-router';
-import React from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { ErrorState } from '@/components/ui/ErrorState'
+import { ChatRowSkeleton } from '@/components/ui/Skeleton'
+import { useThemeColors } from '@/constants/useTheme'
+import { useChatConversations } from '@/hooks/chat/useChatConversations'
+import { apiClient } from '@/lib/api'
+import { Feather } from '@expo/vector-icons'
+import { LinearGradient } from 'expo-linear-gradient'
+import { useRouter } from 'expo-router'
+import React from 'react'
+import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native'
+import { SafeAreaView } from 'react-native-safe-area-context'
 
 const CONTEXT_BADGES: Record<string, { label: string; color: string }> = {
   RECIPE: { label: 'Recipe', color: '#EF4444' },
   PLACE: { label: 'Place', color: '#14B8A6' },
   PRODUCT: { label: 'Product', color: '#22C55E' },
   GENERAL: { label: 'General', color: '#8B5CF6' },
-};
+}
 
 export default function AiChatScreen() {
-  const colors = useThemeColors();
-  const router = useRouter();
-  const { conversations, isLoading, error, refetch } = useChatConversations();
+  const colors = useThemeColors()
+  const router = useRouter()
+  const { conversations, isLoading, error, refetch } = useChatConversations()
 
   const handleNewChat = async () => {
     try {
       const response = await apiClient().post('/chat/conversations', {
         contextType: 'GENERAL',
-      });
-      const conversation = response.data;
+      })
+      const conversation = response.data
       router.push({
         pathname: '/chat-detail/[id]',
         params: { id: conversation.id },
-      });
+      })
     } catch {
       // Handle error
     }
-  };
+  }
 
   return (
     <SafeAreaView
       style={[styles.container, { backgroundColor: colors.background }]}
-      edges={['top', 'left', 'right']}
-    >
+      edges={['top', 'left', 'right']}>
       <View style={styles.header}>
         <View>
-          <Text style={[styles.title, { color: colors.textPrimary }]}>
-            Chat
-          </Text>
+          <Text style={[styles.title, { color: colors.textPrimary }]}>Chat</Text>
           <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
             Ask about recipes, places, or anything.
           </Text>
@@ -56,9 +53,8 @@ export default function AiChatScreen() {
             colors={[colors.primaryGradientStart, colors.primaryGradientEnd]}
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 1 }}
-            style={styles.newChatButton}
-          >
-            <Feather name='plus' size={20} color='#FFFFFF' />
+            style={styles.newChatButton}>
+            <Feather name="plus" size={20} color="#FFFFFF" />
           </LinearGradient>
         </Pressable>
       </View>
@@ -70,75 +66,50 @@ export default function AiChatScreen() {
           ))}
         </View>
       ) : error ? (
-        <ErrorState message='Could not load conversations.' onRetry={refetch} />
+        <ErrorState message="Could not load conversations." onRetry={refetch} />
       ) : conversations && conversations.length > 0 ? (
-        <ScrollView
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={styles.listContent}
-        >
-          {conversations.map((conv) => {
-            const badge =
-              CONTEXT_BADGES[conv.contextType] || CONTEXT_BADGES.GENERAL;
-            const lastMessage = (conv as any).lastMessage;
+        <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.listContent}>
+          {conversations.map(conv => {
+            const badge = CONTEXT_BADGES[conv.contextType] || CONTEXT_BADGES.GENERAL
+            const lastMessage = (conv as any).lastMessage
 
             return (
               <Pressable
                 key={conv.id}
-                style={[
-                  styles.conversationRow,
-                  { borderBottomColor: colors.border },
-                ]}
+                style={[styles.conversationRow, { borderBottomColor: colors.border }]}
                 onPress={() =>
                   router.push({
                     pathname: '/chat-detail/[id]',
                     params: { id: conv.id },
                   })
-                }
-              >
+                }>
                 <View style={styles.conversationInfo}>
                   <View style={styles.conversationTitleRow}>
                     <Text
-                      style={[
-                        styles.conversationTitle,
-                        { color: colors.textPrimary },
-                      ]}
-                      numberOfLines={1}
-                    >
+                      style={[styles.conversationTitle, { color: colors.textPrimary }]}
+                      numberOfLines={1}>
                       {conv.title || 'New Chat'}
                     </Text>
-                    <View
-                      style={[
-                        styles.contextBadge,
-                        { backgroundColor: badge.color },
-                      ]}
-                    >
+                    <View style={[styles.contextBadge, { backgroundColor: badge.color }]}>
                       <Text style={styles.contextBadgeText}>{badge.label}</Text>
                     </View>
                   </View>
                   {lastMessage?.content && (
                     <Text
-                      style={[
-                        styles.conversationPreview,
-                        { color: colors.textMuted },
-                      ]}
-                      numberOfLines={1}
-                    >
+                      style={[styles.conversationPreview, { color: colors.textMuted }]}
+                      numberOfLines={1}>
                       {lastMessage.content}
                     </Text>
                   )}
                 </View>
-                <Feather
-                  name='chevron-right'
-                  size={18}
-                  color={colors.textMuted}
-                />
+                <Feather name="chevron-right" size={18} color={colors.textMuted} />
               </Pressable>
-            );
+            )
           })}
         </ScrollView>
       ) : (
         <View style={styles.emptyContainer}>
-          <Feather name='message-circle' size={48} color={colors.textMuted} />
+          <Feather name="message-circle" size={48} color={colors.textMuted} />
           <Text style={[styles.emptyTitle, { color: colors.textPrimary }]}>
             No conversations yet
           </Text>
@@ -148,7 +119,7 @@ export default function AiChatScreen() {
         </View>
       )}
     </SafeAreaView>
-  );
+  )
 }
 
 const styles = StyleSheet.create({
@@ -240,4 +211,4 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     lineHeight: 20,
   },
-});
+})

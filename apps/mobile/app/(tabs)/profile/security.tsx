@@ -1,33 +1,25 @@
-import { SettingsRow } from '@/components/settings/SettingsRow';
-import { SettingsSection } from '@/components/settings/SettingsSection';
-import { useThemeColors } from '@/constants/useTheme';
-import { apiClient } from '@/lib/api';
-import { authClient } from '@/lib/auth-client';
-import { useRouter } from 'expo-router';
-import { useQuery } from '@tanstack/react-query';
-import React from 'react';
-import {
-  ActivityIndicator,
-  Alert,
-  Linking,
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
-} from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SettingsRow } from '@/components/settings/SettingsRow'
+import { SettingsSection } from '@/components/settings/SettingsSection'
+import { useThemeColors } from '@/constants/useTheme'
+import { apiClient } from '@/lib/api'
+import { authClient } from '@/lib/auth-client'
+import { useRouter } from 'expo-router'
+import { useQuery } from '@tanstack/react-query'
+import React from 'react'
+import { ActivityIndicator, Alert, Linking, ScrollView, StyleSheet, Text, View } from 'react-native'
+import { SafeAreaView } from 'react-native-safe-area-context'
 
 interface Session {
-  id: string;
-  userAgent?: string;
-  ipAddress?: string;
-  createdAt: string;
-  expiresAt: string;
+  id: string
+  userAgent?: string
+  ipAddress?: string
+  createdAt: string
+  expiresAt: string
 }
 
 export default function SecurityScreen() {
-  const colors = useThemeColors();
-  const router = useRouter();
+  const colors = useThemeColors()
+  const router = useRouter()
 
   const {
     data: sessions,
@@ -36,10 +28,10 @@ export default function SecurityScreen() {
   } = useQuery({
     queryKey: ['sessions'],
     queryFn: async () => {
-      const response = await apiClient().get<Session[]>('/user/sessions');
-      return response.data;
+      const response = await apiClient().get<Session[]>('/user/sessions')
+      return response.data
     },
-  });
+  })
 
   const handleSignOutAllDevices = () => {
     Alert.alert(
@@ -55,22 +47,21 @@ export default function SecurityScreen() {
           style: 'destructive',
           onPress: async () => {
             try {
-              await apiClient().delete('/user/sessions');
-              await authClient.signOut();
-              router.replace('/(auth)/onboarding');
+              await apiClient().delete('/user/sessions')
+              await authClient.signOut()
+              router.replace('/(auth)/onboarding')
             } catch (error: any) {
               Alert.alert(
                 'Error',
-                error.response?.data?.message ||
-                  'Failed to sign out from all devices'
-              );
+                error.response?.data?.message || 'Failed to sign out from all devices'
+              )
             }
           },
         },
       ],
       { cancelable: true }
-    );
-  };
+    )
+  }
 
   const handleRevokeSession = (sessionId: string) => {
     Alert.alert(
@@ -86,72 +77,59 @@ export default function SecurityScreen() {
           style: 'destructive',
           onPress: async () => {
             try {
-              await apiClient().delete(`/user/sessions/${sessionId}`);
-              refetch();
-              Alert.alert('Success', 'Session revoked successfully');
+              await apiClient().delete(`/user/sessions/${sessionId}`)
+              refetch()
+              Alert.alert('Success', 'Session revoked successfully')
             } catch (error: any) {
-              Alert.alert(
-                'Error',
-                error.response?.data?.message || 'Failed to revoke session'
-              );
+              Alert.alert('Error', error.response?.data?.message || 'Failed to revoke session')
             }
           },
         },
       ],
       { cancelable: true }
-    );
-  };
+    )
+  }
 
   const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
+    const date = new Date(dateString)
     return date.toLocaleDateString('en-US', {
       month: 'short',
       day: 'numeric',
       year: 'numeric',
       hour: '2-digit',
       minute: '2-digit',
-    });
-  };
+    })
+  }
 
   const getDeviceInfo = (userAgent?: string) => {
-    if (!userAgent) return 'Unknown Device';
-    if (userAgent.includes('iPhone')) return 'iPhone';
-    if (userAgent.includes('iPad')) return 'iPad';
-    if (userAgent.includes('Android')) return 'Android Device';
-    if (userAgent.includes('Mac')) return 'Mac';
-    if (userAgent.includes('Windows')) return 'Windows PC';
-    return 'Unknown Device';
-  };
+    if (!userAgent) return 'Unknown Device'
+    if (userAgent.includes('iPhone')) return 'iPhone'
+    if (userAgent.includes('iPad')) return 'iPad'
+    if (userAgent.includes('Android')) return 'Android Device'
+    if (userAgent.includes('Mac')) return 'Mac'
+    if (userAgent.includes('Windows')) return 'Windows PC'
+    return 'Unknown Device'
+  }
 
   if (isLoading) {
     return (
-      <SafeAreaView
-        style={[
-          styles.container,
-          { backgroundColor: colors.backgroundSecondary },
-        ]}
-      >
+      <SafeAreaView style={[styles.container, { backgroundColor: colors.backgroundSecondary }]}>
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size='large' color={colors.primary} />
+          <ActivityIndicator size="large" color={colors.primary} />
         </View>
       </SafeAreaView>
-    );
+    )
   }
 
   return (
     <SafeAreaView
-      style={[
-        styles.container,
-        { backgroundColor: colors.backgroundSecondary },
-      ]}
-      edges={['bottom']}
-    >
+      style={[styles.container, { backgroundColor: colors.backgroundSecondary }]}
+      edges={['bottom']}>
       <ScrollView
         style={styles.scrollView}
         contentContainerStyle={styles.scrollContent}
-        showsVerticalScrollIndicator={false}
-      >
-        <SettingsSection title='Active Sessions'>
+        showsVerticalScrollIndicator={false}>
+        <SettingsSection title="Active Sessions">
           {sessions && sessions.length > 0 ? (
             sessions.map((session, index) => (
               <View key={session.id}>
@@ -175,8 +153,7 @@ export default function SecurityScreen() {
                     color: colors.textSecondary,
                     fontFamily: 'Poppins_400Regular',
                   },
-                ]}
-              >
+                ]}>
                 No active sessions found
               </Text>
             </View>
@@ -186,37 +163,37 @@ export default function SecurityScreen() {
         <SettingsSection>
           <SettingsRow
             icon={<Text style={styles.icon}>🚪</Text>}
-            title='Sign Out All Devices'
-            subtitle='Sign out from all devices including this one'
+            title="Sign Out All Devices"
+            subtitle="Sign out from all devices including this one"
             destructive
             chevron
             onPress={handleSignOutAllDevices}
           />
         </SettingsSection>
 
-        <SettingsSection title='Privacy & Security'>
+        <SettingsSection title="Privacy & Security">
           <SettingsRow
             icon={<Text style={styles.icon}>🔐</Text>}
-            title='Two-Factor Authentication'
-            subtitle='Coming soon'
-            value='Not enabled'
+            title="Two-Factor Authentication"
+            subtitle="Coming soon"
+            value="Not enabled"
           />
           <SettingsRow
             icon={<Text style={styles.icon}>📋</Text>}
-            title='Privacy Policy'
-            subtitle='Read our privacy policy'
+            title="Privacy Policy"
+            subtitle="Read our privacy policy"
             chevron
             onPress={() => {
-              Linking.openURL('https://culyn.app/privacy');
+              Linking.openURL('https://culyn.app/privacy')
             }}
           />
           <SettingsRow
             icon={<Text style={styles.icon}>📄</Text>}
-            title='Terms of Service'
-            subtitle='Read our terms of service'
+            title="Terms of Service"
+            subtitle="Read our terms of service"
             chevron
             onPress={() => {
-              Linking.openURL('https://culyn.app/terms');
+              Linking.openURL('https://culyn.app/terms')
             }}
           />
         </SettingsSection>
@@ -229,15 +206,14 @@ export default function SecurityScreen() {
                 color: colors.textMuted,
                 fontFamily: 'Poppins_400Regular',
               },
-            ]}
-          >
-            Your data is encrypted and secure. We never share your personal
-            information with third parties.
+            ]}>
+            Your data is encrypted and secure. We never share your personal information with third
+            parties.
           </Text>
         </View>
       </ScrollView>
     </SafeAreaView>
-  );
+  )
 }
 
 const styles = StyleSheet.create({
@@ -277,4 +253,4 @@ const styles = StyleSheet.create({
     lineHeight: 20,
     textAlign: 'center',
   },
-});
+})

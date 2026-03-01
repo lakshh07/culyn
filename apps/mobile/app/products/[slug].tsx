@@ -1,21 +1,13 @@
-import { BackIcon, HeartFillIcon, HeartIcon } from '@/components/icons';
-import { useThemeColors } from '@/constants/useTheme';
-import { useProductBySlug } from '@/hooks/products/useProductBySlug';
-import { useProductFavorite } from '@/hooks/products/useProductFavorite';
-import { Feather } from '@expo/vector-icons';
-import { GlassView } from 'expo-glass-effect';
-import { LinearGradient } from 'expo-linear-gradient';
-import { useLocalSearchParams, useRouter } from 'expo-router';
-import React from 'react';
-import {
-  Image,
-  Linking,
-  Pressable,
-  Share,
-  StyleSheet,
-  Text,
-  View,
-} from 'react-native';
+import { BackIcon, HeartFillIcon, HeartIcon } from '@/components/icons'
+import { useThemeColors } from '@/constants/useTheme'
+import { useProductBySlug } from '@/hooks/products/useProductBySlug'
+import { useProductFavorite } from '@/hooks/products/useProductFavorite'
+import { Feather } from '@expo/vector-icons'
+import { GlassView } from 'expo-glass-effect'
+import { LinearGradient } from 'expo-linear-gradient'
+import { useLocalSearchParams, useRouter } from 'expo-router'
+import React from 'react'
+import { Image, Linking, Pressable, Share, StyleSheet, Text, View } from 'react-native'
 import Animated, {
   FadeInLeft,
   FadeInUp,
@@ -23,174 +15,150 @@ import Animated, {
   useAnimatedScrollHandler,
   useAnimatedStyle,
   useSharedValue,
-} from 'react-native-reanimated';
-import {
-  SafeAreaView,
-  useSafeAreaInsets,
-} from 'react-native-safe-area-context';
+} from 'react-native-reanimated'
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 
-const HERO_HEIGHT = 400;
+const HERO_HEIGHT = 400
 
 const getSourceIcon = (sourceType?: string): string => {
-  if (!sourceType) return 'link';
-  if (sourceType.startsWith('INSTAGRAM')) return 'instagram';
-  if (sourceType === 'TIKTOK') return 'video';
-  if (sourceType.startsWith('YOUTUBE')) return 'youtube';
-  return 'link';
-};
+  if (!sourceType) return 'link'
+  if (sourceType.startsWith('INSTAGRAM')) return 'instagram'
+  if (sourceType === 'TIKTOK') return 'video'
+  if (sourceType.startsWith('YOUTUBE')) return 'youtube'
+  return 'link'
+}
 
 export default function ProductDetailScreen() {
-  const colors = useThemeColors();
-  const router = useRouter();
-  const insets = useSafeAreaInsets();
-  const { slug } = useLocalSearchParams<{ slug: string }>();
-  const { product } = useProductBySlug(slug);
-  const { addFavorite, removeFavorite } = useProductFavorite(slug);
-  const scrollY = useSharedValue(0);
+  const colors = useThemeColors()
+  const router = useRouter()
+  const insets = useSafeAreaInsets()
+  const { slug } = useLocalSearchParams<{ slug: string }>()
+  const { product } = useProductBySlug(slug)
+  const { addFavorite, removeFavorite } = useProductFavorite(slug)
+  const scrollY = useSharedValue(0)
 
   const scrollHandler = useAnimatedScrollHandler({
-    onScroll: (event) => {
-      scrollY.value = event.contentOffset.y;
+    onScroll: event => {
+      scrollY.value = event.contentOffset.y
     },
-  });
+  })
 
   const heroAnimatedStyle = useAnimatedStyle(() => {
     const translateY = interpolate(
       scrollY.value,
       [-200, 0, HERO_HEIGHT],
-      [-100, 0, HERO_HEIGHT * 0.5],
-    );
-    const scale = interpolate(scrollY.value, [-200, 0], [2, 1], 'clamp');
+      [-100, 0, HERO_HEIGHT * 0.5]
+    )
+    const scale = interpolate(scrollY.value, [-200, 0], [2, 1], 'clamp')
     return {
       transform: [{ translateY }, { scale }],
-    };
-  });
+    }
+  })
 
-  if (!product) return null;
+  if (!product) return null
 
-  const isFavorited =
-    product.ProductFavorite && product.ProductFavorite.length > 0;
-  const favoriteId = isFavorited ? product.ProductFavorite[0].id : null;
+  const isFavorited = product.ProductFavorite && product.ProductFavorite.length > 0
+  const favoriteId = isFavorited ? product.ProductFavorite[0].id : null
 
   const handleToggleFavorite = () => {
     if (isFavorited && favoriteId) {
-      removeFavorite.mutate(favoriteId);
+      removeFavorite.mutate(favoriteId)
     } else {
-      addFavorite.mutate();
+      addFavorite.mutate()
     }
-  };
+  }
 
   const handleBuy = () => {
-    const url = product.affiliateUrl || product.purchaseUrl;
-    if (url) Linking.openURL(url);
-  };
+    const url = product.affiliateUrl || product.purchaseUrl
+    if (url) Linking.openURL(url)
+  }
 
   const handleAskAI = () => {
     router.push({
       pathname: '/chat-detail/[id]',
       params: { id: 'new', contextType: 'PRODUCT', productId: product.id },
-    });
-  };
+    })
+  }
 
   const handleShare = async () => {
     try {
       await Share.share({
         message: `Check out ${product.name}${product.brand ? ` by ${product.brand}` : ''}`,
-      });
+      })
     } catch {}
-  };
+  }
 
   const handleOpenLink = () => {
-    if (product.sourceUrl) Linking.openURL(product.sourceUrl);
-  };
+    if (product.sourceUrl) Linking.openURL(product.sourceUrl)
+  }
 
-  const features = Array.isArray(product.features) ? product.features : [];
-  const categoryLabel = product.category.replace(/_/g, ' ').toLowerCase();
-  const tags = product.tags || [];
+  const features = Array.isArray(product.features) ? product.features : []
+  const categoryLabel = product.category.replace(/_/g, ' ').toLowerCase()
+  const tags = product.tags || []
 
   // Parse specifications into key-value pairs
   const specEntries = (() => {
-    if (!product.specifications) return [];
+    if (!product.specifications) return []
     try {
       const specs =
         typeof product.specifications === 'string'
           ? JSON.parse(product.specifications)
-          : product.specifications;
+          : product.specifications
       if (typeof specs === 'object' && !Array.isArray(specs)) {
         return Object.entries(specs).map(([key, value]) => ({
           label: key.replace(/_/g, ' '),
           value: String(value),
-        }));
+        }))
       }
     } catch {}
-    return [];
-  })();
+    return []
+  })()
 
   // Chunk specs into rows of 2
-  const specRows: { label: string; value: string }[][] = [];
+  const specRows: { label: string; value: string }[][] = []
   for (let i = 0; i < specEntries.length; i += 2) {
-    specRows.push(specEntries.slice(i, i + 2));
+    specRows.push(specEntries.slice(i, i + 2))
   }
 
   return (
     <SafeAreaView
       style={[styles.container, { backgroundColor: colors.background }]}
-      edges={['left', 'right']}
-    >
+      edges={['left', 'right']}>
       <Animated.ScrollView
         onScroll={scrollHandler}
         scrollEventThrottle={16}
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
-        bounces={false}
-      >
+        bounces={false}>
         {/* Hero Image */}
         <View style={styles.heroContainer}>
           <Animated.View style={[styles.heroImageWrapper, heroAnimatedStyle]}>
             {product.imageUrl ? (
-              <Image
-                source={{ uri: product.imageUrl }}
-                style={styles.heroImage}
-              />
+              <Image source={{ uri: product.imageUrl }} style={styles.heroImage} />
             ) : (
               <View
-                style={[
-                  styles.heroPlaceholder,
-                  { backgroundColor: colors.backgroundSecondary },
-                ]}
-              >
-                <Feather
-                  name='shopping-bag'
-                  size={64}
-                  color={colors.textMuted}
-                />
+                style={[styles.heroPlaceholder, { backgroundColor: colors.backgroundSecondary }]}>
+                <Feather name="shopping-bag" size={64} color={colors.textMuted} />
               </View>
             )}
           </Animated.View>
           <LinearGradient
             colors={['transparent', 'rgba(255,255,255,1)']}
             style={styles.heroGradient}
-            pointerEvents='none'
+            pointerEvents="none"
           />
         </View>
         <View style={styles.contentContainer}>
           {/* Header Info */}
-          <Animated.View
-            entering={FadeInUp.delay(100).duration(500)}
-            style={styles.infoContainer}
-          >
-            <Text style={[styles.title, { color: colors.textPrimary }]}>
-              {product.name}
-            </Text>
+          <Animated.View entering={FadeInUp.delay(100).duration(500)} style={styles.infoContainer}>
+            <Text style={[styles.title, { color: colors.textPrimary }]}>{product.name}</Text>
 
             <View style={styles.metaRow}>
               <View style={[styles.categoryBadge]}>
                 <Text style={styles.categoryBadgeText}>{categoryLabel}</Text>
               </View>
               {product.brand && product.brand !== 'Unspecified' && (
-                <Text
-                  style={[styles.metaText, { color: colors.textSecondary }]}
-                >
+                <Text style={[styles.metaText, { color: colors.textSecondary }]}>
                   {product.brand}
                 </Text>
               )}
@@ -202,9 +170,7 @@ export default function ProductDetailScreen() {
             </View>
 
             {product.description && (
-              <Text
-                style={[styles.description, { color: colors.textSecondary }]}
-              >
+              <Text style={[styles.description, { color: colors.textSecondary }]}>
                 {product.description}
               </Text>
             )}
@@ -212,34 +178,20 @@ export default function ProductDetailScreen() {
 
           {/* Source Info */}
           {product.sourceName && (
-            <Animated.View
-              entering={FadeInUp.delay(200).duration(500)}
-              style={styles.metaRow}
-            >
+            <Animated.View entering={FadeInUp.delay(200).duration(500)} style={styles.metaRow}>
               <Feather
                 name={getSourceIcon(product.sourceType) as any}
                 size={14}
                 color={colors.textMuted}
               />
-              <Text
-                style={[styles.sourceText, { color: colors.textSecondary }]}
-              >
+              <Text style={[styles.sourceText, { color: colors.textSecondary }]}>
                 By {product.sourceName}
               </Text>
               {product.sourceUrl && (
                 <>
-                  <Text
-                    style={[
-                      styles.metaSeparator,
-                      { color: colors.textSecondary },
-                    ]}
-                  >
-                    ·
-                  </Text>
+                  <Text style={[styles.metaSeparator, { color: colors.textSecondary }]}>·</Text>
                   <Pressable onPress={handleOpenLink} hitSlop={8}>
-                    <Text
-                      style={[styles.link, { color: colors.textSecondary }]}
-                    >
+                    <Text style={[styles.link, { color: colors.textSecondary }]}>
                       Original Link
                     </Text>
                   </Pressable>
@@ -250,21 +202,16 @@ export default function ProductDetailScreen() {
 
           {/* Specifications Grid */}
           {specRows.length > 0 && (
-            <Animated.View
-              entering={FadeInUp.delay(300).duration(500)}
-              style={styles.section}
-            >
-              <Text
-                style={[styles.sectionTitle, { color: colors.textPrimary }]}
-              >
+            <Animated.View entering={FadeInUp.delay(300).duration(500)} style={styles.section}>
+              <Text style={[styles.sectionTitle, { color: colors.textPrimary }]}>
                 Specifications
               </Text>
               <View style={[styles.specGrid, { borderColor: colors.border }]}>
                 {specRows.map((row, rowIndex) => (
                   <View key={`row-${rowIndex}`} style={styles.specRow}>
                     {row.map((item, itemIndex) => {
-                      const isLastInRow = itemIndex === row.length - 1;
-                      const isLastRow = rowIndex === specRows.length - 1;
+                      const isLastInRow = itemIndex === row.length - 1
+                      const isLastRow = rowIndex === specRows.length - 1
                       return (
                         <View
                           key={item.label}
@@ -276,26 +223,15 @@ export default function ProductDetailScreen() {
                               borderColor: colors.border,
                               backgroundColor: colors.background,
                             },
-                          ]}
-                        >
-                          <Text
-                            style={[
-                              styles.specLabel,
-                              { color: colors.textMuted },
-                            ]}
-                          >
+                          ]}>
+                          <Text style={[styles.specLabel, { color: colors.textMuted }]}>
                             {item.label}
                           </Text>
-                          <Text
-                            style={[
-                              styles.specValue,
-                              { color: colors.textPrimary },
-                            ]}
-                          >
+                          <Text style={[styles.specValue, { color: colors.textPrimary }]}>
                             {item.value}
                           </Text>
                         </View>
-                      );
+                      )
                     })}
                     {row.length === 1 && (
                       <View
@@ -318,31 +254,15 @@ export default function ProductDetailScreen() {
 
           {/* Features Checklist */}
           {features.length > 0 && (
-            <Animated.View
-              entering={FadeInUp.delay(400).duration(500)}
-              style={styles.section}
-            >
-              <Text
-                style={[styles.sectionTitle, { color: colors.textPrimary }]}
-              >
-                Features
-              </Text>
+            <Animated.View entering={FadeInUp.delay(400).duration(500)} style={styles.section}>
+              <Text style={[styles.sectionTitle, { color: colors.textPrimary }]}>Features</Text>
               {features.map((feature: string, index: number) => (
                 <Animated.View
                   key={index}
                   entering={FadeInLeft.delay(450 + index * 60)}
-                  style={styles.featureRow}
-                >
-                  <Feather
-                    name='check-circle'
-                    size={16}
-                    color={colors.categoryProduct}
-                  />
-                  <Text
-                    style={[styles.featureText, { color: colors.textPrimary }]}
-                  >
-                    {feature}
-                  </Text>
+                  style={styles.featureRow}>
+                  <Feather name="check-circle" size={16} color={colors.categoryProduct} />
+                  <Text style={[styles.featureText, { color: colors.textPrimary }]}>{feature}</Text>
                 </Animated.View>
               ))}
             </Animated.View>
@@ -350,18 +270,9 @@ export default function ProductDetailScreen() {
 
           {/* Notes */}
           {product.notes && (
-            <Animated.View
-              entering={FadeInUp.delay(500).duration(500)}
-              style={styles.section}
-            >
-              <Text
-                style={[styles.sectionTitle, { color: colors.textPrimary }]}
-              >
-                Notes
-              </Text>
-              <Text
-                style={[styles.description, { color: colors.textSecondary }]}
-              >
+            <Animated.View entering={FadeInUp.delay(500).duration(500)} style={styles.section}>
+              <Text style={[styles.sectionTitle, { color: colors.textPrimary }]}>Notes</Text>
+              <Text style={[styles.description, { color: colors.textSecondary }]}>
                 {product.notes}
               </Text>
             </Animated.View>
@@ -369,30 +280,14 @@ export default function ProductDetailScreen() {
 
           {/* Tags */}
           {tags.length > 0 && (
-            <Animated.View
-              entering={FadeInUp.delay(550).duration(500)}
-              style={styles.section}
-            >
-              <Text
-                style={[styles.sectionTitle, { color: colors.textPrimary }]}
-              >
-                Tags
-              </Text>
+            <Animated.View entering={FadeInUp.delay(550).duration(500)} style={styles.section}>
+              <Text style={[styles.sectionTitle, { color: colors.textPrimary }]}>Tags</Text>
               <View style={styles.tagsRow}>
-                {tags.map((t) => (
+                {tags.map(t => (
                   <View
                     key={t.tag.id}
-                    style={[
-                      styles.tagChip,
-                      { backgroundColor: colors.categoryProductSoft },
-                    ]}
-                  >
-                    <Text
-                      style={[
-                        styles.tagText,
-                        { color: colors.categoryProduct },
-                      ]}
-                    >
+                    style={[styles.tagChip, { backgroundColor: colors.categoryProductSoft }]}>
+                    <Text style={[styles.tagText, { color: colors.categoryProduct }]}>
                       {t.tag.name}
                     </Text>
                   </View>
@@ -407,46 +302,30 @@ export default function ProductDetailScreen() {
       <Pressable
         style={[styles.backButton, { top: insets.top }]}
         onPress={() => router.back()}
-        hitSlop={8}
-      >
+        hitSlop={8}>
         <GlassView
           isInteractive={true}
-          style={[styles.glassButton, { backgroundColor: colors.background }]}
-        >
+          style={[styles.glassButton, { backgroundColor: colors.background }]}>
           <BackIcon width={22} height={22} />
         </GlassView>
       </Pressable>
 
       {/* Glass Footer Bar */}
-      <GlassView
-        style={[styles.footer, { backgroundColor: colors.background }]}
-      >
-        <Pressable
-          onPress={handleToggleFavorite}
-          hitSlop={8}
-          style={styles.footerAction}
-        >
+      <GlassView style={[styles.footer, { backgroundColor: colors.background }]}>
+        <Pressable onPress={handleToggleFavorite} hitSlop={8} style={styles.footerAction}>
           {isFavorited ? (
-            <HeartFillIcon width={22} height={22} color='#EF4444' />
+            <HeartFillIcon width={22} height={22} color="#EF4444" />
           ) : (
             <HeartIcon width={22} height={22} />
           )}
         </Pressable>
 
-        <Pressable
-          onPress={handleAskAI}
-          hitSlop={8}
-          style={styles.footerAction}
-        >
-          <Feather name='message-circle' size={20} color={colors.textPrimary} />
+        <Pressable onPress={handleAskAI} hitSlop={8} style={styles.footerAction}>
+          <Feather name="message-circle" size={20} color={colors.textPrimary} />
         </Pressable>
 
-        <Pressable
-          onPress={handleShare}
-          hitSlop={8}
-          style={styles.footerAction}
-        >
-          <Feather name='share' size={20} color={colors.textPrimary} />
+        <Pressable onPress={handleShare} hitSlop={8} style={styles.footerAction}>
+          <Feather name="share" size={20} color={colors.textPrimary} />
         </Pressable>
 
         {(product.purchaseUrl || product.affiliateUrl) && (
@@ -455,9 +334,8 @@ export default function ProductDetailScreen() {
               colors={[colors.primaryGradientStart, colors.primaryGradientEnd]}
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 1 }}
-              style={styles.buyButton}
-            >
-              <Feather name='external-link' size={16} color='#FFFFFF' />
+              style={styles.buyButton}>
+              <Feather name="external-link" size={16} color="#FFFFFF" />
               <Text style={styles.buyButtonText}>Buy</Text>
             </LinearGradient>
           </Pressable>
@@ -469,11 +347,11 @@ export default function ProductDetailScreen() {
         colors={[colors.gradientStart, colors.gradientEnd]}
         start={{ x: 0, y: 0 }}
         end={{ x: 0, y: 1 }}
-        pointerEvents='none'
+        pointerEvents="none"
         style={styles.gradientOverlay}
       />
     </SafeAreaView>
-  );
+  )
 }
 
 const styles = StyleSheet.create({
@@ -697,4 +575,4 @@ const styles = StyleSheet.create({
     height: 100,
     pointerEvents: 'none',
   },
-});
+})

@@ -1,38 +1,38 @@
-import { useThemeColors } from '@/constants/useTheme';
-import { PlaceType } from '@culyn/shared/schemas/places';
-import React from 'react';
-import { StyleSheet, TextInput, View } from 'react-native';
+import { useThemeColors } from '@/constants/useTheme'
+import { PlaceType } from '@culyn/shared/schemas/places'
+import React from 'react'
+import { StyleSheet, TextInput, View } from 'react-native'
 
 import {
   PLACE_TYPE_OPTIONS,
   type PlaceFilterState,
   type PlaceSortBy,
   type SearchFilterAction,
-} from '../types';
-import { FilterCard } from './FilterCard';
-import { FilterChip } from './FilterChip';
-import { SortPicker } from './SortPicker';
+} from '../types'
+import { FilterCard } from './FilterCard'
+import { FilterChip } from './FilterChip'
+import { SortPicker } from './SortPicker'
 
 const PLACE_SORT_OPTIONS: { key: PlaceSortBy; label: string }[] = [
   { key: 'newest', label: 'Newest' },
   { key: 'oldest', label: 'Oldest' },
   { key: 'popular', label: 'Popular' },
   { key: 'random', label: 'Random' },
-];
+]
 
 interface PlaceFiltersProps {
-  filters: PlaceFilterState;
-  dispatch: React.Dispatch<SearchFilterAction>;
+  filters: PlaceFilterState
+  dispatch: React.Dispatch<SearchFilterAction>
 }
 
 export function PlaceFilters({ filters, dispatch }: PlaceFiltersProps) {
-  const colors = useThemeColors();
+  const colors = useThemeColors()
 
   return (
     <>
       <FilterCard title="Type">
         <View style={styles.chipRow}>
-          {PLACE_TYPE_OPTIONS.map((opt) => (
+          {PLACE_TYPE_OPTIONS.map(opt => (
             <FilterChip
               key={opt.key}
               label={opt.label}
@@ -40,10 +40,7 @@ export function PlaceFilters({ filters, dispatch }: PlaceFiltersProps) {
               onPress={() =>
                 dispatch({
                   type: 'SET_PLACE_TYPE',
-                  payload:
-                    filters.type === opt.key
-                      ? null
-                      : (opt.key as PlaceType),
+                  payload: filters.type === opt.key ? null : (opt.key as PlaceType),
                 })
               }
             />
@@ -64,9 +61,7 @@ export function PlaceFilters({ filters, dispatch }: PlaceFiltersProps) {
           placeholder="e.g. New York"
           placeholderTextColor={colors.textMuted}
           value={filters.city}
-          onChangeText={(text) =>
-            dispatch({ type: 'SET_PLACE_CITY', payload: text })
-          }
+          onChangeText={text => dispatch({ type: 'SET_PLACE_CITY', payload: text })}
           returnKeyType="done"
         />
       </FilterCard>
@@ -75,13 +70,11 @@ export function PlaceFilters({ filters, dispatch }: PlaceFiltersProps) {
         <SortPicker
           options={PLACE_SORT_OPTIONS}
           value={filters.sortBy}
-          onChange={(v) =>
-            dispatch({ type: 'SET_PLACE_SORT', payload: v })
-          }
+          onChange={v => dispatch({ type: 'SET_PLACE_SORT', payload: v })}
         />
       </FilterCard>
     </>
-  );
+  )
 }
 
 const styles = StyleSheet.create({
@@ -97,4 +90,4 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontFamily: 'Syne_400Regular',
   },
-});
+})

@@ -1,21 +1,21 @@
-import { useThemeColors } from '@/constants/useTheme';
-import * as Haptics from 'expo-haptics';
-import React from 'react';
-import { Pressable, StyleSheet, Text } from 'react-native';
+import { useThemeColors } from '@/constants/useTheme'
+import * as Haptics from 'expo-haptics'
+import React from 'react'
+import { Pressable, StyleSheet, Text } from 'react-native'
 
 interface FilterChipProps {
-  label: string;
-  isSelected: boolean;
-  onPress: () => void;
+  label: string
+  isSelected: boolean
+  onPress: () => void
 }
 
 export function FilterChip({ label, isSelected, onPress }: FilterChipProps) {
-  const colors = useThemeColors();
+  const colors = useThemeColors()
 
   const handlePress = () => {
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    onPress();
-  };
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
+    onPress()
+  }
 
   return (
     <Pressable
@@ -23,25 +23,21 @@ export function FilterChip({ label, isSelected, onPress }: FilterChipProps) {
       style={[
         styles.chip,
         {
-          backgroundColor: isSelected
-            ? colors.chipBackgroundActive
-            : colors.chipBackground,
+          backgroundColor: isSelected ? colors.chipBackgroundActive : colors.chipBackground,
           borderColor: isSelected ? colors.chipBackgroundActive : colors.border,
         },
-      ]}
-    >
+      ]}>
       <Text
         style={[
           styles.chipText,
           {
             color: isSelected ? colors.chipTextActive : colors.chipText,
           },
-        ]}
-      >
+        ]}>
         {label}
       </Text>
     </Pressable>
-  );
+  )
 }
 
 const styles = StyleSheet.create({
@@ -57,4 +53,4 @@ const styles = StyleSheet.create({
     fontSize: 13,
     fontFamily: 'Syne_500Medium',
   },
-});
+})

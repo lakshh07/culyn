@@ -1,69 +1,65 @@
-import { apiClient } from '@/lib/api';
+import { apiClient } from '@/lib/api'
 import {
   notifyProcessingComplete,
   notifyProcessingFailed,
   notifyProcessingStarted,
   notifyUpgradeRequired,
   requestNotificationPermissions,
-} from '@/lib/notifications';
-import { ImportContentResponse } from '@culyn/shared/schemas';
-import axios from 'axios';
-import { useRouter } from 'expo-router';
-import { useCallback, useEffect, useRef, useState } from 'react';
-import { AppState } from 'react-native';
+} from '@/lib/notifications'
+import { ImportContentResponse } from '@culyn/shared/schemas'
+import axios from 'axios'
+import { useRouter } from 'expo-router'
+import { useCallback, useEffect, useRef, useState } from 'react'
+import { AppState } from 'react-native'
 
-import { useJobPolling } from './useJobPolling';
+import { useJobPolling } from './useJobPolling'
 
 export function useShareImport() {
-  const router = useRouter();
-  const [pendingUrl, setPendingUrl] = useState<string | null>(null);
-  const [jobId, setJobId] = useState<string | undefined>(undefined);
-  const isProcessing = useRef(false);
+  const router = useRouter()
+  const [pendingUrl, setPendingUrl] = useState<string | null>(null)
+  const [jobId, setJobId] = useState<string | undefined>(undefined)
+  const isProcessing = useRef(false)
 
-  const { status, result, error, reset: resetPolling } = useJobPolling(jobId);
+  const { status, result, error, reset: resetPolling } = useJobPolling(jobId)
 
   const handleShareUrl = useCallback(async (url: string) => {
-    if (isProcessing.current) return;
-    isProcessing.current = true;
+    if (isProcessing.current) return
+    isProcessing.current = true
 
     try {
-      await requestNotificationPermissions();
-      await notifyProcessingStarted(url);
+      await requestNotificationPermissions()
+      await notifyProcessingStarted(url)
 
-      const response = await apiClient().post<ImportContentResponse>(
-        '/content/import',
-        { url },
-      );
+      const response = await apiClient().post<ImportContentResponse>('/content/import', { url })
 
-      setJobId(response.data.jobId);
+      setJobId(response.data.jobId)
     } catch (err) {
-      console.error('[ShareImport] Failed to start import:', err);
-      const isLimitError = axios.isAxiosError(err) &&
-        (err as any).response?.status === 403;
+      console.error('[ShareImport] Failed to start import:', err)
+      const isLimitError = axios.isAxiosError(err) && (err as any).response?.status === 403
       if (isLimitError) {
-        await notifyUpgradeRequired();
+        await notifyUpgradeRequired()
       } else {
-        await notifyProcessingFailed();
+        await notifyProcessingFailed()
       }
-      isProcessing.current = false;
+      isProcessing.current = false
     }
-  }, []);
+  }, [])
 
   // Process pending URL
   useEffect(() => {
     if (pendingUrl) {
-      handleShareUrl(pendingUrl);
-      setPendingUrl(null);
+      handleShareUrl(pendingUrl)
+      setPendingUrl(null)
     }
-  }, [pendingUrl, handleShareUrl]);
+  }, [pendingUrl, handleShareUrl])
 
   // Handle job completion
   useEffect(() => {
     if (status === 'COMPLETED' && result) {
-      const category = result.category.toLowerCase();
-      const slug = result.slug;
+      const category = result.category.toLowerCase()
+      const slug = result.slug
 
-      notifyProcessingComplete(category, slug, slug);
+      notifyProcessingComplete(category, slug, slug)
 
       // Navigate if app is in the foreground
       if (AppState.currentState === 'active') {
@@ -71,32 +67,32 @@ export function useShareImport() {
           recipe: `/recipes/${slug}`,
           place: `/places/${slug}`,
           product: `/products/${slug}`,
-        };
-        const route = routes[category];
+        }
+        const route = routes[category]
         if (route) {
-          router.push(route as any);
+          router.push(route as any)
         }
       }
 
       // Reset state
-      setJobId(undefined);
-      resetPolling();
-      isProcessing.current = false;
+      setJobId(undefined)
+      resetPolling()
+      isProcessing.current = false
     }
-  }, [status, result, router, resetPolling]);
+  }, [status, result, router, resetPolling])
 
   // Handle job failure
   useEffect(() => {
-    if (status === 'FAILED' || (status === 'CANCELLED')) {
-      notifyProcessingFailed();
-      setJobId(undefined);
-      resetPolling();
-      isProcessing.current = false;
+    if (status === 'FAILED' || status === 'CANCELLED') {
+      notifyProcessingFailed()
+      setJobId(undefined)
+      resetPolling()
+      isProcessing.current = false
     }
-  }, [status, error, resetPolling]);
+  }, [status, error, resetPolling])
 
   return {
     triggerImport: setPendingUrl,
     isProcessing: isProcessing.current,
-  };
+  }
 }

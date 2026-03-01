@@ -1,77 +1,60 @@
-import { useThemeColors } from '@/constants/useTheme';
-import * as Haptics from 'expo-haptics';
-import React from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { useThemeColors } from '@/constants/useTheme'
+import * as Haptics from 'expo-haptics'
+import React from 'react'
+import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native'
 
 interface SortOption<T extends string> {
-  key: T;
-  label: string;
+  key: T
+  label: string
 }
 
 interface SortPickerProps<T extends string> {
-  options: SortOption<T>[];
-  value: T;
-  onChange: (value: T) => void;
+  options: SortOption<T>[]
+  value: T
+  onChange: (value: T) => void
 }
 
-export function SortPicker<T extends string>({
-  options,
-  value,
-  onChange,
-}: SortPickerProps<T>) {
-  const colors = useThemeColors();
+export function SortPicker<T extends string>({ options, value, onChange }: SortPickerProps<T>) {
+  const colors = useThemeColors()
 
   return (
     <View style={styles.container}>
-      <Text
-        style={[styles.label, { color: colors.textSecondary }]}
-      >
-        Sort by
-      </Text>
+      <Text style={[styles.label, { color: colors.textSecondary }]}>Sort by</Text>
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
-        contentContainerStyle={styles.scrollContent}
-      >
-        {options.map((option) => {
-          const isSelected = value === option.key;
+        contentContainerStyle={styles.scrollContent}>
+        {options.map(option => {
+          const isSelected = value === option.key
           return (
             <Pressable
               key={option.key}
               onPress={() => {
-                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                onChange(option.key);
+                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
+                onChange(option.key)
               }}
               style={[
                 styles.pill,
                 {
-                  backgroundColor: isSelected
-                    ? colors.chipBackgroundActive
-                    : colors.chipBackground,
-                  borderColor: isSelected
-                    ? colors.chipBackgroundActive
-                    : colors.border,
+                  backgroundColor: isSelected ? colors.chipBackgroundActive : colors.chipBackground,
+                  borderColor: isSelected ? colors.chipBackgroundActive : colors.border,
                 },
-              ]}
-            >
+              ]}>
               <Text
                 style={[
                   styles.pillText,
                   {
-                    color: isSelected
-                      ? colors.chipTextActive
-                      : colors.chipText,
+                    color: isSelected ? colors.chipTextActive : colors.chipText,
                   },
-                ]}
-              >
+                ]}>
                 {option.label}
               </Text>
             </Pressable>
-          );
+          )
         })}
       </ScrollView>
     </View>
-  );
+  )
 }
 
 const styles = StyleSheet.create({
@@ -97,4 +80,4 @@ const styles = StyleSheet.create({
     fontSize: 13,
     fontFamily: 'Syne_500Medium',
   },
-});
+})

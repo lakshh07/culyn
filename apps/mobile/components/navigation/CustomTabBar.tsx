@@ -1,30 +1,19 @@
-import { useThemeColors } from '@/constants/useTheme';
-import type { BottomTabBarProps } from '@react-navigation/bottom-tabs';
-import { LinearGradient } from 'expo-linear-gradient';
-import { usePathname } from 'expo-router';
-import React, { useEffect } from 'react';
-import {
-  Image,
-  ImageSourcePropType,
-  Pressable,
-  StyleSheet,
-  Text,
-  View,
-} from 'react-native';
-import Animated, {
-  useAnimatedStyle,
-  useSharedValue,
-  withSpring,
-} from 'react-native-reanimated';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useThemeColors } from '@/constants/useTheme'
+import type { BottomTabBarProps } from '@react-navigation/bottom-tabs'
+import { LinearGradient } from 'expo-linear-gradient'
+import { usePathname } from 'expo-router'
+import React, { useEffect } from 'react'
+import { Image, ImageSourcePropType, Pressable, StyleSheet, Text, View } from 'react-native'
+import Animated, { useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated'
+import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
-const TAB_BAR_HEIGHT = 52;
-const GRADIENT_HEIGHT = 50;
+const TAB_BAR_HEIGHT = 52
+const GRADIENT_HEIGHT = 50
 
 type TabConfig = {
-  label: string;
-  image: ImageSourcePropType;
-};
+  label: string
+  image: ImageSourcePropType
+}
 
 const TAB_CONFIG: Record<string, TabConfig> = {
   discover: {
@@ -47,62 +36,49 @@ const TAB_CONFIG: Record<string, TabConfig> = {
     label: 'Profile',
     image: require('@/assets/icons/profile.png'),
   },
-};
+}
 
-const AnimatedImage = Animated.createAnimatedComponent(Image);
+const AnimatedImage = Animated.createAnimatedComponent(Image)
 
-function TabIcon({
-  image,
-  isActive,
-}: {
-  image: ImageSourcePropType;
-  isActive: boolean;
-}) {
-  const scale = useSharedValue(isActive ? 1.15 : 1);
-  const opacity = useSharedValue(isActive ? 1 : 0.4);
+function TabIcon({ image, isActive }: { image: ImageSourcePropType; isActive: boolean }) {
+  const scale = useSharedValue(isActive ? 1.15 : 1)
+  const opacity = useSharedValue(isActive ? 1 : 0.4)
 
   useEffect(() => {
     scale.value = withSpring(isActive ? 1.05 : 1, {
       damping: 20,
       stiffness: 250,
-    });
+    })
     opacity.value = withSpring(isActive ? 1 : 0.6, {
       damping: 20,
       stiffness: 250,
-    });
-  }, [isActive]);
+    })
+  }, [isActive])
 
   const animatedStyle = useAnimatedStyle(() => ({
     transform: [{ scale: scale.value }],
     opacity: opacity.value,
-  }));
+  }))
 
-  return (
-    <AnimatedImage source={image} style={[styles.tabIcon, animatedStyle]} />
-  );
+  return <AnimatedImage source={image} style={[styles.tabIcon, animatedStyle]} />
 }
 
-export default function CustomTabBar({
-  state,
-  descriptors,
-  navigation,
-}: BottomTabBarProps) {
-  const insets = useSafeAreaInsets();
-  const colors = useThemeColors();
-  const bottomPadding = Math.min(insets.bottom, 22);
-  const pathname = usePathname();
+export default function CustomTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
+  const insets = useSafeAreaInsets()
+  const colors = useThemeColors()
+  const bottomPadding = Math.min(insets.bottom, 22)
+  const pathname = usePathname()
 
   // Hide tab bar on detail pages and profile sub-screens
   const isDetailPage =
     (pathname.includes('/recipes/') && !pathname.endsWith('/recipes')) ||
     (pathname.includes('/places/') && !pathname.endsWith('/places')) ||
     (pathname.includes('/products/') && !pathname.endsWith('/products')) ||
-    (pathname.includes('/chat-detail/') &&
-      !pathname.endsWith('/chat-detail')) ||
-    (pathname.includes('/profile/') && !pathname.endsWith('/profile'));
+    (pathname.includes('/chat-detail/') && !pathname.endsWith('/chat-detail')) ||
+    (pathname.includes('/profile/') && !pathname.endsWith('/profile'))
 
   if (isDetailPage) {
-    return null;
+    return null
   }
 
   return (
@@ -113,13 +89,12 @@ export default function CustomTabBar({
           paddingBottom: bottomPadding,
           backgroundColor: colors.background,
         },
-      ]}
-    >
+      ]}>
       <LinearGradient
         colors={[colors.gradientStart, colors.gradientEnd]}
         start={{ x: 0, y: 0 }}
         end={{ x: 0, y: 1 }}
-        pointerEvents='none'
+        pointerEvents="none"
         style={[
           styles.gradientOverlay,
           {
@@ -130,43 +105,43 @@ export default function CustomTabBar({
 
       <View style={styles.tabBar}>
         {state.routes.map((route, index) => {
-          const isFocused = state.index === index;
-          const { options } = descriptors[route.key];
+          const isFocused = state.index === index
+          const { options } = descriptors[route.key]
 
-          const config = TAB_CONFIG[route.name] ?? TAB_CONFIG.discover;
+          const config = TAB_CONFIG[route.name] ?? TAB_CONFIG.discover
 
           const onPress = () => {
             const event = navigation.emit({
               type: 'tabPress',
               target: route.key,
               canPreventDefault: true,
-            });
+            })
 
             if (!isFocused && !event.defaultPrevented) {
-              navigation.navigate(route.name as never);
+              navigation.navigate(route.name as never)
             }
-          };
+          }
 
           const onLongPress = () => {
             navigation.emit({
               type: 'tabLongPress',
               target: route.key,
-            });
-          };
+            })
+          }
 
-          let label: string;
+          let label: string
           if (typeof options.tabBarLabel === 'string') {
-            label = options.tabBarLabel;
+            label = options.tabBarLabel
           } else if (typeof options.title === 'string') {
-            label = options.title;
+            label = options.title
           } else {
-            label = config.label ?? route.name;
+            label = config.label ?? route.name
           }
 
           return (
             <Pressable
               key={route.key}
-              accessibilityRole='button'
+              accessibilityRole="button"
               accessibilityState={isFocused ? { selected: true } : {}}
               accessibilityLabel={options.tabBarAccessibilityLabel}
               onPress={onPress}
@@ -176,8 +151,7 @@ export default function CustomTabBar({
                 {
                   opacity: pressed ? 0.7 : 1,
                 },
-              ]}
-            >
+              ]}>
               <TabIcon image={config.image} isActive={isFocused} />
               <Text
                 style={[
@@ -185,16 +159,15 @@ export default function CustomTabBar({
                   {
                     color: isFocused ? colors.textPrimary : colors.textMuted,
                   },
-                ]}
-              >
+                ]}>
                 {label}
               </Text>
             </Pressable>
-          );
+          )
         })}
       </View>
     </View>
-  );
+  )
 }
 
 const styles = StyleSheet.create({
@@ -233,4 +206,4 @@ const styles = StyleSheet.create({
     right: 0,
     height: GRADIENT_HEIGHT,
   },
-});
+})

@@ -1,20 +1,19 @@
-import { apiClient } from '@/lib/api';
-import { authClient } from '@/lib/auth-client';
-import { useQuery } from '@tanstack/react-query';
+import { apiClient } from '@/lib/api'
+import { authClient } from '@/lib/auth-client'
+import { useQuery } from '@tanstack/react-query'
 
 export interface UserProfile {
-  id: string;
-  email: string;
-  name: string | null;
-  image: string | null;
-  emailVerified: boolean;
-  createdAt: string;
-  updatedAt: string;
+  id: string
+  email: string
+  name: string | null
+  image: string | null
+  emailVerified: boolean
+  createdAt: string
+  updatedAt: string
 }
 
 export function useUserProfile() {
-  const { data: session, isPending: isSessionLoading } =
-    authClient.useSession();
+  const { data: session, isPending: isSessionLoading } = authClient.useSession()
 
   const {
     data: profile,
@@ -24,11 +23,11 @@ export function useUserProfile() {
   } = useQuery({
     queryKey: ['v1', 'user', 'profile', session?.user?.id],
     queryFn: async () => {
-      const response = await apiClient().get<UserProfile>('/user/profile');
-      return response.data;
+      const response = await apiClient().get<UserProfile>('/user/profile')
+      return response.data
     },
     enabled: !!session?.user?.id,
-  });
+  })
 
   return {
     session,
@@ -36,5 +35,5 @@ export function useUserProfile() {
     isLoading: isSessionLoading || isProfileLoading,
     error,
     refetch,
-  };
+  }
 }

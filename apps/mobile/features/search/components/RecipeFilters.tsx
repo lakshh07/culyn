@@ -1,5 +1,5 @@
-import React from 'react';
-import { View, StyleSheet } from 'react-native';
+import React from 'react'
+import { View, StyleSheet } from 'react-native'
 
 import {
   CALORIE_PRESETS,
@@ -9,21 +9,21 @@ import {
   type RecipeFilterState,
   type RecipeSortBy,
   type SearchFilterAction,
-} from '../types';
-import { FilterCard } from './FilterCard';
-import { FilterChip } from './FilterChip';
-import { SortPicker } from './SortPicker';
+} from '../types'
+import { FilterCard } from './FilterCard'
+import { FilterChip } from './FilterChip'
+import { SortPicker } from './SortPicker'
 
 const RECIPE_SORT_OPTIONS: { key: RecipeSortBy; label: string }[] = [
   { key: 'newest', label: 'Newest' },
   { key: 'oldest', label: 'Oldest' },
   { key: 'popular', label: 'Popular' },
   { key: 'random', label: 'Random' },
-];
+]
 
 interface RecipeFiltersProps {
-  filters: RecipeFilterState;
-  dispatch: React.Dispatch<SearchFilterAction>;
+  filters: RecipeFilterState
+  dispatch: React.Dispatch<SearchFilterAction>
 }
 
 export function RecipeFilters({ filters, dispatch }: RecipeFiltersProps) {
@@ -31,7 +31,7 @@ export function RecipeFilters({ filters, dispatch }: RecipeFiltersProps) {
     <>
       <FilterCard title="Cook Time">
         <View style={styles.chipRow}>
-          {COOK_TIME_PRESETS.map((preset) => (
+          {COOK_TIME_PRESETS.map(preset => (
             <FilterChip
               key={preset.key}
               label={preset.label}
@@ -39,10 +39,7 @@ export function RecipeFilters({ filters, dispatch }: RecipeFiltersProps) {
               onPress={() =>
                 dispatch({
                   type: 'SET_RECIPE_COOK_TIME',
-                  payload:
-                    filters.cookTime === preset.key
-                      ? null
-                      : (preset.key as CookTimePreset),
+                  payload: filters.cookTime === preset.key ? null : (preset.key as CookTimePreset),
                 })
               }
             />
@@ -52,7 +49,7 @@ export function RecipeFilters({ filters, dispatch }: RecipeFiltersProps) {
 
       <FilterCard title="Calories">
         <View style={styles.chipRow}>
-          {CALORIE_PRESETS.map((preset) => (
+          {CALORIE_PRESETS.map(preset => (
             <FilterChip
               key={preset.key}
               label={preset.label}
@@ -60,10 +57,7 @@ export function RecipeFilters({ filters, dispatch }: RecipeFiltersProps) {
               onPress={() =>
                 dispatch({
                   type: 'SET_RECIPE_CALORIES',
-                  payload:
-                    filters.calories === preset.key
-                      ? null
-                      : (preset.key as CaloriePreset),
+                  payload: filters.calories === preset.key ? null : (preset.key as CaloriePreset),
                 })
               }
             />
@@ -75,13 +69,11 @@ export function RecipeFilters({ filters, dispatch }: RecipeFiltersProps) {
         <SortPicker
           options={RECIPE_SORT_OPTIONS}
           value={filters.sortBy}
-          onChange={(v) =>
-            dispatch({ type: 'SET_RECIPE_SORT', payload: v })
-          }
+          onChange={v => dispatch({ type: 'SET_RECIPE_SORT', payload: v })}
         />
       </FilterCard>
     </>
-  );
+  )
 }
 
 const styles = StyleSheet.create({
@@ -89,4 +81,4 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     flexWrap: 'wrap',
   },
-});
+})

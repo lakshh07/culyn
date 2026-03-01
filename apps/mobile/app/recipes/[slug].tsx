@@ -1,13 +1,13 @@
-import { BackIcon, ChefHatIcon, HeartIcon } from '@/components/icons';
-import { useThemeColors } from '@/constants/useTheme';
-import { useRecipeBySlug } from '@/hooks/recipes/useRecipeBySlug';
-import { getIngredientImageUrl } from '@culyn/shared/lib';
-import { DIFFICULTY_MAP, scaleIngredientQuantity } from '@culyn/shared/utils';
-import { Feather } from '@expo/vector-icons';
-import { GlassView } from 'expo-glass-effect';
-import { LinearGradient } from 'expo-linear-gradient';
-import { useLocalSearchParams, useRouter } from 'expo-router';
-import React, { useMemo, useState } from 'react';
+import { BackIcon, ChefHatIcon, HeartIcon } from '@/components/icons'
+import { useThemeColors } from '@/constants/useTheme'
+import { useRecipeBySlug } from '@/hooks/recipes/useRecipeBySlug'
+import { getIngredientImageUrl } from '@culyn/shared/lib'
+import { DIFFICULTY_MAP, scaleIngredientQuantity } from '@culyn/shared/utils'
+import { Feather } from '@expo/vector-icons'
+import { GlassView } from 'expo-glass-effect'
+import { LinearGradient } from 'expo-linear-gradient'
+import { useLocalSearchParams, useRouter } from 'expo-router'
+import React, { useMemo, useState } from 'react'
 import {
   Dimensions,
   Image,
@@ -17,151 +17,124 @@ import {
   StyleSheet,
   Text,
   View,
-} from 'react-native';
-import Animated, {
-  FadeIn,
-  FadeInLeft,
-  FadeInUp,
-} from 'react-native-reanimated';
-import {
-  SafeAreaView,
-  useSafeAreaInsets,
-} from 'react-native-safe-area-context';
+} from 'react-native'
+import Animated, { FadeIn, FadeInLeft, FadeInUp } from 'react-native-reanimated'
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 
-const INGREDIENT_IMAGE_BASE_URL = `${process.env.EXPO_PUBLIC_AWS_PUBLIC_URL_BASE}`;
+const INGREDIENT_IMAGE_BASE_URL = `${process.env.EXPO_PUBLIC_AWS_PUBLIC_URL_BASE}`
 
 const getInitials = (name: string): string => {
-  const words = name.trim().split(/\s+/);
+  const words = name.trim().split(/\s+/)
   if (words.length >= 2) {
-    return (words[0][0] + words[1][0]).toUpperCase();
+    return (words[0][0] + words[1][0]).toUpperCase()
   }
-  return name.substring(0, 2).toUpperCase();
-};
+  return name.substring(0, 2).toUpperCase()
+}
 
 const handleAddIngredient = (ingredientName: string) => {
   // TODO: Implement add to grocery list functionality
-  console.log('Add ingredient:', ingredientName);
-};
+  console.log('Add ingredient:', ingredientName)
+}
 
 export default function RecipeDetailScreen() {
-  const colors = useThemeColors();
-  const router = useRouter();
-  const insets = useSafeAreaInsets();
-  const { slug } = useLocalSearchParams<{ slug: string }>();
-  const screenWidth = Dimensions.get('window').width;
-  const cardGap = 8;
-  const horizontalPadding = 22 * 2; // paddingHorizontal from contentContainer
-  const availableWidth = screenWidth - horizontalPadding;
-  const cardWidth = (availableWidth - cardGap * 3) / 4; // 4 cards with 3 gaps
+  const colors = useThemeColors()
+  const router = useRouter()
+  const insets = useSafeAreaInsets()
+  const { slug } = useLocalSearchParams<{ slug: string }>()
+  const screenWidth = Dimensions.get('window').width
+  const cardGap = 8
+  const horizontalPadding = 22 * 2 // paddingHorizontal from contentContainer
+  const availableWidth = screenWidth - horizontalPadding
+  const cardWidth = (availableWidth - cardGap * 3) / 4 // 4 cards with 3 gaps
 
-  const { recipe } = useRecipeBySlug(slug);
+  const { recipe } = useRecipeBySlug(slug)
 
-  const originalServings = recipe?.servings || 2;
-  const [servings, setServings] = useState(originalServings);
+  const originalServings = recipe?.servings || 2
+  const [servings, setServings] = useState(originalServings)
 
   const handleOpenLink = async () => {
-    if (!recipe?.sourceUrl) return;
-    const supported = await Linking.canOpenURL(recipe?.sourceUrl);
+    if (!recipe?.sourceUrl) return
+    const supported = await Linking.canOpenURL(recipe?.sourceUrl)
     if (supported) {
-      await Linking.openURL(recipe?.sourceUrl);
+      await Linking.openURL(recipe?.sourceUrl)
     }
-  };
+  }
 
   const handleOpenFSSAIGuidelines = async () => {
-    const fssaiUrl = 'https://www.fssai.gov.in/';
-    const supported = await Linking.canOpenURL(fssaiUrl);
+    const fssaiUrl = 'https://www.fssai.gov.in/'
+    const supported = await Linking.canOpenURL(fssaiUrl)
     if (supported) {
-      await Linking.openURL(fssaiUrl);
+      await Linking.openURL(fssaiUrl)
     }
-  };
+  }
 
   React.useEffect(() => {
     if (recipe?.servings && servings === originalServings) {
-      setServings(recipe.servings);
+      setServings(recipe.servings)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [recipe?.servings]);
+  }, [recipe?.servings])
 
-  const scale = useMemo(
-    () => servings / originalServings,
-    [servings, originalServings]
-  );
+  const scale = useMemo(() => servings / originalServings, [servings, originalServings])
 
   const scaledIngredients = useMemo(() => {
-    if (!recipe?.RecipeIngredient) return [];
-    return recipe.RecipeIngredient.map((ri) => ({
+    if (!recipe?.RecipeIngredient) return []
+    return recipe.RecipeIngredient.map(ri => ({
       ...ri,
       scaledAmount: scaleIngredientQuantity(ri.amount, scale),
-    }));
-  }, [recipe?.RecipeIngredient, scale]);
+    }))
+  }, [recipe?.RecipeIngredient, scale])
 
   const scaledCookingSteps = useMemo(() => {
-    if (!recipe?.cookingSteps) return [];
-    return recipe.cookingSteps.map((step) => ({
+    if (!recipe?.cookingSteps) return []
+    return recipe.cookingSteps.map(step => ({
       ...step,
-      ingredients_used: step.ingredients_used.map((ingredient) => ({
+      ingredients_used: step.ingredients_used.map(ingredient => ({
         ...ingredient,
         scaledQuantity: scaleIngredientQuantity(ingredient.quantity, scale),
       })),
-    }));
-  }, [recipe?.cookingSteps, scale]);
+    }))
+  }, [recipe?.cookingSteps, scale])
 
   const nutritionalData = useMemo(
     () => ({
-      caloriesPercent: recipe?.calories
-        ? Math.round((Number(recipe.calories) / 2000) * 100)
-        : 0,
-      proteinPercent: recipe?.protein
-        ? Math.round((Number(recipe.protein) / 50) * 100)
-        : 0,
-      carbsPercent: recipe?.carbs
-        ? Math.round((Number(recipe.carbs) / 275) * 100)
-        : 0,
+      caloriesPercent: recipe?.calories ? Math.round((Number(recipe.calories) / 2000) * 100) : 0,
+      proteinPercent: recipe?.protein ? Math.round((Number(recipe.protein) / 50) * 100) : 0,
+      carbsPercent: recipe?.carbs ? Math.round((Number(recipe.carbs) / 275) * 100) : 0,
       fatPercent: recipe?.fat ? Math.round((Number(recipe.fat) / 75) * 100) : 0,
     }),
     [recipe?.calories, recipe?.protein, recipe?.carbs, recipe?.fat]
-  );
+  )
 
-  if (!recipe) return null;
+  if (!recipe) return null
 
   return (
     <SafeAreaView
       style={[styles.safeArea, { backgroundColor: colors.background }]}
-      edges={['left', 'right']}
-    >
-      <ScrollView
-        contentContainerStyle={styles.scrollContent}
-        showsVerticalScrollIndicator={false}
-      >
-        <Image
-          source={{ uri: recipe?.imageUrl ?? '' }}
-          style={styles.heroImage}
-        />
+      edges={['left', 'right']}>
+      <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+        <Image source={{ uri: recipe?.imageUrl ?? '' }} style={styles.heroImage} />
 
         <Pressable
           style={[styles.scrollableButtonContainer, { top: insets.top + 106 }]}
           onPress={() => {
-            console.log('Scrollable button pressed');
+            console.log('Scrollable button pressed')
           }}
-          hitSlop={8}
-        >
+          hitSlop={8}>
           <GlassView
             isInteractive={true}
-            style={[styles.buttonGlass, { backgroundColor: colors.background }]}
-          >
+            style={[styles.buttonGlass, { backgroundColor: colors.background }]}>
             <HeartIcon width={22} height={22} />
           </GlassView>
         </Pressable>
 
         <View style={styles.contentContainer}>
           <View style={styles.recipeInfoContainer}>
-            <Text style={[styles.title, { color: colors.textPrimary }]}>
-              {recipe.title}
-            </Text>
+            <Text style={[styles.title, { color: colors.textPrimary }]}>{recipe.title}</Text>
 
             <View style={styles.metaRow}>
               <Feather
-                name='instagram'
+                name="instagram"
                 size={14}
                 color={colors.textMuted}
                 style={styles.metaIcon}
@@ -171,18 +144,9 @@ export default function RecipeDetailScreen() {
               </Text>
               {recipe.sourceUrl ? (
                 <>
-                  <Text
-                    style={[
-                      styles.metaSeparator,
-                      { color: colors.textSecondary },
-                    ]}
-                  >
-                    •
-                  </Text>
+                  <Text style={[styles.metaSeparator, { color: colors.textSecondary }]}>•</Text>
                   <Pressable onPress={handleOpenLink} hitSlop={8}>
-                    <Text
-                      style={[styles.link, { color: colors.textSecondary }]}
-                    >
+                    <Text style={[styles.link, { color: colors.textSecondary }]}>
                       Original Recipe Link
                     </Text>
                   </Pressable>
@@ -201,9 +165,7 @@ export default function RecipeDetailScreen() {
                 const details = [
                   {
                     label: 'Skill Level',
-                    value: recipe.difficulty
-                      ? DIFFICULTY_MAP[recipe.difficulty]
-                      : 'Easy',
+                    value: recipe.difficulty ? DIFFICULTY_MAP[recipe.difficulty] : 'Easy',
                   },
                   {
                     label: 'Cook Time',
@@ -221,38 +183,32 @@ export default function RecipeDetailScreen() {
                   },
                   {
                     label: 'Carbs',
-                    value: recipe.carbs
-                      ? `${Number(recipe.carbs).toFixed(1)} g`
-                      : 'N/A',
+                    value: recipe.carbs ? `${Number(recipe.carbs).toFixed(1)} g` : 'N/A',
                     percentage: nutritionalData.carbsPercent,
                   },
                   {
                     label: 'Protein',
-                    value: recipe.protein
-                      ? `${Number(recipe.protein).toFixed(0)} g`
-                      : 'N/A',
+                    value: recipe.protein ? `${Number(recipe.protein).toFixed(0)} g` : 'N/A',
                     percentage: nutritionalData.proteinPercent,
                   },
                   {
                     label: 'Fats',
-                    value: recipe.fat
-                      ? `${Number(recipe.fat).toFixed(1)} g`
-                      : 'N/A',
+                    value: recipe.fat ? `${Number(recipe.fat).toFixed(1)} g` : 'N/A',
                     percentage: nutritionalData.fatPercent,
                   },
-                ];
+                ]
 
                 // Chunk details into rows of 2
-                const rows = [];
+                const rows = []
                 for (let i = 0; i < details.length; i += 2) {
-                  rows.push(details.slice(i, i + 2));
+                  rows.push(details.slice(i, i + 2))
                 }
 
                 return rows.map((row, rowIndex) => (
                   <View key={`row-${rowIndex}`} style={styles.detailRow}>
                     {row.map((item, itemIndex) => {
-                      const isLastInRow = itemIndex === row.length - 1;
-                      const isLastRow = rowIndex === rows.length - 1;
+                      const isLastInRow = itemIndex === row.length - 1
+                      const isLastRow = rowIndex === rows.length - 1
                       return (
                         <View
                           key={item.label}
@@ -264,52 +220,38 @@ export default function RecipeDetailScreen() {
                               borderColor: colors.border,
                               backgroundColor: colors.background,
                             },
-                          ]}
-                        >
-                          <Text
-                            style={[
-                              styles.detailLabel,
-                              { color: colors.textMuted },
-                            ]}
-                          >
+                          ]}>
+                          <Text style={[styles.detailLabel, { color: colors.textMuted }]}>
                             {item.label}
                           </Text>
-                          <Text
-                            style={[
-                              styles.detailValue,
-                              { color: colors.textPrimary },
-                            ]}
-                          >
+                          <Text style={[styles.detailValue, { color: colors.textPrimary }]}>
                             {item.value}
                           </Text>
                         </View>
-                      );
+                      )
                     })}
                   </View>
-                ));
+                ))
               })()}
             </View>
 
             <View style={styles.detailNoteContainer}>
               <Pressable onPress={handleOpenFSSAIGuidelines} hitSlop={8}>
                 <Text style={[styles.detailNote, { color: colors.textMuted }]}>
-                  *Percent daily values are based on a 2,000 calorie diet as per
-                  FSSAI guidelines.
+                  *Percent daily values are based on a 2,000 calorie diet as per FSSAI guidelines.
                 </Text>
               </Pressable>
             </View>
           </View>
 
           <View style={styles.section}>
-            <Text style={[styles.sectionTitle, { color: colors.textPrimary }]}>
-              Ingredients
-            </Text>
+            <Text style={[styles.sectionTitle, { color: colors.textPrimary }]}>Ingredients</Text>
             <View style={styles.ingredientsGrid}>
               {scaledIngredients.map((ri, index) => {
                 const imageUrl = getIngredientImageUrl(
                   ri.ingredient.name,
                   INGREDIENT_IMAGE_BASE_URL
-                );
+                )
 
                 return (
                   <Animated.View
@@ -321,14 +263,13 @@ export default function RecipeDetailScreen() {
                         width: cardWidth,
                         borderColor: colors.border,
                       },
-                    ]}
-                  >
+                    ]}>
                     <View style={styles.ingredientImageContainer}>
                       {imageUrl ? (
                         <Image
                           source={{ uri: imageUrl }}
                           style={styles.ingredientImage}
-                          resizeMode='cover'
+                          resizeMode="cover"
                         />
                       ) : (
                         <View style={styles.ingredientImagePlaceholder}>
@@ -340,104 +281,67 @@ export default function RecipeDetailScreen() {
                       <Pressable
                         style={styles.addButton}
                         onPress={() => handleAddIngredient(ri.ingredient.name)}
-                        hitSlop={8}
-                      >
-                        <Feather name='plus' size={14} color='#000000' />
+                        hitSlop={8}>
+                        <Feather name="plus" size={14} color="#000000" />
                       </Pressable>
                     </View>
                     <View style={styles.ingredientTextContainer}>
                       <Text
-                        style={[
-                          styles.ingredientName,
-                          { color: colors.textPrimary },
-                        ]}
-                        numberOfLines={2}
-                      >
+                        style={[styles.ingredientName, { color: colors.textPrimary }]}
+                        numberOfLines={2}>
                         {ri.ingredient.name}
                       </Text>
-                      <Text
-                        style={[
-                          styles.ingredientMeta,
-                          { color: colors.textMuted },
-                        ]}
-                      >
+                      <Text style={[styles.ingredientMeta, { color: colors.textMuted }]}>
                         {ri.scaledAmount}
                         {ri.unit ? ` ${ri.unit}` : ''}
                       </Text>
                     </View>
                   </Animated.View>
-                );
+                )
               })}
             </View>
           </View>
 
           <View style={styles.section}>
-            <Text style={[styles.sectionTitle, { color: colors.textPrimary }]}>
-              Cooking Steps
-            </Text>
+            <Text style={[styles.sectionTitle, { color: colors.textPrimary }]}>Cooking Steps</Text>
             <View style={styles.stepsList}>
               {scaledCookingSteps.map((step, index) => (
                 <React.Fragment key={step.step_number}>
                   {index > 0 && (
-                    <View
-                      style={[
-                        styles.stepDivider,
-                        { borderColor: colors.border },
-                      ]}
-                    />
+                    <View style={[styles.stepDivider, { borderColor: colors.border }]} />
                   )}
                   <Animated.View
                     entering={FadeInLeft.delay(200 + index * 90)}
-                    style={styles.stepContainer}
-                  >
+                    style={styles.stepContainer}>
                     <View style={styles.stepContent}>
-                      <Text
-                        style={[styles.stepNumber, { color: colors.textMuted }]}
-                      >
+                      <Text style={[styles.stepNumber, { color: colors.textMuted }]}>
                         {step.step_number.toString().padStart(2, '0')}
                       </Text>
-                      <Text
-                        style={[
-                          styles.stepTitle,
-                          { color: colors.textPrimary },
-                        ]}
-                      >
+                      <Text style={[styles.stepTitle, { color: colors.textPrimary }]}>
                         {step.step_description}
                       </Text>
                     </View>
-                    {step.ingredients_used &&
-                    step.ingredients_used.length > 0 ? (
+                    {step.ingredients_used && step.ingredients_used.length > 0 ? (
                       <Animated.View
                         entering={FadeIn.delay(220 + index * 90)}
-                        style={styles.stepIngredientsContainer}
-                      >
+                        style={styles.stepIngredientsContainer}>
                         <ScrollView
                           horizontal
                           showsHorizontalScrollIndicator={false}
-                          contentContainerStyle={styles.stepIngredients}
-                        >
-                          {step.ingredients_used.map((ing) => (
+                          contentContainerStyle={styles.stepIngredients}>
+                          {step.ingredients_used.map(ing => (
                             <View
                               key={`${step.step_number}-${ing.name}`}
                               style={[
                                 styles.stepIngredientChip,
                                 { backgroundColor: colors.backgroundSecondary },
-                              ]}
-                            >
+                              ]}>
                               <Text
-                                style={[
-                                  styles.stepIngredientName,
-                                  { color: colors.textPrimary },
-                                ]}
-                              >
+                                style={[styles.stepIngredientName, { color: colors.textPrimary }]}>
                                 {ing.name}
                               </Text>
                               <Text
-                                style={[
-                                  styles.stepIngredientMeta,
-                                  { color: colors.textMuted },
-                                ]}
-                              >
+                                style={[styles.stepIngredientMeta, { color: colors.textMuted }]}>
                                 {ing.scaledQuantity}
                               </Text>
                             </View>
@@ -460,26 +364,21 @@ export default function RecipeDetailScreen() {
           },
         ]}
         onPress={() => router.back()}
-        hitSlop={8}
-      >
+        hitSlop={8}>
         <GlassView
           isInteractive={true}
-          style={[styles.buttonGlass, { backgroundColor: colors.background }]}
-        >
+          style={[styles.buttonGlass, { backgroundColor: colors.background }]}>
           <BackIcon width={22} height={22} />
         </GlassView>
       </Pressable>
 
-      <GlassView
-        style={[styles.footer, { backgroundColor: colors.background }]}
-      >
+      <GlassView style={[styles.footer, { backgroundColor: colors.background }]}>
         <View style={styles.footerLeft}>
           <Pressable
             style={styles.quantityButton}
             onPress={() => setServings(Math.max(1, servings - 1))}
-            hitSlop={8}
-          >
-            <Feather name='minus' size={16} color={colors.textMuted} />
+            hitSlop={8}>
+            <Feather name="minus" size={16} color={colors.textMuted} />
           </Pressable>
           <Text style={[styles.quantityText, { color: colors.textPrimary }]}>
             Cooking for {servings}
@@ -487,9 +386,8 @@ export default function RecipeDetailScreen() {
           <Pressable
             style={styles.quantityButton}
             onPress={() => setServings(servings + 1)}
-            hitSlop={8}
-          >
-            <Feather name='plus' size={16} color={colors.textMuted} />
+            hitSlop={8}>
+            <Feather name="plus" size={16} color={colors.textMuted} />
           </Pressable>
         </View>
 
@@ -499,9 +397,8 @@ export default function RecipeDetailScreen() {
               colors={[colors.primaryGradientStart, colors.primaryGradientEnd]}
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 1 }}
-              style={styles.cookButton}
-            >
-              <ChefHatIcon width={20} height={20} color='#FFFFFF' />
+              style={styles.cookButton}>
+              <ChefHatIcon width={20} height={20} color="#FFFFFF" />
 
               <Text style={styles.cookButtonText}>Cook</Text>
             </LinearGradient>
@@ -513,11 +410,11 @@ export default function RecipeDetailScreen() {
         colors={[colors.gradientStart, colors.gradientEnd]}
         start={{ x: 0, y: 0 }}
         end={{ x: 0, y: 1 }}
-        pointerEvents='none'
+        pointerEvents="none"
         style={[styles.gradientOverlay]}
       />
     </SafeAreaView>
-  );
+  )
 }
 
 const styles = StyleSheet.create({
@@ -842,4 +739,4 @@ const styles = StyleSheet.create({
     bottom: 0,
     height: 100,
   },
-});
+})

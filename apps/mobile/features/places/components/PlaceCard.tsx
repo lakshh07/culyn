@@ -1,33 +1,26 @@
-import { MapIcon } from '@/components/icons';
-import { useThemeColors } from '@/constants/useTheme';
-import { PlaceListItem } from '@culyn/shared/schemas';
-import React, { useRef, useState } from 'react';
-import {
-  Animated,
-  Image,
-  Pressable,
-  StyleSheet,
-  Text,
-  View,
-} from 'react-native';
+import { MapIcon } from '@/components/icons'
+import { useThemeColors } from '@/constants/useTheme'
+import { PlaceListItem } from '@culyn/shared/schemas'
+import React, { useRef, useState } from 'react'
+import { Animated, Image, Pressable, StyleSheet, Text, View } from 'react-native'
 
 interface PlaceCardProps {
-  id: string;
-  item: PlaceListItem;
-  onPress?: () => void;
-  onHeartPress?: (liked: boolean) => void;
+  id: string
+  item: PlaceListItem
+  onPress?: () => void
+  onHeartPress?: (liked: boolean) => void
 }
 
 export function PlaceCard({ id, item, onPress, onHeartPress }: PlaceCardProps) {
-  const colors = useThemeColors();
-  const [isLiked, setIsLiked] = useState(false);
-  const scale = useRef(new Animated.Value(1)).current;
-  const heartScale = useRef(new Animated.Value(1)).current;
+  const colors = useThemeColors()
+  const [isLiked, setIsLiked] = useState(false)
+  const scale = useRef(new Animated.Value(1)).current
+  const heartScale = useRef(new Animated.Value(1)).current
 
   const handleHeartPress = (e: any) => {
-    setIsLiked(!isLiked);
-    onHeartPress?.(!isLiked);
-  };
+    setIsLiked(!isLiked)
+    onHeartPress?.(!isLiked)
+  }
 
   const handleHeartPressIn = () => {
     Animated.spring(heartScale, {
@@ -35,8 +28,8 @@ export function PlaceCard({ id, item, onPress, onHeartPress }: PlaceCardProps) {
       useNativeDriver: true,
       speed: 20,
       bounciness: 6,
-    }).start();
-  };
+    }).start()
+  }
 
   const handleHeartPressOut = () => {
     Animated.spring(heartScale, {
@@ -44,8 +37,8 @@ export function PlaceCard({ id, item, onPress, onHeartPress }: PlaceCardProps) {
       useNativeDriver: true,
       speed: 20,
       bounciness: 6,
-    }).start();
-  };
+    }).start()
+  }
 
   const handlePressIn = () => {
     Animated.spring(scale, {
@@ -53,8 +46,8 @@ export function PlaceCard({ id, item, onPress, onHeartPress }: PlaceCardProps) {
       useNativeDriver: true,
       speed: 20,
       bounciness: 4,
-    }).start();
-  };
+    }).start()
+  }
 
   const handlePressOut = () => {
     Animated.spring(scale, {
@@ -62,12 +55,12 @@ export function PlaceCard({ id, item, onPress, onHeartPress }: PlaceCardProps) {
       useNativeDriver: true,
       speed: 20,
       bounciness: 4,
-    }).start();
-  };
+    }).start()
+  }
 
-  if (!item) return null;
+  if (!item) return null
 
-  const typeLabel = item.type?.replace(/_/g, ' ').toLowerCase();
+  const typeLabel = item.type?.replace(/_/g, ' ').toLowerCase()
 
   return (
     <Animated.View style={{ transform: [{ scale }] }}>
@@ -75,32 +68,24 @@ export function PlaceCard({ id, item, onPress, onHeartPress }: PlaceCardProps) {
         onPress={onPress}
         onPressIn={handlePressIn}
         onPressOut={handlePressOut}
-        style={styles.container}
-      >
+        style={styles.container}>
         <View style={styles.imageContainer}>
           {item.imageUrl ? (
             <Image source={{ uri: item.imageUrl }} style={styles.image} />
           ) : (
             <View
-              style={[
-                styles.imagePlaceholder,
-                { backgroundColor: colors.backgroundSecondary },
-              ]}
-            >
+              style={[styles.imagePlaceholder, { backgroundColor: colors.backgroundSecondary }]}>
               <MapIcon width={32} height={32} opacity={0.3} />
             </View>
           )}
 
-          <Animated.View
-            style={[styles.heartButton, { transform: [{ scale: heartScale }] }]}
-          >
+          <Animated.View style={[styles.heartButton, { transform: [{ scale: heartScale }] }]}>
             <Pressable
               onPress={handleHeartPress}
               onPressIn={handleHeartPressIn}
               onPressOut={handleHeartPressOut}
               hitSlop={8}
-              style={styles.heartButtonInner}
-            >
+              style={styles.heartButtonInner}>
               <Image
                 source={
                   isLiked
@@ -108,17 +93,14 @@ export function PlaceCard({ id, item, onPress, onHeartPress }: PlaceCardProps) {
                     : require('@/assets/icons/heart.png')
                 }
                 style={styles.heartIcon}
-                resizeMode='contain'
+                resizeMode="contain"
               />
             </Pressable>
           </Animated.View>
         </View>
 
         <View style={styles.textContainer}>
-          <Text
-            style={[styles.name, { color: colors.textPrimary }]}
-            numberOfLines={1}
-          >
+          <Text style={[styles.name, { color: colors.textPrimary }]} numberOfLines={1}>
             {item.name}
           </Text>
 
@@ -127,10 +109,7 @@ export function PlaceCard({ id, item, onPress, onHeartPress }: PlaceCardProps) {
               <Text style={styles.typeBadgeText}>{typeLabel}</Text>
             </View>
             {item.city && (
-              <Text
-                style={[styles.cityText, { color: colors.textMuted }]}
-                numberOfLines={1}
-              >
+              <Text style={[styles.cityText, { color: colors.textMuted }]} numberOfLines={1}>
                 {item.city}
               </Text>
             )}
@@ -138,7 +117,7 @@ export function PlaceCard({ id, item, onPress, onHeartPress }: PlaceCardProps) {
         </View>
       </Pressable>
     </Animated.View>
-  );
+  )
 }
 
 const styles = StyleSheet.create({
@@ -246,4 +225,4 @@ const styles = StyleSheet.create({
     width: 14,
     height: 14,
   },
-});
+})

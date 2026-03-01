@@ -1,36 +1,25 @@
-import { ClockFillIcon, FireFillIcon } from '@/components/icons';
-import { useThemeColors } from '@/constants/useTheme';
-import { RecipeListItem } from '@culyn/shared/schemas';
-import React, { useRef, useState } from 'react';
-import {
-  Animated,
-  Image,
-  Pressable,
-  StyleSheet,
-  Text,
-  View,
-} from 'react-native';
+import { ClockFillIcon, FireFillIcon } from '@/components/icons'
+import { useThemeColors } from '@/constants/useTheme'
+import { RecipeListItem } from '@culyn/shared/schemas'
+import React, { useRef, useState } from 'react'
+import { Animated, Image, Pressable, StyleSheet, Text, View } from 'react-native'
 
 interface RecipeCardProps {
-  item: RecipeListItem;
-  onPress?: () => void;
-  onHeartPress?: (liked: boolean) => void;
+  item: RecipeListItem
+  onPress?: () => void
+  onHeartPress?: (liked: boolean) => void
 }
 
-export function RecipeCard({
-  item,
-  onPress,
-  onHeartPress,
-}: RecipeCardProps) {
-  const colors = useThemeColors();
-  const [isLiked, setIsLiked] = useState(item.RecipeFavorite?.length > 0);
-  const scale = useRef(new Animated.Value(1)).current;
-  const heartScale = useRef(new Animated.Value(1)).current;
+export function RecipeCard({ item, onPress, onHeartPress }: RecipeCardProps) {
+  const colors = useThemeColors()
+  const [isLiked, setIsLiked] = useState(item.RecipeFavorite?.length > 0)
+  const scale = useRef(new Animated.Value(1)).current
+  const heartScale = useRef(new Animated.Value(1)).current
 
   const handleHeartPress = () => {
-    setIsLiked(!isLiked);
-    onHeartPress?.(!isLiked);
-  };
+    setIsLiked(!isLiked)
+    onHeartPress?.(!isLiked)
+  }
 
   const handleHeartPressIn = () => {
     Animated.spring(heartScale, {
@@ -38,8 +27,8 @@ export function RecipeCard({
       useNativeDriver: true,
       speed: 20,
       bounciness: 6,
-    }).start();
-  };
+    }).start()
+  }
 
   const handleHeartPressOut = () => {
     Animated.spring(heartScale, {
@@ -47,8 +36,8 @@ export function RecipeCard({
       useNativeDriver: true,
       speed: 20,
       bounciness: 6,
-    }).start();
-  };
+    }).start()
+  }
 
   const handlePressIn = () => {
     Animated.spring(scale, {
@@ -56,8 +45,8 @@ export function RecipeCard({
       useNativeDriver: true,
       speed: 20,
       bounciness: 4,
-    }).start();
-  };
+    }).start()
+  }
 
   const handlePressOut = () => {
     Animated.spring(scale, {
@@ -65,8 +54,8 @@ export function RecipeCard({
       useNativeDriver: true,
       speed: 20,
       bounciness: 4,
-    }).start();
-  };
+    }).start()
+  }
 
   return (
     <Animated.View style={{ transform: [{ scale }] }}>
@@ -74,21 +63,14 @@ export function RecipeCard({
         onPress={onPress}
         onPressIn={handlePressIn}
         onPressOut={handlePressOut}
-        style={[
-          styles.container,
-          { backgroundColor: colors.cardBackgroundElevated },
-        ]}
-      >
-        <Animated.View
-          style={[styles.heartButton, { transform: [{ scale: heartScale }] }]}
-        >
+        style={[styles.container, { backgroundColor: colors.cardBackgroundElevated }]}>
+        <Animated.View style={[styles.heartButton, { transform: [{ scale: heartScale }] }]}>
           <Pressable
             onPress={handleHeartPress}
             onPressIn={handleHeartPressIn}
             onPressOut={handleHeartPressOut}
             hitSlop={8}
-            style={styles.heartButtonInner}
-          >
+            style={styles.heartButtonInner}>
             <Image
               source={
                 isLiked
@@ -96,17 +78,14 @@ export function RecipeCard({
                   : require('@/assets/icons/heart.png')
               }
               style={styles.heartIcon}
-              resizeMode='contain'
+              resizeMode="contain"
             />
           </Pressable>
         </Animated.View>
 
         {/* Row 1: Title Section */}
         <View style={styles.titleRow}>
-          <Text
-            style={[styles.title, { color: colors.textPrimary }]}
-            numberOfLines={2}
-          >
+          <Text style={[styles.title, { color: colors.textPrimary }]} numberOfLines={2}>
             {item.title}
           </Text>
         </View>
@@ -126,23 +105,19 @@ export function RecipeCard({
           {item.cookTime && (
             <View style={styles.footerItem}>
               <ClockFillIcon width={14} height={14} />
-              <Text style={[styles.credit, { color: colors.textMuted }]}>
-                {item.cookTime} min
-              </Text>
+              <Text style={[styles.credit, { color: colors.textMuted }]}>{item.cookTime} min</Text>
             </View>
           )}
           {item.calories && (
             <View style={styles.footerItem}>
               <FireFillIcon width={14} height={14} />
-              <Text style={[styles.credit, { color: colors.textMuted }]}>
-                {item.calories} kcal
-              </Text>
+              <Text style={[styles.credit, { color: colors.textMuted }]}>{item.calories} kcal</Text>
             </View>
           )}
         </View>
       </Pressable>
     </Animated.View>
-  );
+  )
 }
 
 const styles = StyleSheet.create({
@@ -236,4 +211,4 @@ const styles = StyleSheet.create({
     lineHeight: 14,
     marginTop: 2,
   },
-});
+})

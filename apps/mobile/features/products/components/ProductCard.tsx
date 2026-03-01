@@ -1,32 +1,25 @@
-import { useThemeColors } from '@/constants/useTheme';
-import { ProductListItem } from '@culyn/shared/schemas';
-import { Feather } from '@expo/vector-icons';
-import React, { useRef, useState } from 'react';
-import {
-  Animated,
-  Image,
-  Pressable,
-  StyleSheet,
-  Text,
-  View,
-} from 'react-native';
+import { useThemeColors } from '@/constants/useTheme'
+import { ProductListItem } from '@culyn/shared/schemas'
+import { Feather } from '@expo/vector-icons'
+import React, { useRef, useState } from 'react'
+import { Animated, Image, Pressable, StyleSheet, Text, View } from 'react-native'
 
 interface ProductCardProps {
-  item: ProductListItem;
-  onPress?: () => void;
-  onHeartPress?: (liked: boolean) => void;
+  item: ProductListItem
+  onPress?: () => void
+  onHeartPress?: (liked: boolean) => void
 }
 
 export function ProductCard({ item, onPress, onHeartPress }: ProductCardProps) {
-  const colors = useThemeColors();
-  const [isLiked, setIsLiked] = useState(false);
-  const scale = useRef(new Animated.Value(1)).current;
-  const heartScale = useRef(new Animated.Value(1)).current;
+  const colors = useThemeColors()
+  const [isLiked, setIsLiked] = useState(false)
+  const scale = useRef(new Animated.Value(1)).current
+  const heartScale = useRef(new Animated.Value(1)).current
 
   const handleHeartPress = (e: any) => {
-    setIsLiked(!isLiked);
-    onHeartPress?.(!isLiked);
-  };
+    setIsLiked(!isLiked)
+    onHeartPress?.(!isLiked)
+  }
 
   const handleHeartPressIn = () => {
     Animated.spring(heartScale, {
@@ -34,8 +27,8 @@ export function ProductCard({ item, onPress, onHeartPress }: ProductCardProps) {
       useNativeDriver: true,
       speed: 20,
       bounciness: 6,
-    }).start();
-  };
+    }).start()
+  }
 
   const handleHeartPressOut = () => {
     Animated.spring(heartScale, {
@@ -43,8 +36,8 @@ export function ProductCard({ item, onPress, onHeartPress }: ProductCardProps) {
       useNativeDriver: true,
       speed: 20,
       bounciness: 6,
-    }).start();
-  };
+    }).start()
+  }
 
   const handlePressIn = () => {
     Animated.spring(scale, {
@@ -52,8 +45,8 @@ export function ProductCard({ item, onPress, onHeartPress }: ProductCardProps) {
       useNativeDriver: true,
       speed: 20,
       bounciness: 4,
-    }).start();
-  };
+    }).start()
+  }
 
   const handlePressOut = () => {
     Animated.spring(scale, {
@@ -61,12 +54,12 @@ export function ProductCard({ item, onPress, onHeartPress }: ProductCardProps) {
       useNativeDriver: true,
       speed: 20,
       bounciness: 4,
-    }).start();
-  };
+    }).start()
+  }
 
-  const categoryLabel = item.category.replace(/_/g, ' ').toLowerCase();
+  const categoryLabel = item.category.replace(/_/g, ' ').toLowerCase()
 
-  if (!item) return null;
+  if (!item) return null
 
   return (
     <Animated.View style={{ transform: [{ scale }] }}>
@@ -74,32 +67,24 @@ export function ProductCard({ item, onPress, onHeartPress }: ProductCardProps) {
         onPress={onPress}
         onPressIn={handlePressIn}
         onPressOut={handlePressOut}
-        style={styles.container}
-      >
+        style={styles.container}>
         <View style={styles.imageContainer}>
           {item.imageUrl ? (
             <Image source={{ uri: item.imageUrl }} style={styles.image} />
           ) : (
             <View
-              style={[
-                styles.imagePlaceholder,
-                { backgroundColor: colors.backgroundSecondary },
-              ]}
-            >
-              <Feather name='shopping-bag' size={32} color={colors.textMuted} />
+              style={[styles.imagePlaceholder, { backgroundColor: colors.backgroundSecondary }]}>
+              <Feather name="shopping-bag" size={32} color={colors.textMuted} />
             </View>
           )}
 
-          <Animated.View
-            style={[styles.heartButton, { transform: [{ scale: heartScale }] }]}
-          >
+          <Animated.View style={[styles.heartButton, { transform: [{ scale: heartScale }] }]}>
             <Pressable
               onPress={handleHeartPress}
               onPressIn={handleHeartPressIn}
               onPressOut={handleHeartPressOut}
               hitSlop={8}
-              style={styles.heartButtonInner}
-            >
+              style={styles.heartButtonInner}>
               <Image
                 source={
                   isLiked
@@ -107,17 +92,14 @@ export function ProductCard({ item, onPress, onHeartPress }: ProductCardProps) {
                     : require('@/assets/icons/heart.png')
                 }
                 style={styles.heartIcon}
-                resizeMode='contain'
+                resizeMode="contain"
               />
             </Pressable>
           </Animated.View>
         </View>
 
         <View style={styles.textContainer}>
-          <Text
-            style={[styles.name, { color: colors.textPrimary }]}
-            numberOfLines={1}
-          >
+          <Text style={[styles.name, { color: colors.textPrimary }]} numberOfLines={1}>
             {item.name}
           </Text>
 
@@ -126,10 +108,7 @@ export function ProductCard({ item, onPress, onHeartPress }: ProductCardProps) {
               <Text style={styles.categoryBadgeText}>{categoryLabel}</Text>
             </View>
             {item.brand && (
-              <Text
-                style={[styles.brandText, { color: colors.textMuted }]}
-                numberOfLines={1}
-              >
+              <Text style={[styles.brandText, { color: colors.textMuted }]} numberOfLines={1}>
                 {item.brand}
               </Text>
             )}
@@ -137,7 +116,7 @@ export function ProductCard({ item, onPress, onHeartPress }: ProductCardProps) {
         </View>
       </Pressable>
     </Animated.View>
-  );
+  )
 }
 
 const styles = StyleSheet.create({
@@ -231,4 +210,4 @@ const styles = StyleSheet.create({
     fontFamily: 'Syne_400Regular',
     flex: 1,
   },
-});
+})

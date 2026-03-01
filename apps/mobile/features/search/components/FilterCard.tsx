@@ -1,28 +1,24 @@
-import { useThemeColors } from '@/constants/useTheme';
-import { Feather } from '@expo/vector-icons';
-import * as Haptics from 'expo-haptics';
-import React, { useState } from 'react';
-import { LayoutAnimation, Pressable, StyleSheet, Text, View } from 'react-native';
+import { useThemeColors } from '@/constants/useTheme'
+import { Feather } from '@expo/vector-icons'
+import * as Haptics from 'expo-haptics'
+import React, { useState } from 'react'
+import { LayoutAnimation, Pressable, StyleSheet, Text, View } from 'react-native'
 
 interface FilterCardProps {
-  title: string;
-  defaultExpanded?: boolean;
-  children: React.ReactNode;
+  title: string
+  defaultExpanded?: boolean
+  children: React.ReactNode
 }
 
-export function FilterCard({
-  title,
-  defaultExpanded = true,
-  children,
-}: FilterCardProps) {
-  const colors = useThemeColors();
-  const [expanded, setExpanded] = useState(defaultExpanded);
+export function FilterCard({ title, defaultExpanded = true, children }: FilterCardProps) {
+  const colors = useThemeColors()
+  const [expanded, setExpanded] = useState(defaultExpanded)
 
   const toggle = () => {
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-    setExpanded((prev) => !prev);
-  };
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
+    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut)
+    setExpanded(prev => !prev)
+  }
 
   return (
     <View
@@ -32,12 +28,9 @@ export function FilterCard({
           backgroundColor: colors.searchCardBackground ?? colors.cardBackgroundElevated,
           borderColor: colors.border,
         },
-      ]}
-    >
+      ]}>
       <Pressable onPress={toggle} style={styles.header}>
-        <Text style={[styles.title, { color: colors.textPrimary }]}>
-          {title}
-        </Text>
+        <Text style={[styles.title, { color: colors.textPrimary }]}>{title}</Text>
         <Feather
           name={expanded ? 'chevron-up' : 'chevron-down'}
           size={18}
@@ -46,7 +39,7 @@ export function FilterCard({
       </Pressable>
       {expanded && <View style={styles.body}>{children}</View>}
     </View>
-  );
+  )
 }
 
 const styles = StyleSheet.create({
@@ -71,4 +64,4 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingBottom: 16,
   },
-});
+})

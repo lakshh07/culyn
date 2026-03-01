@@ -59,11 +59,7 @@
             "blue": 0,
             "alpha": 0.95
           },
-          "excludedPackages": [
-            "expo-dev-client",
-            "expo-splash-screen",
-            "expo-font"
-          ]
+          "excludedPackages": ["expo-dev-client", "expo-splash-screen", "expo-font"]
         }
       ],
       "expo-notifications"

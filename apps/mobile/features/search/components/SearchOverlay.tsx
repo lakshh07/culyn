@@ -1,6 +1,6 @@
-import { useThemeColors } from '@/constants/useTheme';
-import { ContentCategory } from '@culyn/shared/schemas';
-import React, { useCallback, useRef } from 'react';
+import { useThemeColors } from '@/constants/useTheme'
+import { ContentCategory } from '@culyn/shared/schemas'
+import React, { useCallback, useRef } from 'react'
 import {
   Dimensions,
   KeyboardAvoidingView,
@@ -10,49 +10,49 @@ import {
   StyleSheet,
   TextInput,
   View,
-} from 'react-native';
-import Animated from 'react-native-reanimated';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+} from 'react-native'
+import Animated from 'react-native-reanimated'
+import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
-import type { SearchFilterAction, SearchFilters } from '../types';
-import { CategoryTabsExpanded } from './CategoryTabsExpanded';
-import { PlaceFilters } from './PlaceFilters';
-import { ProductFilters } from './ProductFilters';
-import { RecipeFilters } from './RecipeFilters';
-import { SearchBottomBar } from './SearchBottomBar';
-import { SearchCard } from './SearchCard';
+import type { SearchFilterAction, SearchFilters } from '../types'
+import { CategoryTabsExpanded } from './CategoryTabsExpanded'
+import { PlaceFilters } from './PlaceFilters'
+import { ProductFilters } from './ProductFilters'
+import { RecipeFilters } from './RecipeFilters'
+import { SearchBottomBar } from './SearchBottomBar'
+import { SearchCard } from './SearchCard'
 
-const SCREEN_HEIGHT = Dimensions.get('window').height;
-const MAX_OVERLAY_HEIGHT = SCREEN_HEIGHT * 0.7;
+const SCREEN_HEIGHT = Dimensions.get('window').height
+const MAX_OVERLAY_HEIGHT = SCREEN_HEIGHT * 0.7
 
 interface SearchOverlayProps {
-  isOpen: boolean;
-  selectedCategory: ContentCategory;
-  onCategoryChange: (category: ContentCategory) => void;
-  filters: SearchFilters;
-  dispatch: React.Dispatch<SearchFilterAction>;
-  onSearch: () => void;
-  onClose: () => void;
-  onClearAll: () => void;
-  overlayStyle: any;
-  backdropStyle: any;
-  bottomBarStyle: any;
+  isOpen: boolean
+  selectedCategory: ContentCategory
+  onCategoryChange: (category: ContentCategory) => void
+  filters: SearchFilters
+  dispatch: React.Dispatch<SearchFilterAction>
+  onSearch: () => void
+  onClose: () => void
+  onClearAll: () => void
+  overlayStyle: any
+  backdropStyle: any
+  bottomBarStyle: any
 }
 
 const QUERY_ACTION_MAP: Record<ContentCategory, SearchFilterAction['type']> = {
   RECIPE: 'SET_RECIPE_Q',
   PLACE: 'SET_PLACE_Q',
   PRODUCT: 'SET_PRODUCT_Q',
-};
+}
 
 function getQuery(filters: SearchFilters, category: ContentCategory): string {
   switch (category) {
     case 'RECIPE':
-      return filters.recipe.q;
+      return filters.recipe.q
     case 'PLACE':
-      return filters.place.q;
+      return filters.place.q
     case 'PRODUCT':
-      return filters.product.q;
+      return filters.product.q
   }
 }
 
@@ -69,47 +69,39 @@ export function SearchOverlay({
   backdropStyle,
   bottomBarStyle,
 }: SearchOverlayProps) {
-  const colors = useThemeColors();
-  const insets = useSafeAreaInsets();
-  const inputRef = useRef<TextInput>(null);
+  const colors = useThemeColors()
+  const insets = useSafeAreaInsets()
+  const inputRef = useRef<TextInput>(null)
 
   const handleQueryChange = useCallback(
     (text: string) => {
       dispatch({
         type: QUERY_ACTION_MAP[selectedCategory],
         payload: text,
-      } as SearchFilterAction);
+      } as SearchFilterAction)
     },
-    [selectedCategory, dispatch],
-  );
+    [selectedCategory, dispatch]
+  )
 
-  const query = getQuery(filters, selectedCategory);
+  const query = getQuery(filters, selectedCategory)
 
   const renderCategoryFilters = () => {
     switch (selectedCategory) {
       case 'RECIPE':
-        return (
-          <RecipeFilters filters={filters.recipe} dispatch={dispatch} />
-        );
+        return <RecipeFilters filters={filters.recipe} dispatch={dispatch} />
       case 'PLACE':
-        return (
-          <PlaceFilters filters={filters.place} dispatch={dispatch} />
-        );
+        return <PlaceFilters filters={filters.place} dispatch={dispatch} />
       case 'PRODUCT':
-        return (
-          <ProductFilters filters={filters.product} dispatch={dispatch} />
-        );
+        return <ProductFilters filters={filters.product} dispatch={dispatch} />
     }
-  };
+  }
 
-  if (!isOpen) return null;
+  if (!isOpen) return null
 
   return (
     <>
       {/* Full-screen dim backdrop — tapping closes overlay */}
-      <Animated.View
-        style={[styles.backdrop, { backgroundColor: colors.black }, backdropStyle]}
-      >
+      <Animated.View style={[styles.backdrop, { backgroundColor: colors.black }, backdropStyle]}>
         <Pressable style={StyleSheet.absoluteFill} onPress={onClose} />
       </Animated.View>
 
@@ -124,13 +116,11 @@ export function SearchOverlay({
             shadowColor: colors.black,
           },
           overlayStyle,
-        ]}
-      >
+        ]}>
         <KeyboardAvoidingView
           style={styles.flex}
           behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-          keyboardVerticalOffset={0}
-        >
+          keyboardVerticalOffset={0}>
           {/* Category tabs + close (X) at top */}
           <View style={styles.topBar}>
             <CategoryTabsExpanded
@@ -146,8 +136,7 @@ export function SearchOverlay({
             contentContainerStyle={styles.scrollContent}
             keyboardShouldPersistTaps="handled"
             showsVerticalScrollIndicator={false}
-            bounces={false}
-          >
+            bounces={false}>
             <SearchCard
               ref={inputRef}
               category={selectedCategory}
@@ -167,7 +156,7 @@ export function SearchOverlay({
         </KeyboardAvoidingView>
       </Animated.View>
     </>
-  );
+  )
 }
 
 const styles = StyleSheet.create({
@@ -199,4 +188,4 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingBottom: 8,
   },
-});
+})

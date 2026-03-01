@@ -1,18 +1,11 @@
-import { useThemeColors } from '@/constants/useTheme';
-import { apiClient } from '@/lib/api';
-import { authClient } from '@/lib/auth-client';
-import { requestNotificationPermissions } from '@/lib/notifications';
-import { Ionicons } from '@expo/vector-icons';
-import { LinearGradient } from 'expo-linear-gradient';
-import { useRouter } from 'expo-router';
-import React, {
-  useCallback,
-  useEffect,
-  useMemo,
-  useReducer,
-  useRef,
-  useState,
-} from 'react';
+import { useThemeColors } from '@/constants/useTheme'
+import { apiClient } from '@/lib/api'
+import { authClient } from '@/lib/auth-client'
+import { requestNotificationPermissions } from '@/lib/notifications'
+import { Ionicons } from '@expo/vector-icons'
+import { LinearGradient } from 'expo-linear-gradient'
+import { useRouter } from 'expo-router'
+import React, { useCallback, useEffect, useMemo, useReducer, useRef, useState } from 'react'
 import {
   ActivityIndicator,
   Dimensions,
@@ -30,25 +23,22 @@ import {
   TouchableOpacity,
   View,
   ViewToken,
-} from 'react-native';
+} from 'react-native'
 import Animated, {
   Easing,
   useAnimatedStyle,
   useSharedValue,
   withSpring,
   withTiming,
-} from 'react-native-reanimated';
-import {
-  SafeAreaView,
-  useSafeAreaInsets,
-} from 'react-native-safe-area-context';
-import { scheduleOnRN } from 'react-native-worklets';
+} from 'react-native-reanimated'
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
+import { scheduleOnRN } from 'react-native-worklets'
 
-const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
+const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window')
 
-const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
-type SheetMode = 'email' | 'checking' | 'signin' | 'signup';
+type SheetMode = 'email' | 'checking' | 'signin' | 'signup'
 
 const SLIDES = [
   {
@@ -69,17 +59,17 @@ const SLIDES = [
     sub: 'Build your personal library of recipes, cafes, outfits, gadgets, and more - and see what others are loving.',
     image: require('@/assets/images/onboarding/03.png'),
   },
-];
+]
 
-const LOOP_SLIDES = [...SLIDES, { ...SLIDES[0], id: 'loop-0' }];
+const LOOP_SLIDES = [...SLIDES, { ...SLIDES[0], id: 'loop-0' }]
 
 type AuthFormState = {
-  email: string;
-  password: string;
-  name: string;
-  loading: boolean;
-  error: string;
-};
+  email: string
+  password: string
+  name: string
+  loading: boolean
+  error: string
+}
 
 type AuthFormAction =
   | { type: 'SET_EMAIL'; payload: string }
@@ -88,25 +78,22 @@ type AuthFormAction =
   | { type: 'SET_LOADING'; payload: boolean }
   | { type: 'SET_ERROR'; payload: string }
   | { type: 'RESET_PASSWORD_AND_NAME' }
-  | { type: 'RESET_FORM' };
+  | { type: 'RESET_FORM' }
 
-function authFormReducer(
-  state: AuthFormState,
-  action: AuthFormAction,
-): AuthFormState {
+function authFormReducer(state: AuthFormState, action: AuthFormAction): AuthFormState {
   switch (action.type) {
     case 'SET_EMAIL':
-      return { ...state, email: action.payload };
+      return { ...state, email: action.payload }
     case 'SET_PASSWORD':
-      return { ...state, password: action.payload };
+      return { ...state, password: action.payload }
     case 'SET_NAME':
-      return { ...state, name: action.payload };
+      return { ...state, name: action.payload }
     case 'SET_LOADING':
-      return { ...state, loading: action.payload };
+      return { ...state, loading: action.payload }
     case 'SET_ERROR':
-      return { ...state, error: action.payload };
+      return { ...state, error: action.payload }
     case 'RESET_PASSWORD_AND_NAME':
-      return { ...state, password: '', name: '', error: '' };
+      return { ...state, password: '', name: '', error: '' }
     case 'RESET_FORM':
       return {
         email: state.email,
@@ -114,20 +101,20 @@ function authFormReducer(
         name: '',
         loading: false,
         error: '',
-      };
+      }
     default:
-      return state;
+      return state
   }
 }
 
 type GradientButtonProps = {
-  onPress: () => void;
-  disabled?: boolean;
-  loading?: boolean;
-  text: string;
-  colors: { primaryGradientStart: string; primaryGradientEnd: string };
-  style?: object;
-};
+  onPress: () => void
+  disabled?: boolean
+  loading?: boolean
+  text: string
+  colors: { primaryGradientStart: string; primaryGradientEnd: string }
+  style?: object
+}
 
 const GradientButton = React.memo<GradientButtonProps>(function GradientButton({
   onPress,
@@ -141,60 +128,58 @@ const GradientButton = React.memo<GradientButtonProps>(function GradientButton({
     <TouchableOpacity
       onPress={onPress}
       disabled={disabled || loading}
-      style={[styles.primaryBtn, style]}
-    >
+      style={[styles.primaryBtn, style]}>
       <LinearGradient
         colors={[colors.primaryGradientStart, colors.primaryGradientEnd]}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
-        style={styles.gradientBtn}
-      >
+        style={styles.gradientBtn}>
         {loading ? (
-          <ActivityIndicator color='#FFFFFF' />
+          <ActivityIndicator color="#FFFFFF" />
         ) : (
           <Text style={styles.primaryBtnText}>{text}</Text>
         )}
       </LinearGradient>
     </TouchableOpacity>
-  );
-});
+  )
+})
 
 export default function OnboardingScreen() {
-  const colors = useThemeColors();
-  const router = useRouter();
-  const insets = useSafeAreaInsets();
+  const colors = useThemeColors()
+  const router = useRouter()
+  const insets = useSafeAreaInsets()
 
   // Carousel
-  const [currentSlide, setCurrentSlide] = useState(0);
-  const flatListRef = useRef<FlatList>(null);
-  const viewabilityConfig = useRef({ viewAreaCoveragePercentThreshold: 50 });
-  const carouselTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const [currentSlide, setCurrentSlide] = useState(0)
+  const flatListRef = useRef<FlatList>(null)
+  const viewabilityConfig = useRef({ viewAreaCoveragePercentThreshold: 50 })
+  const carouselTimerRef = useRef<ReturnType<typeof setInterval> | null>(null)
 
   useEffect(() => {
     carouselTimerRef.current = setInterval(() => {
-      setCurrentSlide((prev) => {
-        const next = prev + 1;
-        flatListRef.current?.scrollToIndex({ index: next, animated: true });
+      setCurrentSlide(prev => {
+        const next = prev + 1
+        flatListRef.current?.scrollToIndex({ index: next, animated: true })
         if (next >= SLIDES.length) {
           setTimeout(() => {
-            flatListRef.current?.scrollToIndex({ index: 0, animated: false });
-          }, 380);
-          return 0;
+            flatListRef.current?.scrollToIndex({ index: 0, animated: false })
+          }, 380)
+          return 0
         }
-        return next;
-      });
-    }, 3000);
+        return next
+      })
+    }, 3000)
 
     return () => {
       if (carouselTimerRef.current) {
-        clearInterval(carouselTimerRef.current);
+        clearInterval(carouselTimerRef.current)
       }
-    };
-  }, []);
+    }
+  }, [])
 
   // Sheet state
-  const [sheetVisible, setSheetVisible] = useState(false);
-  const [sheetMode, setSheetMode] = useState<SheetMode>('email');
+  const [sheetVisible, setSheetVisible] = useState(false)
+  const [sheetMode, setSheetMode] = useState<SheetMode>('email')
 
   // Auth form state with reducer
   const [formState, dispatch] = useReducer(authFormReducer, {
@@ -203,277 +188,258 @@ export default function OnboardingScreen() {
     name: '',
     loading: false,
     error: '',
-  });
+  })
 
   // Animated values
-  const sheetTranslateY = useSharedValue(SCREEN_HEIGHT);
-  const backdropOpacity = useSharedValue(0);
-  const contentOpacity = useSharedValue(1);
-  const buttonScale = useSharedValue(1);
+  const sheetTranslateY = useSharedValue(SCREEN_HEIGHT)
+  const backdropOpacity = useSharedValue(0)
+  const contentOpacity = useSharedValue(1)
+  const buttonScale = useSharedValue(1)
 
   // ── Sheet open / close ──────────────────────────────────────────────────
 
   const openSheet = useCallback(() => {
-    setSheetMode('email');
-    dispatch({ type: 'RESET_PASSWORD_AND_NAME' });
-    setSheetVisible(true);
-    sheetTranslateY.value = SCREEN_HEIGHT;
-    backdropOpacity.value = 0;
+    setSheetMode('email')
+    dispatch({ type: 'RESET_PASSWORD_AND_NAME' })
+    setSheetVisible(true)
+    sheetTranslateY.value = SCREEN_HEIGHT
+    backdropOpacity.value = 0
     sheetTranslateY.value = withTiming(0, {
       duration: 340,
       easing: Easing.out(Easing.cubic),
-    });
-    backdropOpacity.value = withTiming(0.6, { duration: 280 });
-  }, [sheetTranslateY, backdropOpacity]);
+    })
+    backdropOpacity.value = withTiming(0.6, { duration: 280 })
+  }, [sheetTranslateY, backdropOpacity])
 
   const closeSheet = useCallback(() => {
-    Keyboard.dismiss();
+    Keyboard.dismiss()
     sheetTranslateY.value = withTiming(SCREEN_HEIGHT, { duration: 320 }, () => {
-      scheduleOnRN(setSheetVisible, false);
-      scheduleOnRN(setSheetMode, 'email');
-      scheduleOnRN(dispatch, { type: 'RESET_FORM' });
-    });
-    backdropOpacity.value = withTiming(0, { duration: 280 });
-  }, [sheetTranslateY, backdropOpacity]);
+      scheduleOnRN(setSheetVisible, false)
+      scheduleOnRN(setSheetMode, 'email')
+      scheduleOnRN(dispatch, { type: 'RESET_FORM' })
+    })
+    backdropOpacity.value = withTiming(0, { duration: 280 })
+  }, [sheetTranslateY, backdropOpacity])
 
   const transitionTo = useCallback(
     (newMode: SheetMode) => {
       contentOpacity.value = withTiming(0, { duration: 150 }, () => {
-        scheduleOnRN(setSheetMode, newMode);
-        scheduleOnRN(dispatch, { type: 'SET_ERROR', payload: '' });
+        scheduleOnRN(setSheetMode, newMode)
+        scheduleOnRN(dispatch, { type: 'SET_ERROR', payload: '' })
         if (newMode === 'email') {
-          scheduleOnRN(dispatch, { type: 'RESET_PASSWORD_AND_NAME' });
+          scheduleOnRN(dispatch, { type: 'RESET_PASSWORD_AND_NAME' })
         }
-        contentOpacity.value = withTiming(1, { duration: 200 });
-      });
+        contentOpacity.value = withTiming(1, { duration: 200 })
+      })
     },
-    [contentOpacity],
-  );
+    [contentOpacity]
+  )
 
   // ── Animated styles ─────────────────────────────────────────────────────
 
   const backdropAnimStyle = useAnimatedStyle(() => ({
     opacity: backdropOpacity.value,
-  }));
+  }))
 
   const sheetAnimStyle = useAnimatedStyle(() => ({
     transform: [{ translateY: sheetTranslateY.value }],
-  }));
+  }))
 
   const contentAnimStyle = useAnimatedStyle(() => ({
     opacity: contentOpacity.value,
-  }));
+  }))
 
   const buttonAnimStyle = useAnimatedStyle(() => ({
     transform: [{ scale: buttonScale.value }],
-  }));
+  }))
 
   // ── Carousel ─────────────────────────────────────────────────────────────
 
   const onViewableItemsChanged = useCallback(
     ({ viewableItems }: { viewableItems: ViewToken[] }) => {
       if (viewableItems.length > 0 && viewableItems[0].index !== null) {
-        const idx = viewableItems[0].index!;
-        setCurrentSlide(idx >= SLIDES.length ? 0 : idx);
+        const idx = viewableItems[0].index!
+        setCurrentSlide(idx >= SLIDES.length ? 0 : idx)
       }
     },
-    [],
-  );
+    []
+  )
 
   const renderSlide = useCallback(
     ({ item }: { item: (typeof SLIDES)[0] }) => (
       <View style={[styles.slide, { width: SCREEN_WIDTH }]}>
-        <Image
-          source={item.image}
-          style={styles.slideImage}
-          resizeMode='contain'
-        />
+        <Image source={item.image} style={styles.slideImage} resizeMode="contain" />
         <View style={styles.textArea}>
-          <Text style={[styles.headline, { color: colors.textPrimary }]}>
-            {item.headline}
-          </Text>
-          <Text style={[styles.subtext, { color: colors.textSecondary }]}>
-            {item.sub}
-          </Text>
+          <Text style={[styles.headline, { color: colors.textPrimary }]}>{item.headline}</Text>
+          <Text style={[styles.subtext, { color: colors.textSecondary }]}>{item.sub}</Text>
         </View>
       </View>
     ),
-    [colors.textPrimary, colors.textSecondary],
-  );
+    [colors.textPrimary, colors.textSecondary]
+  )
 
   const handleContinue = useCallback(async () => {
-    const emailValue = formState.email.trim();
+    const emailValue = formState.email.trim()
 
     if (!emailValue) {
-      dispatch({ type: 'SET_ERROR', payload: 'Please enter your email' });
-      return;
+      dispatch({ type: 'SET_ERROR', payload: 'Please enter your email' })
+      return
     }
 
     if (!EMAIL_REGEX.test(emailValue)) {
-      dispatch({ type: 'SET_ERROR', payload: 'Please enter a valid email' });
-      return;
+      dispatch({ type: 'SET_ERROR', payload: 'Please enter a valid email' })
+      return
     }
 
-    dispatch({ type: 'SET_LOADING', payload: true });
+    dispatch({ type: 'SET_LOADING', payload: true })
 
-    let userExists = false;
+    let userExists = false
 
     try {
-      const result = await apiClient().get(`/user/lookup?email=${emailValue}`);
-      userExists = result.data.user !== null;
+      const result = await apiClient().get(`/user/lookup?email=${emailValue}`)
+      userExists = result.data.user !== null
     } catch {
-      userExists = false;
+      userExists = false
     }
 
-    dispatch({ type: 'SET_LOADING', payload: false });
+    dispatch({ type: 'SET_LOADING', payload: false })
 
-    transitionTo(userExists ? 'signin' : 'signup');
-  }, [formState.email, transitionTo]);
+    transitionTo(userExists ? 'signin' : 'signup')
+  }, [formState.email, transitionTo])
 
   const handleSignIn = useCallback(async () => {
     if (!formState.password.trim()) {
-      dispatch({ type: 'SET_ERROR', payload: 'Please enter your password' });
-      return;
+      dispatch({ type: 'SET_ERROR', payload: 'Please enter your password' })
+      return
     }
 
-    dispatch({ type: 'SET_ERROR', payload: '' });
-    dispatch({ type: 'SET_LOADING', payload: true });
+    dispatch({ type: 'SET_ERROR', payload: '' })
+    dispatch({ type: 'SET_LOADING', payload: true })
 
     try {
       const result = await authClient.signIn.email({
         email: formState.email,
         password: formState.password,
-      });
+      })
       if (result.error) {
         dispatch({
           type: 'SET_ERROR',
           payload: result.error.message || 'Failed to sign in',
-        });
-        dispatch({ type: 'SET_LOADING', payload: false });
-        return;
+        })
+        dispatch({ type: 'SET_LOADING', payload: false })
+        return
       }
-      router.replace('/(tabs)/discover');
+      router.replace('/(tabs)/discover')
     } catch (err) {
       dispatch({
         type: 'SET_ERROR',
-        payload:
-          err instanceof Error
-            ? err.message
-            : 'An error occurred. Please try again.',
-      });
-      dispatch({ type: 'SET_LOADING', payload: false });
+        payload: err instanceof Error ? err.message : 'An error occurred. Please try again.',
+      })
+      dispatch({ type: 'SET_LOADING', payload: false })
     }
-  }, [formState.email, formState.password, router]);
+  }, [formState.email, formState.password, router])
 
   const handleSignUp = useCallback(async () => {
     if (!formState.name.trim()) {
-      dispatch({ type: 'SET_ERROR', payload: 'Please enter your name' });
-      return;
+      dispatch({ type: 'SET_ERROR', payload: 'Please enter your name' })
+      return
     }
     if (!formState.password.trim()) {
-      dispatch({ type: 'SET_ERROR', payload: 'Please enter a password' });
-      return;
+      dispatch({ type: 'SET_ERROR', payload: 'Please enter a password' })
+      return
     }
     if (formState.password.length < 8) {
       dispatch({
         type: 'SET_ERROR',
         payload: 'Password must be at least 8 characters',
-      });
-      return;
+      })
+      return
     }
 
-    dispatch({ type: 'SET_ERROR', payload: '' });
-    dispatch({ type: 'SET_LOADING', payload: true });
+    dispatch({ type: 'SET_ERROR', payload: '' })
+    dispatch({ type: 'SET_LOADING', payload: true })
 
     try {
       const result = await authClient.signUp.email({
         email: formState.email,
         password: formState.password,
         name: formState.name,
-      });
+      })
       if (result.error) {
         dispatch({
           type: 'SET_ERROR',
           payload: result.error.message || 'Failed to create account',
-        });
-        dispatch({ type: 'SET_LOADING', payload: false });
-        return;
+        })
+        dispatch({ type: 'SET_LOADING', payload: false })
+        return
       }
-      requestNotificationPermissions();
+      requestNotificationPermissions()
       router.replace({
         pathname: '/(tabs)/discover',
         params: { showUpgrade: '1' },
-      });
+      })
     } catch (err) {
       dispatch({
         type: 'SET_ERROR',
-        payload:
-          err instanceof Error
-            ? err.message
-            : 'An error occurred. Please try again.',
-      });
-      dispatch({ type: 'SET_LOADING', payload: false });
+        payload: err instanceof Error ? err.message : 'An error occurred. Please try again.',
+      })
+      dispatch({ type: 'SET_LOADING', payload: false })
     }
-  }, [formState.email, formState.password, formState.name, router]);
+  }, [formState.email, formState.password, formState.name, router])
 
   const handleGoogleSignIn = useCallback(async () => {
-    dispatch({ type: 'SET_ERROR', payload: '' });
-    dispatch({ type: 'SET_LOADING', payload: true });
+    dispatch({ type: 'SET_ERROR', payload: '' })
+    dispatch({ type: 'SET_LOADING', payload: true })
 
     try {
       await authClient.signIn.social({
         provider: 'google',
         callbackURL: '/(tabs)/discover',
-      });
+      })
     } catch {
-      dispatch({ type: 'SET_ERROR', payload: 'Failed to sign in with Google' });
-      dispatch({ type: 'SET_LOADING', payload: false });
+      dispatch({ type: 'SET_ERROR', payload: 'Failed to sign in with Google' })
+      dispatch({ type: 'SET_LOADING', payload: false })
     }
-  }, []);
+  }, [])
 
   const handleAppleSignIn = useCallback(async () => {
-    dispatch({ type: 'SET_ERROR', payload: '' });
-    dispatch({ type: 'SET_LOADING', payload: true });
+    dispatch({ type: 'SET_ERROR', payload: '' })
+    dispatch({ type: 'SET_LOADING', payload: true })
 
     try {
       await authClient.signIn.social({
         provider: 'apple',
         callbackURL: '/(tabs)/discover',
-      });
+      })
     } catch {
-      dispatch({ type: 'SET_ERROR', payload: 'Failed to sign in with Apple' });
-      dispatch({ type: 'SET_LOADING', payload: false });
+      dispatch({ type: 'SET_ERROR', payload: 'Failed to sign in with Apple' })
+      dispatch({ type: 'SET_LOADING', payload: false })
     }
-  }, []);
+  }, [])
 
   const sheetTitle = useMemo(() => {
-    if (sheetMode === 'email' || sheetMode === 'checking')
-      return 'Welcome to Culyn';
-    if (sheetMode === 'signin') return 'Sign In';
-    return 'Create Account';
-  }, [sheetMode]);
+    if (sheetMode === 'email' || sheetMode === 'checking') return 'Welcome to Culyn'
+    if (sheetMode === 'signin') return 'Sign In'
+    return 'Create Account'
+  }, [sheetMode])
 
   return (
-    <View
-      style={[styles.outerContainer, { backgroundColor: colors.background }]}
-    >
-      <StatusBar barStyle='dark-content' />
+    <View style={[styles.outerContainer, { backgroundColor: colors.background }]}>
+      <StatusBar barStyle="dark-content" />
       <SafeAreaView style={styles.safeArea} edges={['top', 'left', 'right']}>
         <View style={styles.logoArea}>
-          <Text style={[styles.logo, { color: colors.textPrimary }]}>
-            Culyn
-          </Text>
+          <Text style={[styles.logo, { color: colors.textPrimary }]}>Culyn</Text>
         </View>
 
         <FlatList
           ref={flatListRef}
           data={LOOP_SLIDES}
           renderItem={renderSlide}
-          keyExtractor={(item) => item.id}
+          keyExtractor={item => item.id}
           horizontal
           pagingEnabled
           showsHorizontalScrollIndicator={false}
-          snapToAlignment='start'
+          snapToAlignment="start"
           onViewableItemsChanged={onViewableItemsChanged}
           viewabilityConfig={viewabilityConfig.current}
           style={styles.flatList}
@@ -484,9 +450,7 @@ export default function OnboardingScreen() {
           })}
         />
 
-        <View
-          style={[styles.bottomControls, { paddingBottom: insets.bottom + 20 }]}
-        >
+        <View style={[styles.bottomControls, { paddingBottom: insets.bottom + 20 }]}>
           <View style={styles.dots}>
             {SLIDES.map((_, i) => (
               <View
@@ -494,8 +458,7 @@ export default function OnboardingScreen() {
                 style={[
                   styles.dot,
                   {
-                    backgroundColor:
-                      i === currentSlide ? colors.primary : colors.border,
+                    backgroundColor: i === currentSlide ? colors.primary : colors.border,
                     width: i === currentSlide ? 22 : 8,
                   },
                 ]}
@@ -507,26 +470,21 @@ export default function OnboardingScreen() {
             <Pressable
               onPress={openSheet}
               onPressIn={() => {
-                buttonScale.value = withSpring(0.96, { damping: 20 });
+                buttonScale.value = withSpring(0.96, { damping: 20 })
               }}
               onPressOut={() => {
-                buttonScale.value = withSpring(1, { damping: 20 });
-              }}
-            >
+                buttonScale.value = withSpring(1, { damping: 20 })
+              }}>
               <LinearGradient
-                colors={[
-                  colors.primaryGradientStart,
-                  colors.primaryGradientEnd,
-                ]}
+                colors={[colors.primaryGradientStart, colors.primaryGradientEnd]}
                 start={{ x: 0, y: 0 }}
                 end={{ x: 1, y: 1 }}
-                style={styles.getStartedBtn}
-              >
+                style={styles.getStartedBtn}>
                 <Text style={styles.getStartedText}>Get Started</Text>
                 <Ionicons
-                  name='arrow-forward'
+                  name="arrow-forward"
                   size={18}
-                  color='#FFFFFF'
+                  color="#FFFFFF"
                   style={{ marginLeft: 8 }}
                 />
               </LinearGradient>
@@ -534,8 +492,7 @@ export default function OnboardingScreen() {
           </Animated.View>
 
           <Text style={[styles.termsText, { color: colors.textMuted }]}>
-            By continuing, you agree to our{' '}
-            <Text style={{ color: colors.primary }}>Terms</Text>
+            By continuing, you agree to our <Text style={{ color: colors.primary }}>Terms</Text>
             {' & '}
             <Text style={{ color: colors.primary }}>Privacy Policy</Text>
           </Text>
@@ -544,52 +501,32 @@ export default function OnboardingScreen() {
 
       <Animated.View
         style={[styles.backdrop, backdropAnimStyle]}
-        pointerEvents={sheetVisible ? 'auto' : 'none'}
-      >
+        pointerEvents={sheetVisible ? 'auto' : 'none'}>
         <Pressable style={StyleSheet.absoluteFillObject} onPress={closeSheet} />
       </Animated.View>
 
       <Animated.View
-        style={[
-          styles.sheet,
-          { backgroundColor: colors.background },
-          sheetAnimStyle,
-        ]}
-        pointerEvents={sheetVisible ? 'auto' : 'none'}
-      >
+        style={[styles.sheet, { backgroundColor: colors.background }, sheetAnimStyle]}
+        pointerEvents={sheetVisible ? 'auto' : 'none'}>
         <View style={styles.sheetHandle}>
-          <View
-            style={[styles.handleBar, { backgroundColor: colors.border }]}
-          />
+          <View style={[styles.handleBar, { backgroundColor: colors.border }]} />
         </View>
 
         <View style={styles.sheetHeader}>
-          <Text style={[styles.sheetTitle, { color: colors.textPrimary }]}>
-            {sheetTitle}
-          </Text>
-          <TouchableOpacity
-            onPress={closeSheet}
-            hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-          >
-            <Text style={[styles.cancelText, { color: colors.textSecondary }]}>
-              Cancel
-            </Text>
+          <Text style={[styles.sheetTitle, { color: colors.textPrimary }]}>{sheetTitle}</Text>
+          <TouchableOpacity onPress={closeSheet} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
+            <Text style={[styles.cancelText, { color: colors.textSecondary }]}>Cancel</Text>
           </TouchableOpacity>
         </View>
 
         <KeyboardAvoidingView
           behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
           style={{ flex: 1 }}
-          keyboardVerticalOffset={8}
-        >
+          keyboardVerticalOffset={8}>
           <ScrollView
-            keyboardShouldPersistTaps='handled'
+            keyboardShouldPersistTaps="handled"
             showsVerticalScrollIndicator={false}
-            contentContainerStyle={[
-              styles.sheetContent,
-              { paddingBottom: insets.bottom + 24 },
-            ]}
-          >
+            contentContainerStyle={[styles.sheetContent, { paddingBottom: insets.bottom + 24 }]}>
             <Animated.View style={contentAnimStyle}>
               {sheetMode === 'email' && (
                 <View>
@@ -604,37 +541,30 @@ export default function OnboardingScreen() {
                           paddingRight: formState.loading ? 50 : 16,
                         },
                       ]}
-                      placeholder='Enter your email'
+                      placeholder="Enter your email"
                       placeholderTextColor={colors.textMuted}
                       value={formState.email}
-                      onChangeText={(text) =>
-                        dispatch({ type: 'SET_EMAIL', payload: text })
-                      }
-                      keyboardType='email-address'
-                      autoCapitalize='none'
+                      onChangeText={text => dispatch({ type: 'SET_EMAIL', payload: text })}
+                      keyboardType="email-address"
+                      autoCapitalize="none"
                       autoCorrect={false}
                       editable={!formState.loading}
-                      returnKeyType='done'
+                      returnKeyType="done"
                       onSubmitEditing={handleContinue}
                     />
                     {formState.loading && (
                       <View style={styles.inputLoadingIndicator}>
-                        <ActivityIndicator
-                          size='small'
-                          color={colors.primary}
-                        />
+                        <ActivityIndicator size="small" color={colors.primary} />
                       </View>
                     )}
                   </View>
                   {!!formState.error && (
-                    <Text style={[styles.error, { color: colors.error }]}>
-                      {formState.error}
-                    </Text>
+                    <Text style={[styles.error, { color: colors.error }]}>{formState.error}</Text>
                   )}
                   <GradientButton
                     onPress={handleContinue}
                     loading={formState.loading}
-                    text='Continue'
+                    text="Continue"
                     colors={colors}
                   />
                 </View>
@@ -644,20 +574,12 @@ export default function OnboardingScreen() {
                 <View>
                   <View style={styles.emailRow}>
                     <Text
-                      style={[
-                        styles.emailDisplay,
-                        { color: colors.textSecondary },
-                      ]}
-                      numberOfLines={1}
-                    >
+                      style={[styles.emailDisplay, { color: colors.textSecondary }]}
+                      numberOfLines={1}>
                       {formState.email}
                     </Text>
                     <TouchableOpacity onPress={() => transitionTo('email')}>
-                      <Text
-                        style={[styles.editLink, { color: colors.primary }]}
-                      >
-                        Edit
-                      </Text>
+                      <Text style={[styles.editLink, { color: colors.primary }]}>Edit</Text>
                     </TouchableOpacity>
                   </View>
                   <TextInput
@@ -669,28 +591,24 @@ export default function OnboardingScreen() {
                         color: colors.textPrimary,
                       },
                     ]}
-                    placeholder='Enter your password'
+                    placeholder="Enter your password"
                     placeholderTextColor={colors.textMuted}
                     value={formState.password}
-                    onChangeText={(text) =>
-                      dispatch({ type: 'SET_PASSWORD', payload: text })
-                    }
+                    onChangeText={text => dispatch({ type: 'SET_PASSWORD', payload: text })}
                     secureTextEntry
-                    autoCapitalize='none'
+                    autoCapitalize="none"
                     autoCorrect={false}
                     editable={!formState.loading}
-                    returnKeyType='done'
+                    returnKeyType="done"
                     onSubmitEditing={handleSignIn}
                   />
                   {!!formState.error && (
-                    <Text style={[styles.error, { color: colors.error }]}>
-                      {formState.error}
-                    </Text>
+                    <Text style={[styles.error, { color: colors.error }]}>{formState.error}</Text>
                   )}
                   <GradientButton
                     onPress={handleSignIn}
                     loading={formState.loading}
-                    text='Sign In'
+                    text="Sign In"
                     colors={colors}
                   />
                 </View>
@@ -701,20 +619,12 @@ export default function OnboardingScreen() {
                 <View>
                   <View style={styles.emailRow}>
                     <Text
-                      style={[
-                        styles.emailDisplay,
-                        { color: colors.textSecondary },
-                      ]}
-                      numberOfLines={1}
-                    >
+                      style={[styles.emailDisplay, { color: colors.textSecondary }]}
+                      numberOfLines={1}>
                       {formState.email}
                     </Text>
                     <TouchableOpacity onPress={() => transitionTo('email')}>
-                      <Text
-                        style={[styles.editLink, { color: colors.primary }]}
-                      >
-                        Edit
-                      </Text>
+                      <Text style={[styles.editLink, { color: colors.primary }]}>Edit</Text>
                     </TouchableOpacity>
                   </View>
                   <TextInput
@@ -726,16 +636,14 @@ export default function OnboardingScreen() {
                         color: colors.textPrimary,
                       },
                     ]}
-                    placeholder='Your full name'
+                    placeholder="Your full name"
                     placeholderTextColor={colors.textMuted}
                     value={formState.name}
-                    onChangeText={(text) =>
-                      dispatch({ type: 'SET_NAME', payload: text })
-                    }
-                    autoCapitalize='words'
+                    onChangeText={text => dispatch({ type: 'SET_NAME', payload: text })}
+                    autoCapitalize="words"
                     autoCorrect={false}
                     editable={!formState.loading}
-                    returnKeyType='next'
+                    returnKeyType="next"
                   />
                   <TextInput
                     style={[
@@ -747,28 +655,24 @@ export default function OnboardingScreen() {
                         marginTop: 12,
                       },
                     ]}
-                    placeholder='Create a password (min 8 chars)'
+                    placeholder="Create a password (min 8 chars)"
                     placeholderTextColor={colors.textMuted}
                     value={formState.password}
-                    onChangeText={(text) =>
-                      dispatch({ type: 'SET_PASSWORD', payload: text })
-                    }
+                    onChangeText={text => dispatch({ type: 'SET_PASSWORD', payload: text })}
                     secureTextEntry
-                    autoCapitalize='none'
+                    autoCapitalize="none"
                     autoCorrect={false}
                     editable={!formState.loading}
-                    returnKeyType='done'
+                    returnKeyType="done"
                     onSubmitEditing={handleSignUp}
                   />
                   {!!formState.error && (
-                    <Text style={[styles.error, { color: colors.error }]}>
-                      {formState.error}
-                    </Text>
+                    <Text style={[styles.error, { color: colors.error }]}>{formState.error}</Text>
                   )}
                   <GradientButton
                     onPress={handleSignUp}
                     loading={formState.loading}
-                    text='Create Account'
+                    text="Create Account"
                     colors={colors}
                   />
                 </View>
@@ -777,24 +681,17 @@ export default function OnboardingScreen() {
 
             {/* ── Divider ── */}
             <View style={styles.divider}>
-              <View
-                style={[styles.dividerLine, { backgroundColor: colors.border }]}
-              />
-              <Text style={[styles.dividerLabel, { color: colors.textMuted }]}>
-                OR
-              </Text>
-              <View
-                style={[styles.dividerLine, { backgroundColor: colors.border }]}
-              />
+              <View style={[styles.dividerLine, { backgroundColor: colors.border }]} />
+              <Text style={[styles.dividerLabel, { color: colors.textMuted }]}>OR</Text>
+              <View style={[styles.dividerLine, { backgroundColor: colors.border }]} />
             </View>
 
             {/* ── Social buttons ── */}
             <TouchableOpacity
               style={styles.appleBtn}
               onPress={handleAppleSignIn}
-              disabled={formState.loading}
-            >
-              <Ionicons name='logo-apple' size={20} color='#FFFFFF' />
+              disabled={formState.loading}>
+              <Ionicons name="logo-apple" size={20} color="#FFFFFF" />
               <Text style={styles.appleBtnText}>Continue with Apple</Text>
             </TouchableOpacity>
 
@@ -807,12 +704,9 @@ export default function OnboardingScreen() {
                 },
               ]}
               onPress={handleGoogleSignIn}
-              disabled={formState.loading}
-            >
+              disabled={formState.loading}>
               <Text style={styles.googleG}>G</Text>
-              <Text
-                style={[styles.googleBtnText, { color: colors.textPrimary }]}
-              >
+              <Text style={[styles.googleBtnText, { color: colors.textPrimary }]}>
                 Continue with Google
               </Text>
             </TouchableOpacity>
@@ -820,7 +714,7 @@ export default function OnboardingScreen() {
         </KeyboardAvoidingView>
       </Animated.View>
     </View>
-  );
+  )
 }
 
 const styles = StyleSheet.create({
@@ -1069,4 +963,4 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontFamily: 'Poppins_500Medium',
   },
-});
+})

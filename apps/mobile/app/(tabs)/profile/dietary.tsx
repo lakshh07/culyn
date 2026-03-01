@@ -1,8 +1,8 @@
-import { DietaryChipSelector } from '@/components/settings/DietaryChipSelector';
-import { useThemeColors } from '@/constants/useTheme';
-import { apiClient } from '@/lib/api';
-import { useMutation, useQuery } from '@tanstack/react-query';
-import React, { useEffect, useState } from 'react';
+import { DietaryChipSelector } from '@/components/settings/DietaryChipSelector'
+import { useThemeColors } from '@/constants/useTheme'
+import { apiClient } from '@/lib/api'
+import { useMutation, useQuery } from '@tanstack/react-query'
+import React, { useEffect, useState } from 'react'
 import {
   ActivityIndicator,
   Alert,
@@ -12,15 +12,15 @@ import {
   TextInput,
   TouchableOpacity,
   View,
-} from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+} from 'react-native'
+import { SafeAreaView } from 'react-native-safe-area-context'
 
 interface DietaryPreference {
-  id: string;
-  type: string;
-  allergens: string[];
-  dislikes: string[];
-  preferences: string | null;
+  id: string
+  type: string
+  allergens: string[]
+  dislikes: string[]
+  preferences: string | null
 }
 
 const DIET_TYPES = [
@@ -35,7 +35,7 @@ const DIET_TYPES = [
   { value: 'LOW_FAT', label: 'Low Fat' },
   { value: 'HALAL', label: 'Halal' },
   { value: 'KOSHER', label: 'Kosher' },
-];
+]
 
 const COMMON_ALLERGENS = [
   { value: 'nuts', label: 'Nuts' },
@@ -47,106 +47,91 @@ const COMMON_ALLERGENS = [
   { value: 'fish', label: 'Fish' },
   { value: 'wheat', label: 'Wheat' },
   { value: 'sesame', label: 'Sesame' },
-];
+]
 
 export default function DietaryPreferencesScreen() {
-  const colors = useThemeColors();
-  const [selectedDietTypes, setSelectedDietTypes] = useState<string[]>([]);
-  const [selectedAllergens, setSelectedAllergens] = useState<string[]>([]);
-  const [dislikedIngredients, setDislikedIngredients] = useState('');
-  const [additionalPreferences, setAdditionalPreferences] = useState('');
+  const colors = useThemeColors()
+  const [selectedDietTypes, setSelectedDietTypes] = useState<string[]>([])
+  const [selectedAllergens, setSelectedAllergens] = useState<string[]>([])
+  const [dislikedIngredients, setDislikedIngredients] = useState('')
+  const [additionalPreferences, setAdditionalPreferences] = useState('')
 
   const { data: preferences, isLoading } = useQuery({
     queryKey: ['dietary-preferences'],
     queryFn: async () => {
-      const response = await apiClient().get<DietaryPreference[]>(
-        '/user/dietary'
-      );
-      return response.data;
+      const response = await apiClient().get<DietaryPreference[]>('/user/dietary')
+      return response.data
     },
-  });
+  })
 
   useEffect(() => {
     if (preferences && preferences.length > 0) {
       // Aggregate all preferences
-      const dietTypes = preferences.map((p) => p.type);
-      const allergens = preferences.flatMap((p) => p.allergens || []);
-      const dislikes = preferences.flatMap((p) => p.dislikes || []);
+      const dietTypes = preferences.map(p => p.type)
+      const allergens = preferences.flatMap(p => p.allergens || [])
+      const dislikes = preferences.flatMap(p => p.dislikes || [])
       const prefs = preferences
-        .map((p) => p.preferences)
+        .map(p => p.preferences)
         .filter(Boolean)
-        .join('\n');
+        .join('\n')
 
-      setSelectedDietTypes(dietTypes);
-      setSelectedAllergens(allergens);
-      setDislikedIngredients(dislikes.join(', '));
-      setAdditionalPreferences(prefs);
+      setSelectedDietTypes(dietTypes)
+      setSelectedAllergens(allergens)
+      setDislikedIngredients(dislikes.join(', '))
+      setAdditionalPreferences(prefs)
     }
-  }, [preferences]);
+  }, [preferences])
 
   const updatePreferencesMutation = useMutation({
     mutationFn: async (data: {
-      dietTypes: string[];
-      allergens: string[];
-      dislikes: string[];
-      preferences: string;
+      dietTypes: string[]
+      allergens: string[]
+      dislikes: string[]
+      preferences: string
     }) => {
-      const response = await apiClient().post('/user/dietary', data);
-      return response.data;
+      const response = await apiClient().post('/user/dietary', data)
+      return response.data
     },
     onSuccess: () => {
-      Alert.alert('Success', 'Dietary preferences updated successfully');
+      Alert.alert('Success', 'Dietary preferences updated successfully')
     },
     onError: (error: any) => {
-      Alert.alert(
-        'Error',
-        error.response?.data?.message || 'Failed to update preferences'
-      );
+      Alert.alert('Error', error.response?.data?.message || 'Failed to update preferences')
     },
-  });
+  })
 
   const handleSave = () => {
     const dislikes = dislikedIngredients
       .split(',')
-      .map((item) => item.trim())
-      .filter(Boolean);
+      .map(item => item.trim())
+      .filter(Boolean)
 
     updatePreferencesMutation.mutate({
       dietTypes: selectedDietTypes,
       allergens: selectedAllergens,
       dislikes,
       preferences: additionalPreferences.trim(),
-    });
-  };
+    })
+  }
 
   if (isLoading) {
     return (
-      <SafeAreaView
-        style={[
-          styles.container,
-          { backgroundColor: colors.backgroundSecondary },
-        ]}
-      >
+      <SafeAreaView style={[styles.container, { backgroundColor: colors.backgroundSecondary }]}>
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size='large' color={colors.primary} />
+          <ActivityIndicator size="large" color={colors.primary} />
         </View>
       </SafeAreaView>
-    );
+    )
   }
 
   return (
     <SafeAreaView
-      style={[
-        styles.container,
-        { backgroundColor: colors.backgroundSecondary },
-      ]}
-      edges={['bottom']}
-    >
+      style={[styles.container, { backgroundColor: colors.backgroundSecondary }]}
+      edges={['bottom']}>
       <ScrollView
         style={styles.scrollView}
         contentContainerStyle={styles.scrollContent}
-        showsVerticalScrollIndicator={false}
-      >
+        showsVerticalScrollIndicator={false}>
         <View style={styles.section}>
           <Text
             style={[
@@ -155,8 +140,7 @@ export default function DietaryPreferencesScreen() {
                 color: colors.textPrimary,
                 fontFamily: 'EBGaramond_600SemiBold',
               },
-            ]}
-          >
+            ]}>
             Diet Types
           </Text>
           <Text
@@ -166,8 +150,7 @@ export default function DietaryPreferencesScreen() {
                 color: colors.textSecondary,
                 fontFamily: 'Poppins_400Regular',
               },
-            ]}
-          >
+            ]}>
             Select all dietary preferences that apply to you
           </Text>
           <View style={styles.chipSelectorWrapper}>
@@ -187,8 +170,7 @@ export default function DietaryPreferencesScreen() {
                 color: colors.textPrimary,
                 fontFamily: 'EBGaramond_600SemiBold',
               },
-            ]}
-          >
+            ]}>
             Allergens
           </Text>
           <Text
@@ -198,8 +180,7 @@ export default function DietaryPreferencesScreen() {
                 color: colors.textSecondary,
                 fontFamily: 'Poppins_400Regular',
               },
-            ]}
-          >
+            ]}>
             Select ingredients you're allergic to
           </Text>
           <View style={styles.chipSelectorWrapper}>
@@ -219,8 +200,7 @@ export default function DietaryPreferencesScreen() {
                 color: colors.textPrimary,
                 fontFamily: 'EBGaramond_600SemiBold',
               },
-            ]}
-          >
+            ]}>
             Disliked Ingredients
           </Text>
           <Text
@@ -230,8 +210,7 @@ export default function DietaryPreferencesScreen() {
                 color: colors.textSecondary,
                 fontFamily: 'Poppins_400Regular',
               },
-            ]}
-          >
+            ]}>
             Enter ingredients you don't like, separated by commas
           </Text>
           <TextInput
@@ -246,7 +225,7 @@ export default function DietaryPreferencesScreen() {
             ]}
             value={dislikedIngredients}
             onChangeText={setDislikedIngredients}
-            placeholder='e.g., cilantro, olives, mushrooms'
+            placeholder="e.g., cilantro, olives, mushrooms"
             placeholderTextColor={colors.textMuted}
             multiline
           />
@@ -260,8 +239,7 @@ export default function DietaryPreferencesScreen() {
                 color: colors.textPrimary,
                 fontFamily: 'EBGaramond_600SemiBold',
               },
-            ]}
-          >
+            ]}>
             Additional Preferences
           </Text>
           <Text
@@ -271,8 +249,7 @@ export default function DietaryPreferencesScreen() {
                 color: colors.textSecondary,
                 fontFamily: 'Poppins_400Regular',
               },
-            ]}
-          >
+            ]}>
             Any other dietary preferences or restrictions
           </Text>
           <TextInput
@@ -287,7 +264,7 @@ export default function DietaryPreferencesScreen() {
             ]}
             value={additionalPreferences}
             onChangeText={setAdditionalPreferences}
-            placeholder='e.g., prefer organic, low sodium, etc.'
+            placeholder="e.g., prefer organic, low sodium, etc."
             placeholderTextColor={colors.textMuted}
             multiline
             numberOfLines={3}
@@ -304,10 +281,9 @@ export default function DietaryPreferencesScreen() {
               },
             ]}
             onPress={handleSave}
-            disabled={updatePreferencesMutation.isPending}
-          >
+            disabled={updatePreferencesMutation.isPending}>
             {updatePreferencesMutation.isPending ? (
-              <ActivityIndicator size='small' color={colors.white} />
+              <ActivityIndicator size="small" color={colors.white} />
             ) : (
               <Text
                 style={[
@@ -316,8 +292,7 @@ export default function DietaryPreferencesScreen() {
                     color: colors.white,
                     fontFamily: 'Poppins_500Medium',
                   },
-                ]}
-              >
+                ]}>
                 Save Preferences
               </Text>
             )}
@@ -325,7 +300,7 @@ export default function DietaryPreferencesScreen() {
         </View>
       </ScrollView>
     </SafeAreaView>
-  );
+  )
 }
 
 const styles = StyleSheet.create({
@@ -384,4 +359,4 @@ const styles = StyleSheet.create({
     fontSize: 16,
     lineHeight: 24,
   },
-});
+})

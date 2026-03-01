@@ -1,10 +1,10 @@
-import { SettingsSection } from '@/components/settings/SettingsSection';
-import { useThemeColors } from '@/constants/useTheme';
-import { apiClient } from '@/lib/api';
-import { authClient } from '@/lib/auth-client';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { LinearGradient } from 'expo-linear-gradient';
-import React, { useState } from 'react';
+import { SettingsSection } from '@/components/settings/SettingsSection'
+import { useThemeColors } from '@/constants/useTheme'
+import { apiClient } from '@/lib/api'
+import { authClient } from '@/lib/auth-client'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
+import { LinearGradient } from 'expo-linear-gradient'
+import React, { useState } from 'react'
 import {
   ActivityIndicator,
   Alert,
@@ -13,46 +13,46 @@ import {
   Text,
   TouchableOpacity,
   View,
-} from 'react-native';
-import RazorpayCheckout from 'react-native-razorpay';
-import { SafeAreaView } from 'react-native-safe-area-context';
+} from 'react-native'
+import RazorpayCheckout from 'react-native-razorpay'
+import { SafeAreaView } from 'react-native-safe-area-context'
 
 interface BillingInfo {
   subscription: {
-    plan: 'FREE' | 'PRO';
-    status: string;
-    currentPeriodEnd?: string | null;
-    chargeAt?: string | null;
-    paidCount?: number | null;
-    daysLeft?: number | null;
-    cancelAtPeriodEnd?: boolean;
+    plan: 'FREE' | 'PRO'
+    status: string
+    currentPeriodEnd?: string | null
+    chargeAt?: string | null
+    paidCount?: number | null
+    daysLeft?: number | null
+    cancelAtPeriodEnd?: boolean
     paymentMethod?: {
-      last4: string;
-      type: string;
-      brand: string | null;
-    } | null;
-    maxRecipes: number;
-    maxLists: number;
-    aiCreditsLimit: number;
-  };
-  usage: { recipeCount: number; userCount: number; listCount: number };
+      last4: string
+      type: string
+      brand: string | null
+    } | null
+    maxRecipes: number
+    maxLists: number
+    aiCreditsLimit: number
+  }
+  usage: { recipeCount: number; userCount: number; listCount: number }
 }
 
 interface Invoice {
-  id: string;
-  amount: number;
-  currency: string;
-  status: string;
-  method?: string | null;
-  cardLast4?: string | null;
-  cardNetwork?: string | null;
-  upiVpa?: string | null;
-  bankCode?: string | null;
-  wallet?: string | null;
-  fee?: number | null;
-  errorDescription?: string | null;
-  paidAt?: string | null;
-  createdAt: string;
+  id: string
+  amount: number
+  currency: string
+  status: string
+  method?: string | null
+  cardLast4?: string | null
+  cardNetwork?: string | null
+  upiVpa?: string | null
+  bankCode?: string | null
+  wallet?: string | null
+  fee?: number | null
+  errorDescription?: string | null
+  paidAt?: string | null
+  createdAt: string
 }
 
 function formatDate(iso: string): string {
@@ -60,77 +60,72 @@ function formatDate(iso: string): string {
     day: 'numeric',
     month: 'short',
     year: 'numeric',
-  });
+  })
 }
 
 function formatAmount(paise: number, currency: string): string {
-  const amount = paise / 100;
-  if (currency === 'INR') return `₹${amount.toFixed(0)}`;
-  return `${currency} ${amount.toFixed(2)}`;
+  const amount = paise / 100
+  if (currency === 'INR') return `₹${amount.toFixed(0)}`
+  return `${currency} ${amount.toFixed(2)}`
 }
 
 function methodBadge(inv: Invoice): string {
   if (inv.method === 'card') {
-    if (inv.cardLast4)
-      return `\u{1F4B3} \u2022\u2022\u2022\u2022 ${inv.cardLast4}`;
-    if (inv.cardNetwork) return `\u{1F4B3} ${inv.cardNetwork}`;
-    return '\u{1F4B3} Card';
+    if (inv.cardLast4) return `\u{1F4B3} \u2022\u2022\u2022\u2022 ${inv.cardLast4}`
+    if (inv.cardNetwork) return `\u{1F4B3} ${inv.cardNetwork}`
+    return '\u{1F4B3} Card'
   }
-  if (inv.method === 'upi') return `\u26A1 ${inv.upiVpa ?? 'UPI'}`;
-  if (inv.method === 'netbanking')
-    return `\u{1F3E6} ${inv.bankCode ?? 'Netbanking'}`;
-  if (inv.method === 'wallet') return `\u{1F45B} ${inv.wallet ?? 'Wallet'}`;
-  return '';
+  if (inv.method === 'upi') return `\u26A1 ${inv.upiVpa ?? 'UPI'}`
+  if (inv.method === 'netbanking') return `\u{1F3E6} ${inv.bankCode ?? 'Netbanking'}`
+  if (inv.method === 'wallet') return `\u{1F45B} ${inv.wallet ?? 'Wallet'}`
+  return ''
 }
 
 function LimitText({ value }: { value: number }) {
-  const colors = useThemeColors();
+  const colors = useThemeColors()
   return (
     <Text
       style={[
         styles.usageValue,
         { color: colors.textSecondary, fontFamily: 'Poppins_400Regular' },
-      ]}
-    >
+      ]}>
       {value === -1 ? 'Unlimited' : value}
     </Text>
-  );
+  )
 }
 
 export default function BillingScreen() {
-  const colors = useThemeColors();
-  const queryClient = useQueryClient();
-  const { data: session } = authClient.useSession();
-  const [upgrading, setUpgrading] = useState(false);
-  const [cancelling, setCancelling] = useState(false);
+  const colors = useThemeColors()
+  const queryClient = useQueryClient()
+  const { data: session } = authClient.useSession()
+  const [upgrading, setUpgrading] = useState(false)
+  const [cancelling, setCancelling] = useState(false)
 
   const { data: billingInfo, isLoading } = useQuery({
     queryKey: ['billing'],
     queryFn: async () => {
-      const response = await apiClient().get<BillingInfo>('/user/billing');
-      return response.data;
+      const response = await apiClient().get<BillingInfo>('/user/billing')
+      return response.data
     },
-  });
+  })
 
   const { data: invoices } = useQuery({
     queryKey: ['invoices'],
     queryFn: async () => {
-      const response = await apiClient().get<Invoice[]>(
-        '/subscription/invoices',
-      );
-      return response.data;
+      const response = await apiClient().get<Invoice[]>('/subscription/invoices')
+      return response.data
     },
     enabled: billingInfo?.subscription.plan === 'PRO',
-  });
+  })
 
   const handleUpgrade = async () => {
-    setUpgrading(true);
+    setUpgrading(true)
     try {
       const orderRes = await apiClient().post<{
-        subscriptionId: string;
-        keyId: string;
-      }>('/subscription/create-order');
-      const { subscriptionId, keyId } = orderRes.data;
+        subscriptionId: string
+        keyId: string
+      }>('/subscription/create-order')
+      const { subscriptionId, keyId } = orderRes.data
 
       const options = {
         key: keyId,
@@ -142,34 +137,31 @@ export default function BillingScreen() {
           name: session?.user?.name ?? '',
         },
         theme: { color: colors.primary },
-      };
+      }
 
-      const payment = await RazorpayCheckout.open(options as any);
+      const payment = await RazorpayCheckout.open(options as any)
 
       await apiClient().post('/subscription/verify', {
         razorpay_payment_id: payment.razorpay_payment_id,
         razorpay_subscription_id: payment.razorpay_subscription_id,
         razorpay_signature: payment.razorpay_signature,
-      });
+      })
 
-      await queryClient.invalidateQueries({ queryKey: ['billing'] });
-      await queryClient.invalidateQueries({ queryKey: ['invoices'] });
-      Alert.alert('Welcome to Pro!', 'Your subscription is now active.');
+      await queryClient.invalidateQueries({ queryKey: ['billing'] })
+      await queryClient.invalidateQueries({ queryKey: ['invoices'] })
+      Alert.alert('Welcome to Pro!', 'Your subscription is now active.')
     } catch (err: any) {
       if (err?.code !== 'PAYMENT_CANCELLED') {
-        Alert.alert(
-          'Payment failed',
-          err?.description || 'Something went wrong. Please try again.',
-        );
+        Alert.alert('Payment failed', err?.description || 'Something went wrong. Please try again.')
       }
     } finally {
-      setUpgrading(false);
+      setUpgrading(false)
     }
-  };
+  }
 
   const handleCancel = () => {
-    const periodEnd = billingInfo?.subscription.currentPeriodEnd;
-    const dateStr = periodEnd ? formatDate(periodEnd) : 'end of billing period';
+    const periodEnd = billingInfo?.subscription.currentPeriodEnd
+    const dateStr = periodEnd ? formatDate(periodEnd) : 'end of billing period'
 
     Alert.alert(
       'Cancel Subscription',
@@ -180,103 +172,73 @@ export default function BillingScreen() {
           text: 'Cancel Subscription',
           style: 'destructive',
           onPress: async () => {
-            setCancelling(true);
+            setCancelling(true)
             try {
-              await apiClient().post('/subscription/cancel');
-              await queryClient.invalidateQueries({ queryKey: ['billing'] });
-              Alert.alert(
-                'Subscription Cancelled',
-                `Your plan stays active until ${dateStr}.`,
-              );
+              await apiClient().post('/subscription/cancel')
+              await queryClient.invalidateQueries({ queryKey: ['billing'] })
+              Alert.alert('Subscription Cancelled', `Your plan stays active until ${dateStr}.`)
             } catch {
-              Alert.alert('Error', 'Failed to cancel. Please try again.');
+              Alert.alert('Error', 'Failed to cancel. Please try again.')
             } finally {
-              setCancelling(false);
+              setCancelling(false)
             }
           },
         },
-      ],
-    );
-  };
+      ]
+    )
+  }
 
   if (isLoading) {
     return (
-      <SafeAreaView
-        style={[
-          styles.container,
-          { backgroundColor: colors.backgroundSecondary },
-        ]}
-      >
+      <SafeAreaView style={[styles.container, { backgroundColor: colors.backgroundSecondary }]}>
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size='large' color={colors.primary} />
+          <ActivityIndicator size="large" color={colors.primary} />
         </View>
       </SafeAreaView>
-    );
+    )
   }
 
-  const subscription = billingInfo?.subscription;
-  const usage = billingInfo?.usage;
-  const isPro = subscription?.plan === 'PRO';
+  const subscription = billingInfo?.subscription
+  const usage = billingInfo?.usage
+  const isPro = subscription?.plan === 'PRO'
 
   return (
     <SafeAreaView
-      style={[
-        styles.container,
-        { backgroundColor: colors.backgroundSecondary },
-      ]}
-      edges={['bottom']}
-    >
+      style={[styles.container, { backgroundColor: colors.backgroundSecondary }]}
+      edges={['bottom']}>
       <ScrollView
         style={styles.scrollView}
         contentContainerStyle={styles.scrollContent}
-        showsVerticalScrollIndicator={false}
-      >
+        showsVerticalScrollIndicator={false}>
         {/* Current Plan Card */}
         <View style={styles.planCard}>
           <LinearGradient
             colors={[colors.primaryGradientStart, colors.primaryGradientEnd]}
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 1 }}
-            style={styles.planGradient}
-          >
+            style={styles.planGradient}>
             <View style={styles.planRow}>
-              <Text
-                style={[styles.planLabel, { fontFamily: 'Poppins_500Medium' }]}
-              >
+              <Text style={[styles.planLabel, { fontFamily: 'Poppins_500Medium' }]}>
                 Current Plan
               </Text>
               {isPro && (
                 <View style={styles.proBadge}>
-                  <Text
-                    style={[
-                      styles.proBadgeText,
-                      { fontFamily: 'Poppins_500Medium' },
-                    ]}
-                  >
+                  <Text style={[styles.proBadgeText, { fontFamily: 'Poppins_500Medium' }]}>
                     ⭐ PRO
                   </Text>
                 </View>
               )}
             </View>
 
-            <Text
-              style={[styles.planName, { fontFamily: 'EBGaramond_700Bold' }]}
-            >
+            <Text style={[styles.planName, { fontFamily: 'EBGaramond_700Bold' }]}>
               {isPro ? '₹49' : 'Free'}
             </Text>
-            <Text
-              style={[styles.planPrice, { fontFamily: 'Poppins_400Regular' }]}
-            >
+            <Text style={[styles.planPrice, { fontFamily: 'Poppins_400Regular' }]}>
               {isPro ? 'per month' : 'Forever free'}
             </Text>
 
             {isPro && (
-              <Text
-                style={[
-                  styles.nextBilling,
-                  { fontFamily: 'Poppins_400Regular' },
-                ]}
-              >
+              <Text style={[styles.nextBilling, { fontFamily: 'Poppins_400Regular' }]}>
                 {subscription?.chargeAt
                   ? `Next billing: ${formatDate(subscription.chargeAt)}`
                   : subscription?.currentPeriodEnd
@@ -285,22 +247,15 @@ export default function BillingScreen() {
               </Text>
             )}
 
-            {isPro &&
-              subscription?.daysLeft != null &&
-              subscription.daysLeft > 0 && (
-                <View style={styles.daysLeft}>
-                  <Text
-                    style={[
-                      styles.daysLeftText,
-                      { fontFamily: 'Poppins_500Medium' },
-                    ]}
-                  >
-                    {subscription.cancelAtPeriodEnd
-                      ? `Cancels on ${subscription.currentPeriodEnd ? formatDate(subscription.currentPeriodEnd) : 'period end'}`
-                      : `${subscription.daysLeft} days remaining`}
-                  </Text>
-                </View>
-              )}
+            {isPro && subscription?.daysLeft != null && subscription.daysLeft > 0 && (
+              <View style={styles.daysLeft}>
+                <Text style={[styles.daysLeftText, { fontFamily: 'Poppins_500Medium' }]}>
+                  {subscription.cancelAtPeriodEnd
+                    ? `Cancels on ${subscription.currentPeriodEnd ? formatDate(subscription.currentPeriodEnd) : 'period end'}`
+                    : `${subscription.daysLeft} days remaining`}
+                </Text>
+              </View>
+            )}
           </LinearGradient>
         </View>
 
@@ -313,14 +268,12 @@ export default function BillingScreen() {
                 backgroundColor: colors.backgroundPrimary,
                 borderColor: colors.border,
               },
-            ]}
-          >
+            ]}>
             <Text
               style={[
                 styles.upgradeTitle,
                 { color: colors.textPrimary, fontFamily: 'EBGaramond_700Bold' },
-              ]}
-            >
+              ]}>
               ⚡ Upgrade to Pro
             </Text>
             <Text
@@ -330,8 +283,7 @@ export default function BillingScreen() {
                   color: colors.textSecondary,
                   fontFamily: 'Poppins_400Regular',
                 },
-              ]}
-            >
+              ]}>
               ₹49 / month
             </Text>
             <View style={styles.featureList}>
@@ -339,7 +291,7 @@ export default function BillingScreen() {
                 'Unlimited recipes in library',
                 'Unlimited AI credits',
                 'Unlimited shopping lists',
-              ].map((f) => (
+              ].map(f => (
                 <Text
                   key={f}
                   style={[
@@ -348,29 +300,19 @@ export default function BillingScreen() {
                       color: colors.textSecondary,
                       fontFamily: 'Poppins_400Regular',
                     },
-                  ]}
-                >
+                  ]}>
                   ✓ {f}
                 </Text>
               ))}
             </View>
             <TouchableOpacity
-              style={[
-                styles.upgradeButton,
-                { backgroundColor: colors.primary },
-              ]}
+              style={[styles.upgradeButton, { backgroundColor: colors.primary }]}
               onPress={handleUpgrade}
-              disabled={upgrading}
-            >
+              disabled={upgrading}>
               {upgrading ? (
-                <ActivityIndicator size='small' color='#fff' />
+                <ActivityIndicator size="small" color="#fff" />
               ) : (
-                <Text
-                  style={[
-                    styles.upgradeButtonText,
-                    { fontFamily: 'Poppins_500Medium' },
-                  ]}
-                >
+                <Text style={[styles.upgradeButtonText, { fontFamily: 'Poppins_500Medium' }]}>
                   Try Pro — ₹49/month
                 </Text>
               )}
@@ -380,21 +322,9 @@ export default function BillingScreen() {
 
         {/* Payment Method for PRO */}
         {isPro && (
-          <SettingsSection title='Payment Method'>
-            <View
-              style={[
-                styles.paymentMethod,
-                { backgroundColor: colors.backgroundPrimary },
-              ]}
-            >
-              <Text
-                style={[
-                  styles.paymentIcon,
-                  { fontFamily: 'Poppins_400Regular' },
-                ]}
-              >
-                💳
-              </Text>
+          <SettingsSection title="Payment Method">
+            <View style={[styles.paymentMethod, { backgroundColor: colors.backgroundPrimary }]}>
+              <Text style={[styles.paymentIcon, { fontFamily: 'Poppins_400Regular' }]}>💳</Text>
               <View style={styles.paymentInfo}>
                 {subscription?.paymentMethod ? (
                   <>
@@ -405,8 +335,7 @@ export default function BillingScreen() {
                           color: colors.textPrimary,
                           fontFamily: 'Poppins_500Medium',
                         },
-                      ]}
-                    >
+                      ]}>
                       {subscription.paymentMethod.type === 'upi'
                         ? `UPI — ${subscription.paymentMethod.last4}`
                         : `•••• ${subscription.paymentMethod.last4}`}
@@ -419,8 +348,7 @@ export default function BillingScreen() {
                             color: colors.textSecondary,
                             fontFamily: 'Poppins_400Regular',
                           },
-                        ]}
-                      >
+                        ]}>
                         {subscription.paymentMethod.brand}
                       </Text>
                     )}
@@ -434,8 +362,7 @@ export default function BillingScreen() {
                           color: colors.textPrimary,
                           fontFamily: 'Poppins_500Medium',
                         },
-                      ]}
-                    >
+                      ]}>
                       Payment method
                     </Text>
                     <Text
@@ -445,8 +372,7 @@ export default function BillingScreen() {
                           color: colors.textSecondary,
                           fontFamily: 'Poppins_400Regular',
                         },
-                      ]}
-                    >
+                      ]}>
                       Details will appear after first charge
                     </Text>
                   </>
@@ -457,7 +383,7 @@ export default function BillingScreen() {
         )}
 
         {/* Usage & Limits */}
-        <SettingsSection title='Usage & Limits'>
+        <SettingsSection title="Usage & Limits">
           <View style={styles.usageContainer}>
             <View style={styles.usageRow}>
               <Text
@@ -467,8 +393,7 @@ export default function BillingScreen() {
                     color: colors.textPrimary,
                     fontFamily: 'Poppins_500Medium',
                   },
-                ]}
-              >
+                ]}>
                 Library Items
               </Text>
               {isPro ? (
@@ -481,16 +406,13 @@ export default function BillingScreen() {
                       color: colors.textSecondary,
                       fontFamily: 'Poppins_400Regular',
                     },
-                  ]}
-                >
+                  ]}>
                   {usage?.recipeCount ?? 0} / 12
                 </Text>
               )}
             </View>
             {!isPro && (
-              <View
-                style={[styles.progressBar, { backgroundColor: colors.border }]}
-              >
+              <View style={[styles.progressBar, { backgroundColor: colors.border }]}>
                 <View
                   style={[
                     styles.progressFill,
@@ -511,8 +433,7 @@ export default function BillingScreen() {
                     color: colors.textPrimary,
                     fontFamily: 'Poppins_500Medium',
                   },
-                ]}
-              >
+                ]}>
                 Shopping Lists
               </Text>
               {isPro ? (
@@ -525,16 +446,13 @@ export default function BillingScreen() {
                       color: colors.textSecondary,
                       fontFamily: 'Poppins_400Regular',
                     },
-                  ]}
-                >
+                  ]}>
                   {usage?.listCount ?? 0} / 5
                 </Text>
               )}
             </View>
             {!isPro && (
-              <View
-                style={[styles.progressBar, { backgroundColor: colors.border }]}
-              >
+              <View style={[styles.progressBar, { backgroundColor: colors.border }]}>
                 <View
                   style={[
                     styles.progressFill,
@@ -555,8 +473,7 @@ export default function BillingScreen() {
                     color: colors.textPrimary,
                     fontFamily: 'Poppins_500Medium',
                   },
-                ]}
-              >
+                ]}>
                 AI Credits
               </Text>
               <LimitText value={subscription?.aiCreditsLimit ?? 100} />
@@ -566,13 +483,8 @@ export default function BillingScreen() {
 
         {/* Invoices for PRO */}
         {isPro && (
-          <SettingsSection title='Invoices'>
-            <View
-              style={[
-                styles.invoiceList,
-                { backgroundColor: colors.backgroundPrimary },
-              ]}
-            >
+          <SettingsSection title="Invoices">
+            <View style={[styles.invoiceList, { backgroundColor: colors.backgroundPrimary }]}>
               {invoices && invoices.length > 0 ? (
                 invoices.map((inv, i) => (
                   <View
@@ -583,8 +495,7 @@ export default function BillingScreen() {
                         borderBottomWidth: StyleSheet.hairlineWidth,
                         borderBottomColor: colors.border,
                       },
-                    ]}
-                  >
+                    ]}>
                     <View style={styles.invoiceLeft}>
                       <Text
                         style={[
@@ -593,8 +504,7 @@ export default function BillingScreen() {
                             color: colors.textSecondary,
                             fontFamily: 'Poppins_400Regular',
                           },
-                        ]}
-                      >
+                        ]}>
                         {formatDate(inv.paidAt ?? inv.createdAt)}
                       </Text>
                       {methodBadge(inv) ? (
@@ -605,18 +515,12 @@ export default function BillingScreen() {
                               color: colors.textSecondary,
                               fontFamily: 'Poppins_400Regular',
                             },
-                          ]}
-                        >
+                          ]}>
                           {methodBadge(inv)}
                         </Text>
                       ) : null}
                       {inv.status === 'failed' && inv.errorDescription ? (
-                        <Text
-                          style={[
-                            styles.invoiceError,
-                            { fontFamily: 'Poppins_400Regular' },
-                          ]}
-                        >
+                        <Text style={[styles.invoiceError, { fontFamily: 'Poppins_400Regular' }]}>
                           {inv.errorDescription}
                         </Text>
                       ) : null}
@@ -629,29 +533,24 @@ export default function BillingScreen() {
                             color: colors.textPrimary,
                             fontFamily: 'Poppins_500Medium',
                           },
-                        ]}
-                      >
+                        ]}>
                         {formatAmount(inv.amount, inv.currency)}
                       </Text>
                       <View
                         style={[
                           styles.invoiceStatus,
                           {
-                            backgroundColor:
-                              inv.status === 'paid' ? '#22C55E20' : '#EF444420',
+                            backgroundColor: inv.status === 'paid' ? '#22C55E20' : '#EF444420',
                           },
-                        ]}
-                      >
+                        ]}>
                         <Text
                           style={[
                             styles.invoiceStatusText,
                             {
-                              color:
-                                inv.status === 'paid' ? '#22C55E' : '#EF4444',
+                              color: inv.status === 'paid' ? '#22C55E' : '#EF4444',
                               fontFamily: 'Poppins_500Medium',
                             },
-                          ]}
-                        >
+                          ]}>
                           {inv.status === 'paid' ? 'Paid ✓' : 'Failed'}
                         </Text>
                       </View>
@@ -667,8 +566,7 @@ export default function BillingScreen() {
                         color: colors.textSecondary,
                         fontFamily: 'Poppins_400Regular',
                       },
-                    ]}
-                  >
+                    ]}>
                     No invoices yet
                   </Text>
                 </View>
@@ -683,17 +581,15 @@ export default function BillingScreen() {
             <TouchableOpacity
               style={[styles.cancelButton, { borderColor: colors.error }]}
               onPress={handleCancel}
-              disabled={cancelling}
-            >
+              disabled={cancelling}>
               {cancelling ? (
-                <ActivityIndicator size='small' color={colors.error} />
+                <ActivityIndicator size="small" color={colors.error} />
               ) : (
                 <Text
                   style={[
                     styles.cancelText,
                     { color: colors.error, fontFamily: 'Poppins_500Medium' },
-                  ]}
-                >
+                  ]}>
                   Cancel Subscription
                 </Text>
               )}
@@ -701,30 +597,25 @@ export default function BillingScreen() {
           </View>
         )}
 
-        {isPro &&
-          subscription?.cancelAtPeriodEnd &&
-          subscription?.currentPeriodEnd && (
-            <View
+        {isPro && subscription?.cancelAtPeriodEnd && subscription?.currentPeriodEnd && (
+          <View
+            style={[
+              styles.cancelNotice,
+              { backgroundColor: '#EF444410', borderColor: '#EF444430' },
+            ]}>
+            <Text
               style={[
-                styles.cancelNotice,
-                { backgroundColor: '#EF444410', borderColor: '#EF444430' },
-              ]}
-            >
-              <Text
-                style={[
-                  styles.cancelNoticeText,
-                  { color: '#EF4444', fontFamily: 'Poppins_400Regular' },
-                ]}
-              >
-                Your plan stays active until{' '}
-                {formatDate(subscription.currentPeriodEnd)}, then reverts to
-                Free.
-              </Text>
-            </View>
-          )}
+                styles.cancelNoticeText,
+                { color: '#EF4444', fontFamily: 'Poppins_400Regular' },
+              ]}>
+              Your plan stays active until {formatDate(subscription.currentPeriodEnd)}, then reverts
+              to Free.
+            </Text>
+          </View>
+        )}
       </ScrollView>
     </SafeAreaView>
-  );
+  )
 }
 
 const styles = StyleSheet.create({
@@ -849,4 +740,4 @@ const styles = StyleSheet.create({
     borderWidth: 1,
   },
   cancelNoticeText: { fontSize: 13, lineHeight: 20 },
-});
+})
