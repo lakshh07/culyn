@@ -1,15 +1,14 @@
 'use client'
 
-import { Navbar } from '@/components/layout/navbar'
-import Iphone15Pro from '@/components/ui/iphone-15-pro'
-import { useSession } from '@/hooks/use-session'
-import { cn } from '@/lib/utils'
-import { useScroll, motion, useTransform, easeInOut } from 'motion/react'
-import { useEffect, useRef, useState } from 'react'
-import Features from '@/components/sections/hero/features'
 import { ChefHatIcon, ListCheckIcon, ScanIcon } from '@/components/icons'
+import { Navbar } from '@/components/layout/navbar'
+import Features from '@/components/sections/hero/features'
+import Iphone15Pro from '@/components/ui/iphone-15-pro'
 import { appConfig as app } from '@/configs/app'
+import { cn } from '@/lib/utils'
 import { AuthModal } from '@/modals/auth'
+import { easeInOut, motion, useScroll, useTransform } from 'motion/react'
+import { useEffect, useRef, useState } from 'react'
 
 const steps = [
   {
@@ -42,7 +41,6 @@ const steps = [
 ]
 
 export default function Home() {
-  const { session, isLoading } = useSession()
   const containerRef = useRef<HTMLDivElement>(null)
   const lastSectionRef = useRef<HTMLDivElement>(null)
 

@@ -16,7 +16,7 @@
 
 import 'dotenv/config'
 
-import type { PlaceType, ProductCategory, SourcePlatform } from '@prisma/client'
+import type { PlaceType, ProductCategory, SourcePlatform, TagType } from '@prisma/client'
 import db from '../src/lib/prisma'
 
 const SAMPLE_PLACES: Array<{
@@ -469,7 +469,7 @@ async function main(): Promise<void> {
             const tagSlug = slugify(tagData.value)
             const tag = await db.tag.upsert({
               where: { slug: tagSlug },
-              create: { slug: tagSlug, name: tagData.value, type: tagData.type as any },
+              create: { slug: tagSlug, name: tagData.value, type: tagData.type as TagType },
               update: {},
             })
             await db.placeTag
@@ -519,7 +519,7 @@ async function main(): Promise<void> {
             const tagSlug = slugify(tagData.value)
             const tag = await db.tag.upsert({
               where: { slug: tagSlug },
-              create: { slug: tagSlug, name: tagData.value, type: tagData.type as any },
+              create: { slug: tagSlug, name: tagData.value, type: tagData.type as TagType },
               update: {},
             })
             await db.productTag

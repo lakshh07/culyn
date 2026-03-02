@@ -26,7 +26,10 @@ products.get('/', async c => {
 
   const filters = await ListProductsQuerySchema.parseAsync(queryParams)
 
-  let orderBy: any = { createdAt: 'desc' }
+  let orderBy:
+    | { createdAt?: 'asc' | 'desc'; ProductFavorite?: { _count: 'desc' } }[]
+    | { price: 'asc' | 'desc' }
+    | { createdAt: 'asc' | 'desc' } = { price: 'desc' }
 
   switch (filters.sortBy) {
     case 'oldest':

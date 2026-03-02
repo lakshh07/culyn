@@ -3,9 +3,9 @@ import { useThemeColors } from '@/constants/useTheme'
 import { useContentImport } from '@/hooks/content/useContentImport'
 import { useJobPolling } from '@/hooks/useJobPolling'
 import { Feather } from '@expo/vector-icons'
+import { AxiosError, isAxiosError } from 'axios'
 import { LinearGradient } from 'expo-linear-gradient'
 import { useRouter } from 'expo-router'
-import axios from 'axios'
 import React, { useEffect, useState } from 'react'
 import { ActivityIndicator, Pressable, StyleSheet, Text, TextInput, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
@@ -23,7 +23,6 @@ export default function AddScreen() {
     reset: resetImport,
   } = useContentImport()
   const {
-    status,
     progress,
     result,
     error: pollError,
@@ -101,8 +100,8 @@ export default function AddScreen() {
       <View style={styles.inputSection}>
         <Text style={[styles.sectionTitle, { color: colors.textPrimary }]}>Import from URL</Text>
         <Text style={[styles.sectionDescription, { color: colors.textMuted }]}>
-          Paste an Instagram, TikTok, or YouTube link and we'll automatically detect the content
-          type.
+          Paste an Instagram, TikTok, or YouTube link and we&apos;ll automatically detect the
+          content type.
         </Text>
 
         <View
@@ -130,7 +129,7 @@ export default function AddScreen() {
         {error &&
           (() => {
             const isLimitError =
-              axios.isAxiosError(error) && (error as any).response?.status === 403
+              isAxiosError(error) && (error as AxiosError).response?.status === 403
             return (
               <View style={styles.errorContainer}>
                 <Text style={[styles.errorText, { color: colors.error }]}>

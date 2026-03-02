@@ -1,6 +1,5 @@
 import db from '@/lib/prisma'
 import {
-  AiModel,
   AiProvider,
   CostBreakdown,
   TrackingOptions,

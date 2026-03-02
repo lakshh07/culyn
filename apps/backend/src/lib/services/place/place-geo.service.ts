@@ -18,6 +18,25 @@ export interface GeoEnrichmentResult {
   hours?: Record<string, string>
 }
 
+interface GooglePlace {
+  location?: {
+    latitude: number
+    longitude: number
+  }
+  formattedAddress?: string
+  internationalPhoneNumber?: string
+  websiteUri?: string
+  rating?: number
+  priceLevel?: string
+  regularOpeningHours?: {
+    weekdayDescriptions?: string[]
+  }
+}
+
+interface GooglePlacesResponse {
+  places?: GooglePlace[]
+}
+
 const GOOGLE_PRICE_LEVEL_MAP: Record<string, string> = {
   PRICE_LEVEL_FREE: '$',
   PRICE_LEVEL_INEXPENSIVE: '$',
@@ -71,7 +90,7 @@ export class PlaceGeoService {
         return null
       }
 
-      const data = (await response.json()) as { places?: Record<string, any>[] }
+      const data = (await response.json()) as GooglePlacesResponse
 
       console.log(data, 'data')
       const place = data.places?.[0]

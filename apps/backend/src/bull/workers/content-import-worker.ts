@@ -12,6 +12,7 @@ import { recipeAIService } from '@/lib/services/recipe/recipe-ai.service'
 import { recipeImageService } from '@/lib/services/recipe/recipe-image.service'
 import { recipePersistenceService } from '@/lib/services/recipe/recipe-persistence.service'
 import { detectSourcePlatform, scrapeAndDownload } from '@/lib/source-scrapers'
+import { CookingStep } from '@culyn/shared/schemas'
 import { JobStatus, RecipeSourceType, type ContentCategory } from '@prisma/client'
 import { Worker, type Job } from 'bullmq'
 import { randomUUID } from 'crypto'
@@ -112,7 +113,7 @@ async function processContentImport(
             slug,
             user: { connect: { id: userId } },
             organization: { connect: { id: organizationId } },
-            sourceType: platform as any,
+            sourceType: platform as RecipeSourceType,
             sourceUrl: url,
             sourceName: scraped.ownerUsername,
             sourceMetadata: sourceData.sourceMetadata,
@@ -285,8 +286,9 @@ async function processContentImport(
                 cook_time_minutes: fullRecipe.cookTime || 0,
                 servings: fullRecipe.servings || 1,
                 difficulty: (fullRecipe.difficulty || 'EASY') as 'EASY' | 'MEDIUM' | 'HARD',
-                ingredients: (fullRecipe.ingredients as any[]) || [],
-                cooking_steps: (fullRecipe.cookingSteps as any[]) || [],
+                ingredients:
+                  (fullRecipe.ingredients as Array<{ name: string; quantity: string }>) || [],
+                cooking_steps: (fullRecipe.cookingSteps as CookingStep[]) || [],
                 tags: [],
               }
 
@@ -344,7 +346,8 @@ async function processContentImport(
     await job.updateProgress(100)
 
     return resultData
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred'
     console.error('[ContentImport] Job failed:', error)
 
     await db.job.updateMany({
@@ -352,7 +355,7 @@ async function processContentImport(
       data: {
         status: JobStatus.FAILED,
         failedAt: new Date(),
-        errorData: { message: error.message },
+        errorData: { message: errorMessage },
       },
     })
 
@@ -361,7 +364,7 @@ async function processContentImport(
       slug: '',
       recordId: '',
       success: false,
-      error: error.message,
+      error: errorMessage,
     }
   }
 }

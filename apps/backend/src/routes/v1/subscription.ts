@@ -5,9 +5,14 @@ import { razorpay, verifyPaymentSignature } from '@/lib/razorpay'
 import { Hono } from 'hono'
 import { HTTPException } from 'hono/http-exception'
 
+interface RazorpaySubscriptionResponse {
+  id: string
+  customer_id?: string
+}
+
 const subscription = new Hono()
 
-const getAuthUser = async (c: any) => {
+const getAuthUser = async (c: { req: { raw: { headers: Headers } } }) => {
   const session = await auth.api.getSession({ headers: c.req.raw.headers })
   if (!session) {
     throw new HTTPException(401, { message: 'You are not authenticated, please login' })
@@ -43,17 +48,17 @@ subscription.post('/create-order', async c => {
     throw new HTTPException(400, { message: 'Already on PRO plan' })
   }
 
-  const razorpaySubscription = await razorpay.subscriptions.create({
+  const razorpaySubscription = (await razorpay.subscriptions.create({
     plan_id: RAZORPAY_PLAN_ID,
     total_count: 120,
     customer_notify: 1,
-  } as any)
+  })) as RazorpaySubscriptionResponse
 
   await db.subscription.update({
     where: { id: sub.id },
     data: {
-      razorpaySubscriptionId: razorpaySubscription.id as string,
-      razorpayCustomerId: (razorpaySubscription as any).customer_id || null,
+      razorpaySubscriptionId: razorpaySubscription.id,
+      razorpayCustomerId: razorpaySubscription.customer_id || null,
     },
   })
 

@@ -228,7 +228,7 @@ chat.post('/conversations/:id/messages', async c => {
   const payload = await SendMessageRequestSchema.parseAsync(await c.req.json())
 
   // Save user message
-  const userMessage = await db.chatMessage.create({
+  await db.chatMessage.create({
     data: {
       conversationId: id,
       role: 'USER',
@@ -305,11 +305,11 @@ chat.post('/conversations/:id/messages', async c => {
             }) + '\n'
           )
         )
-      } catch (error: any) {
+      } catch (error: unknown) {
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred'
+
         controller.enqueue(
-          encoder.encode(
-            JSON.stringify({ type: 'error', error: error.message || 'An error occurred' }) + '\n'
-          )
+          encoder.encode(JSON.stringify({ type: 'error', error: errorMessage }) + '\n')
         )
       }
 

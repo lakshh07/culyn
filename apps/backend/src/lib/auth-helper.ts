@@ -48,7 +48,7 @@ export async function authenticateRequest(c: Context): Promise<AuthUser | null> 
         name: session.user.name,
       }
     }
-  } catch (error) {
+  } catch {
     // Session validation failed
     return null
   }

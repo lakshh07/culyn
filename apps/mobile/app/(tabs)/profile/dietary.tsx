@@ -95,8 +95,9 @@ export default function DietaryPreferencesScreen() {
     onSuccess: () => {
       Alert.alert('Success', 'Dietary preferences updated successfully')
     },
-    onError: (error: any) => {
-      Alert.alert('Error', error.response?.data?.message || 'Failed to update preferences')
+    onError: (error: unknown) => {
+      const errorMessage = error instanceof Error ? error.message : 'Failed to update preferences'
+      Alert.alert('Error', errorMessage)
     },
   })
 
@@ -181,7 +182,7 @@ export default function DietaryPreferencesScreen() {
                 fontFamily: 'Poppins_400Regular',
               },
             ]}>
-            Select ingredients you're allergic to
+            Select ingredients you&apos;re allergic to
           </Text>
           <View style={styles.chipSelectorWrapper}>
             <DietaryChipSelector
@@ -211,7 +212,7 @@ export default function DietaryPreferencesScreen() {
                 fontFamily: 'Poppins_400Regular',
               },
             ]}>
-            Enter ingredients you don't like, separated by commas
+            Enter ingredients you don&apos;t like, separated by commas
           </Text>
           <TextInput
             style={[

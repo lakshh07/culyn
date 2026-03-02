@@ -26,7 +26,9 @@ places.get('/', async c => {
 
   const filters = await ListPlacesQuerySchema.parseAsync(queryParams)
 
-  let orderBy: any = { createdAt: 'desc' }
+  let orderBy:
+    | { createdAt?: 'asc' | 'desc'; PlaceFavorite?: { _count: 'desc' } }[]
+    | { createdAt: 'asc' | 'desc' } = { createdAt: 'desc' }
 
   switch (filters.sortBy) {
     case 'oldest':

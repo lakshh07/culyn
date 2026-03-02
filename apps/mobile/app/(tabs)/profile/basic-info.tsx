@@ -21,7 +21,6 @@ export default function BasicInfoScreen() {
   const colors = useThemeColors()
   const { profile, isLoading, refetch } = useUserProfile()
   const [name, setName] = useState(profile?.name || '')
-  const [isSaving, setIsSaving] = useState(false)
 
   const updateProfileMutation = useMutation({
     mutationFn: async (data: { name: string }) => {
@@ -32,8 +31,9 @@ export default function BasicInfoScreen() {
       refetch()
       Alert.alert('Success', 'Profile updated successfully')
     },
-    onError: (error: any) => {
-      Alert.alert('Error', error.response?.data?.message || 'Failed to update profile')
+    onError: (error: unknown) => {
+      const errorMessage = error instanceof Error ? error.message : 'Failed to update profile'
+      Alert.alert('Error', errorMessage)
     },
   })
 

@@ -1,6 +1,4 @@
-import { ContentCategory } from '@culyn/shared/schemas'
-import { PlaceType } from '@culyn/shared/schemas/places'
-import { ProductCategory } from '@culyn/shared/schemas/products'
+import { type PlaceType, type ProductCategory } from '@culyn/shared/schemas'
 
 // ============================================================================
 // Cook Time Presets (maps to cookTimeMin/cookTimeMax)

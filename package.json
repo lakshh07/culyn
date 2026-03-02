@@ -12,7 +12,8 @@
     "build:web": "bun --cwd apps/web build",
     "build:backend": "bun --cwd apps/backend build",
     "lint": "bun run --filter '*' lint",
-    "typecheck": "bun run --filter '*' typecheck"
+    "typecheck": "bun run --filter '*' typecheck",
+    "format": "bun run --filter '*' format"
   },
   "workspaces": [
     "apps/*",

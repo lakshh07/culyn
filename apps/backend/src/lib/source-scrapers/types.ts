@@ -1,5 +1,3 @@
-import type { SourcePlatform } from '@prisma/client'
-
 export type ScrapedData = {
   caption: string
   ownerUsername: string

@@ -3,7 +3,6 @@ import { SettingsSection } from '@/components/settings/SettingsSection'
 import { useThemeColors } from '@/constants/useTheme'
 import { useUserProfile } from '@/hooks/useUserProfile'
 import { authClient } from '@/lib/auth-client'
-import { useRouter } from 'expo-router'
 import React, { useState } from 'react'
 import {
   ActivityIndicator,
@@ -20,8 +19,7 @@ import { SafeAreaView } from 'react-native-safe-area-context'
 
 export default function AccountScreen() {
   const colors = useThemeColors()
-  const router = useRouter()
-  const { session, profile, isLoading } = useUserProfile()
+  const { profile, isLoading } = useUserProfile()
   const [showChangePasswordModal, setShowChangePasswordModal] = useState(false)
   const [currentPassword, setCurrentPassword] = useState('')
   const [newPassword, setNewPassword] = useState('')
@@ -59,8 +57,9 @@ export default function AccountScreen() {
       setCurrentPassword('')
       setNewPassword('')
       setConfirmPassword('')
-    } catch (error: any) {
-      Alert.alert('Error', error.message || 'Failed to change password')
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'Failed to change password'
+      Alert.alert('Error', errorMessage)
     } finally {
       setIsChangingPassword(false)
     }
@@ -126,8 +125,8 @@ export default function AccountScreen() {
           />
         </SettingsSection>
 
-        <SettingsSection title="Connected Accounts">
-          {/* <SettingsRow
+        {/* <SettingsSection title="Connected Accounts"> */}
+        {/* <SettingsRow
             icon={<Text style={styles.icon}>🔗</Text>}
             title='Google'
             subtitle={
@@ -137,7 +136,7 @@ export default function AccountScreen() {
             }
             value={session?.user?.provider === 'google' ? '✓' : ''}
           /> */}
-        </SettingsSection>
+        {/* </SettingsSection> */}
 
         <SettingsSection title="Danger Zone">
           <SettingsRow

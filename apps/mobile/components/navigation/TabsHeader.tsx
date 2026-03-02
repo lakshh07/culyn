@@ -32,7 +32,7 @@ export default function TabsHeader() {
           name={session?.user?.name}
           email={session?.user?.email}
           size="small"
-          onPress={() => router.push('/settings')}
+          onPress={() => router.push('/(tabs)/profile')}
         />
       </View>
     </View>

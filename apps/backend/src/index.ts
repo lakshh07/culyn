@@ -20,7 +20,7 @@ const corsOrigins = [
 app.use(
   '*',
   cors({
-    origin: (origin, c) => {
+    origin: origin => {
       // Allow requests with no origin (mobile apps don't send Origin header)
       if (!origin) return '*'
       // Allow Expo and custom scheme origins

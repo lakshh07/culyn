@@ -17,15 +17,18 @@ export default function LibraryScreen() {
 
   const { items, isLoading, error, refetch } = useLibrary(selectedCategory)
 
-  const handleCardPress = (category: ContentCategory, slug: string) => {
-    if (category === 'RECIPE') {
-      router.push({ pathname: '/recipes/[slug]', params: { slug } })
-    } else if (category === 'PLACE') {
-      router.push({ pathname: '/places/[slug]', params: { slug } })
-    } else if (category === 'PRODUCT') {
-      router.push({ pathname: '/products/[slug]', params: { slug } })
-    }
-  }
+  const handleCardPress = useCallback(
+    (category: ContentCategory, slug: string) => {
+      if (category === 'RECIPE') {
+        router.push({ pathname: '/recipes/[slug]', params: { slug } })
+      } else if (category === 'PLACE') {
+        router.push({ pathname: '/places/[slug]', params: { slug } })
+      } else if (category === 'PRODUCT') {
+        router.push({ pathname: '/products/[slug]', params: { slug } })
+      }
+    },
+    [router]
+  )
 
   const renderItem = useCallback(
     ({ item }: { item: UnifiedContentItem }) => (
@@ -43,7 +46,7 @@ export default function LibraryScreen() {
         />
       </View>
     ),
-    []
+    [handleCardPress]
   )
 
   const ListEmptyComponent = useCallback(() => {

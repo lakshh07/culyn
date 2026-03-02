@@ -1,5 +1,5 @@
 import { useThemeColors } from '@/constants/useTheme'
-import { PlaceType } from '@culyn/shared/schemas/places'
+import { PlaceType } from '@culyn/shared/schemas'
 import React from 'react'
 import { StyleSheet, TextInput, View } from 'react-native'
 

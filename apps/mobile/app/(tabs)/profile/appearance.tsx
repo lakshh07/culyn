@@ -12,8 +12,10 @@ export default function AppearanceScreen() {
   const handleThemeChange = async (mode: 'light' | 'dark' | 'system') => {
     try {
       await setThemeMode(mode)
-    } catch (error) {
-      Alert.alert('Error', 'Failed to update theme preference')
+    } catch (error: unknown) {
+      const errorMessage =
+        error instanceof Error ? error.message : 'Failed to update theme preference'
+      Alert.alert('Error', errorMessage)
     }
   }
 

@@ -1,5 +1,5 @@
 import { useThemeColors } from '@/constants/useTheme'
-import { ProductCategory } from '@culyn/shared/schemas/products'
+import { ProductCategory } from '@culyn/shared/schemas'
 import React from 'react'
 import { StyleSheet, TextInput, View } from 'react-native'
 

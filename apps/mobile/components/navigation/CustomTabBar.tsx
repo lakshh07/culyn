@@ -53,7 +53,7 @@ function TabIcon({ image, isActive }: { image: ImageSourcePropType; isActive: bo
       damping: 20,
       stiffness: 250,
     })
-  }, [isActive])
+  }, [isActive, scale, opacity])
 
   const animatedStyle = useAnimatedStyle(() => ({
     transform: [{ scale: scale.value }],

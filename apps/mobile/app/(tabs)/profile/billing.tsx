@@ -139,7 +139,11 @@ export default function BillingScreen() {
         theme: { color: colors.primary },
       }
 
-      const payment = await RazorpayCheckout.open(options as any)
+      const payment = (await RazorpayCheckout.open(options as any)) as unknown as {
+        razorpay_payment_id: string
+        razorpay_subscription_id: string
+        razorpay_signature: string
+      }
 
       await apiClient().post('/subscription/verify', {
         razorpay_payment_id: payment.razorpay_payment_id,
@@ -265,7 +269,7 @@ export default function BillingScreen() {
             style={[
               styles.upgradeCard,
               {
-                backgroundColor: colors.backgroundPrimary,
+                backgroundColor: colors.background,
                 borderColor: colors.border,
               },
             ]}>
@@ -323,7 +327,7 @@ export default function BillingScreen() {
         {/* Payment Method for PRO */}
         {isPro && (
           <SettingsSection title="Payment Method">
-            <View style={[styles.paymentMethod, { backgroundColor: colors.backgroundPrimary }]}>
+            <View style={[styles.paymentMethod, { backgroundColor: colors.background }]}>
               <Text style={[styles.paymentIcon, { fontFamily: 'Poppins_400Regular' }]}>💳</Text>
               <View style={styles.paymentInfo}>
                 {subscription?.paymentMethod ? (
@@ -484,7 +488,7 @@ export default function BillingScreen() {
         {/* Invoices for PRO */}
         {isPro && (
           <SettingsSection title="Invoices">
-            <View style={[styles.invoiceList, { backgroundColor: colors.backgroundPrimary }]}>
+            <View style={[styles.invoiceList, { backgroundColor: colors.background }]}>
               {invoices && invoices.length > 0 ? (
                 invoices.map((inv, i) => (
                   <View

@@ -36,7 +36,11 @@ class Cache {
 
   async remember(key: string, data: string, ttl?: number) {
     const client = await this.connect()
-    ttl ? await client.setEx(key, ttl, data) : await client.set(key, data)
+    if (ttl) {
+      await client.setEx(key, ttl, data)
+    } else {
+      await client.set(key, data)
+    }
   }
 
   async forget(key: string | string[]) {

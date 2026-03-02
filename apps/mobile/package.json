@@ -70,6 +70,7 @@
   "devDependencies": {
     "@types/luxon": "^3.7.1",
     "@types/react": "~19.1.0",
+    "@types/react-native-razorpay": "^2.2.6",
     "@types/react-query": "^1.2.9",
     "eslint": "^9.25.0",
     "eslint-config-expo": "~10.0.0",

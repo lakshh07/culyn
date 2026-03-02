@@ -2,6 +2,7 @@ import { auth } from '@/lib/auth'
 import { PLAN_DEFAULTS } from '@/lib/plans'
 import db from '@/lib/prisma'
 import { zValidator } from '@hono/zod-validator'
+import { DietType } from '@prisma/client'
 import { Hono } from 'hono'
 import { HTTPException } from 'hono/http-exception'
 import { z } from 'zod'
@@ -9,7 +10,7 @@ import { z } from 'zod'
 const user = new Hono()
 
 // Middleware to get authenticated user
-const getAuthUser = async (c: any) => {
+const getAuthUser = async (c: { req: { raw: { headers: Headers } } }) => {
   const session = await auth.api.getSession({
     headers: c.req.raw.headers,
   })
@@ -152,7 +153,7 @@ user.post('/dietary', zValidator('json', dietaryPreferenceSchema), async c => {
       db.dietaryPreference.create({
         data: {
           userId: currentUser.id,
-          type: type as any,
+          type: type as DietType,
           allergens,
           dislikes,
           preferences,
@@ -166,7 +167,7 @@ user.post('/dietary', zValidator('json', dietaryPreferenceSchema), async c => {
     const genericPref = await db.dietaryPreference.create({
       data: {
         userId: currentUser.id,
-        type: 'VEGETARIAN' as any, // Default type
+        type: 'VEGETARIAN' as DietType,
         allergens,
         dislikes,
         preferences,
