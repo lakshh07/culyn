@@ -1,0 +1,27 @@
+node_modules
+.next
+dist
+build
+coverage
+.turbo
+.expo
+.cache
+*.log
+.DS_Store
+.env*
+!.env.example
+.claude
+.cursor
+.vscode
+.idea
+*.tsbuildinfo
+
+# Auto-generated files
+**/expo-env.d.ts
+**/next-env.d.ts
+
+# iOS/Android build artifacts
+apps/mobile/ios/Pods
+apps/mobile/ios/**/*.xcassets
+apps/mobile/android/build
+apps/mobile/android/.gradle

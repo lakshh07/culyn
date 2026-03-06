@@ -18,5 +18,10 @@
   "workspaces": [
     "apps/*",
     "packages/*"
-  ]
+  ],
+  "devDependencies": {
+    "prettier": "^3.8.1",
+    "prettier-plugin-prisma": "^5.0.0",
+    "prettier-plugin-tailwindcss": "^0.7.2"
+  }
 }
