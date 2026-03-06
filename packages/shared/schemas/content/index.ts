@@ -1,12 +1,12 @@
-import z from 'zod';
+import z from 'zod'
 
 // ============================================================================
 // Enums
 // ============================================================================
 
-export const ContentCategorySchema = z.enum(['RECIPE', 'PLACE', 'PRODUCT']);
+export const ContentCategorySchema = z.enum(['RECIPE', 'PLACE', 'PRODUCT'])
 
-export type ContentCategory = z.infer<typeof ContentCategorySchema>;
+export type ContentCategory = z.infer<typeof ContentCategorySchema>
 
 // ============================================================================
 // Unified Content
@@ -27,9 +27,9 @@ export const UnifiedContentItemSchema = z.object({
   placeType: z.string().nullable().optional(), // Place
   brand: z.string().nullable().optional(), // Product
   price: z.any().nullable().optional(), // Product
-});
+})
 
-export type UnifiedContentItem = z.infer<typeof UnifiedContentItemSchema>;
+export type UnifiedContentItem = z.infer<typeof UnifiedContentItemSchema>
 
 // ============================================================================
 // Query Parameters
@@ -38,15 +38,12 @@ export type UnifiedContentItem = z.infer<typeof UnifiedContentItemSchema>;
 export const ListUnifiedContentQuerySchema = z.object({
   category: ContentCategorySchema.optional(),
   q: z.string().optional(),
-  sortBy: z
-    .enum(['newest', 'oldest', 'popular'])
-    .optional()
-    .default('newest'),
+  sortBy: z.enum(['newest', 'oldest', 'popular']).optional().default('newest'),
   limit: z.coerce.number().optional().default(50),
   offset: z.coerce.number().optional().default(0),
-});
+})
 
-export type ListUnifiedContentQuery = z.infer<typeof ListUnifiedContentQuerySchema>;
+export type ListUnifiedContentQuery = z.infer<typeof ListUnifiedContentQuerySchema>
 
 // ============================================================================
 // Content Import
@@ -54,12 +51,12 @@ export type ListUnifiedContentQuery = z.infer<typeof ListUnifiedContentQuerySche
 
 export const ImportContentRequestSchema = z.object({
   url: z.string().url().describe('The URL to import content from'),
-});
+})
 
-export type ImportContentRequest = z.infer<typeof ImportContentRequestSchema>;
+export type ImportContentRequest = z.infer<typeof ImportContentRequestSchema>
 
 export const ImportContentResponseSchema = z.object({
   jobId: z.string(),
-});
+})
 
-export type ImportContentResponse = z.infer<typeof ImportContentResponseSchema>;
+export type ImportContentResponse = z.infer<typeof ImportContentResponseSchema>

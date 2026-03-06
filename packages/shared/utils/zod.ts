@@ -1,19 +1,19 @@
-import type { ZodError } from 'zod';
+import type { ZodError } from 'zod'
 
 /**
  * Helper function to format Zod errors
  */
 export function formatZodError(err: ZodError) {
-  const errors = {} as Record<string, string>;
+  const errors = {} as Record<string, string>
 
-  err.issues.forEach((issue) => {
+  err.issues.forEach(issue => {
     if (issue.path.length > 0) {
-      const key = issue.path.join('.');
+      const key = issue.path.join('.')
       if (!errors[key]) {
-        errors[key] = issue.message;
+        errors[key] = issue.message
       }
     }
-  });
+  })
 
-  return errors;
+  return errors
 }

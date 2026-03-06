@@ -1,4 +1,4 @@
-import z from 'zod';
+import z from 'zod'
 
 export const ListItemSchema = z.object({
   id: z.string(),
@@ -13,7 +13,7 @@ export const ListItemSchema = z.object({
     slug: z.string(),
     servings: z.number(),
   }),
-});
+})
 
 export const ShoppingListSchema = z.object({
   id: z.string(),
@@ -22,7 +22,7 @@ export const ShoppingListSchema = z.object({
   completed: z.boolean(),
   deletedAt: z.date().nullable(),
   items: z.array(ListItemSchema),
-});
+})
 
-export type ListItem = z.infer<typeof ListItemSchema>;
-export type ShoppingList = z.infer<typeof ShoppingListSchema>;
+export type ListItem = z.infer<typeof ListItemSchema>
+export type ShoppingList = z.infer<typeof ShoppingListSchema>

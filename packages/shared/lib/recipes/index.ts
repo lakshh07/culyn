@@ -1,1 +1,1 @@
-export * from './ingredient-assets';
+export * from './ingredient-assets'

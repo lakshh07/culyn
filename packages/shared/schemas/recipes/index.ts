@@ -1,4 +1,4 @@
-import z from 'zod';
+import z from 'zod'
 
 // ============================================================================
 // Query Parameters
@@ -9,10 +9,7 @@ import z from 'zod';
  */
 export const ListRecipesQuerySchema = z.object({
   tagId: z.string().optional(),
-  sortBy: z
-    .enum(['newest', 'oldest', 'popular', 'random'])
-    .optional()
-    .default('newest'),
+  sortBy: z.enum(['newest', 'oldest', 'popular', 'random']).optional().default('newest'),
   q: z.string().optional(),
   cookTimeMin: z.coerce.number().optional(),
   cookTimeMax: z.coerce.number().optional(),
@@ -23,9 +20,9 @@ export const ListRecipesQuerySchema = z.object({
   ingredientIds: z.string().optional(), // comma-separated ingredient IDs
   limit: z.coerce.number().optional().default(20),
   offset: z.coerce.number().optional().default(0),
-});
+})
 
-export type ListRecipesQuery = z.infer<typeof ListRecipesQuerySchema>;
+export type ListRecipesQuery = z.infer<typeof ListRecipesQuerySchema>
 
 // ============================================================================
 // Request Schemas
@@ -37,17 +34,11 @@ export type ListRecipesQuery = z.infer<typeof ListRecipesQuerySchema>;
 export const GenerateRecipeRequestSchema = z.object({
   url: z.string().url().describe('The URL of the recipe to generate'),
   sourceType: z
-    .enum([
-      'MANUAL',
-      'INSTAGRAM_REEL',
-      'INSTAGRAM_POST',
-      'INSTAGRAM_VIDEO',
-      'TIKTOK',
-    ])
+    .enum(['MANUAL', 'INSTAGRAM_REEL', 'INSTAGRAM_POST', 'INSTAGRAM_VIDEO', 'TIKTOK'])
     .describe('The type of the recipe source'),
-});
+})
 
-export type GenerateRecipeRequest = z.infer<typeof GenerateRecipeRequestSchema>;
+export type GenerateRecipeRequest = z.infer<typeof GenerateRecipeRequestSchema>
 
 /**
  * Schema for updating a list item
@@ -63,9 +54,9 @@ export const UpdateListItemRequestSchema = z.union([
     notes: z.string(),
   }),
   z.object({}),
-]);
+])
 
-export type UpdateListItemRequest = z.infer<typeof UpdateListItemRequestSchema>;
+export type UpdateListItemRequest = z.infer<typeof UpdateListItemRequestSchema>
 
 // ============================================================================
 // Response Schemas
@@ -78,9 +69,9 @@ export const RecipeTagSchema = z.object({
   id: z.string(),
   name: z.string(),
   type: z.string(),
-});
+})
 
-export type RecipeTag = z.infer<typeof RecipeTagSchema>;
+export type RecipeTag = z.infer<typeof RecipeTagSchema>
 
 /**
  * Schema for ingredient in recipe list
@@ -88,9 +79,9 @@ export type RecipeTag = z.infer<typeof RecipeTagSchema>;
 export const RecipeIngredientSchema = z.object({
   id: z.string(),
   name: z.string(),
-});
+})
 
-export type RecipeIngredient = z.infer<typeof RecipeIngredientSchema>;
+export type RecipeIngredient = z.infer<typeof RecipeIngredientSchema>
 
 /**
  * Schema for a recipe in the list view
@@ -106,24 +97,24 @@ export const RecipeListItemSchema = z.object({
   tags: z.array(
     z.object({
       tag: RecipeTagSchema,
-    }),
+    })
   ),
   RecipeIngredient: z.array(
     z.object({
       ingredient: RecipeIngredientSchema,
-    }),
+    })
   ),
   RecipeFavorite: z.array(
     z.object({
       id: z.string(),
-    }),
+    })
   ),
   _count: z.object({
     RecipeFavorite: z.number(),
   }),
-});
+})
 
-export type RecipeListItem = z.infer<typeof RecipeListItemSchema>;
+export type RecipeListItem = z.infer<typeof RecipeListItemSchema>
 
 /**
  * Schema for detailed recipe ingredient with quantity
@@ -137,11 +128,9 @@ export const DetailedRecipeIngredientSchema = z.object({
     name: z.string(),
     slug: z.string(),
   }),
-});
+})
 
-export type DetailedRecipeIngredient = z.infer<
-  typeof DetailedRecipeIngredientSchema
->;
+export type DetailedRecipeIngredient = z.infer<typeof DetailedRecipeIngredientSchema>
 
 export const CookingStepSchema = z.object({
   step_number: z.number(),
@@ -151,11 +140,11 @@ export const CookingStepSchema = z.object({
     z.object({
       name: z.string(),
       quantity: z.string(),
-    }),
+    })
   ),
-});
+})
 
-export type CookingStep = z.infer<typeof CookingStepSchema>;
+export type CookingStep = z.infer<typeof CookingStepSchema>
 
 /**
  * Schema for a single recipe detail view
@@ -182,18 +171,12 @@ export const RecipeDetailSchema = z.object({
     z.object({
       name: z.string(),
       quantity: z.string(),
-    }),
+    })
   ),
   sourceVideoUrl: z.string().nullable(),
   sourceThumbnailUrl: z.string().nullable(),
   sourceUrl: z.string().nullable(),
-  sourceType: z.enum([
-    'MANUAL',
-    'INSTAGRAM_REEL',
-    'INSTAGRAM_POST',
-    'INSTAGRAM_VIDEO',
-    'TIKTOK',
-  ]),
+  sourceType: z.enum(['MANUAL', 'INSTAGRAM_REEL', 'INSTAGRAM_POST', 'INSTAGRAM_VIDEO', 'TIKTOK']),
   sourceName: z.string().nullable(),
   imagePrompt: z.string().nullable(),
   metadata: z.any().nullable(), // JSON field
@@ -206,11 +189,11 @@ export const RecipeDetailSchema = z.object({
   RecipeFavorite: z.array(
     z.object({
       id: z.string(),
-    }),
+    })
   ),
-});
+})
 
-export type RecipeDetail = z.infer<typeof RecipeDetailSchema>;
+export type RecipeDetail = z.infer<typeof RecipeDetailSchema>
 
 /**
  * Schema for generate recipe response
@@ -222,11 +205,9 @@ export const GenerateRecipeResponseSchema = z.object({
     bullJobId: z.string(),
     jobId: z.string(),
   }),
-});
+})
 
-export type GenerateRecipeResponse = z.infer<
-  typeof GenerateRecipeResponseSchema
->;
+export type GenerateRecipeResponse = z.infer<typeof GenerateRecipeResponseSchema>
 
 /**
  * Schema for add to cookbook response
@@ -243,6 +224,6 @@ export const AddToCookbookResponseSchema = z.object({
       deletedAt: z.string().or(z.date()).nullable(),
     })
     .optional(),
-});
+})
 
-export type AddToCookbookResponse = z.infer<typeof AddToCookbookResponseSchema>;
+export type AddToCookbookResponse = z.infer<typeof AddToCookbookResponseSchema>

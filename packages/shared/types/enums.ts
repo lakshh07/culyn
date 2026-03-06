@@ -6,8 +6,8 @@ export const JobStatus = {
   FAILED: 'FAILED',
   CANCELLED: 'CANCELLED',
   PAUSED: 'PAUSED',
-} as const;
-export type JobStatus = typeof JobStatus[keyof typeof JobStatus];
+} as const
+export type JobStatus = (typeof JobStatus)[keyof typeof JobStatus]
 
 export const RecipeSourceType = {
   MANUAL: 'MANUAL',
@@ -15,5 +15,5 @@ export const RecipeSourceType = {
   INSTAGRAM_POST: 'INSTAGRAM_POST',
   INSTAGRAM_VIDEO: 'INSTAGRAM_VIDEO',
   TIKTOK: 'TIKTOK',
-} as const;
-export type RecipeSourceType = typeof RecipeSourceType[keyof typeof RecipeSourceType];
+} as const
+export type RecipeSourceType = (typeof RecipeSourceType)[keyof typeof RecipeSourceType]

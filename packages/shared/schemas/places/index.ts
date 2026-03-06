@@ -1,4 +1,4 @@
-import z from 'zod';
+import z from 'zod'
 
 // ============================================================================
 // Enums
@@ -11,9 +11,9 @@ export const SourcePlatformSchema = z.enum([
   'TIKTOK',
   'YOUTUBE_SHORT',
   'MANUAL',
-]);
+])
 
-export type SourcePlatform = z.infer<typeof SourcePlatformSchema>;
+export type SourcePlatform = z.infer<typeof SourcePlatformSchema>
 
 export const PlaceTypeSchema = z.enum([
   'RESTAURANT',
@@ -25,9 +25,9 @@ export const PlaceTypeSchema = z.enum([
   'GROCERY_STORE',
   'SPECIALTY_SHOP',
   'OTHER',
-]);
+])
 
-export type PlaceType = z.infer<typeof PlaceTypeSchema>;
+export type PlaceType = z.infer<typeof PlaceTypeSchema>
 
 // ============================================================================
 // Query Parameters
@@ -38,15 +38,12 @@ export const ListPlacesQuerySchema = z.object({
   type: PlaceTypeSchema.optional(),
   city: z.string().optional(),
   q: z.string().optional(),
-  sortBy: z
-    .enum(['newest', 'oldest', 'popular', 'random'])
-    .optional()
-    .default('newest'),
+  sortBy: z.enum(['newest', 'oldest', 'popular', 'random']).optional().default('newest'),
   limit: z.coerce.number().optional().default(20),
   offset: z.coerce.number().optional().default(0),
-});
+})
 
-export type ListPlacesQuery = z.infer<typeof ListPlacesQuerySchema>;
+export type ListPlacesQuery = z.infer<typeof ListPlacesQuerySchema>
 
 // ============================================================================
 // Request Schemas
@@ -55,18 +52,15 @@ export type ListPlacesQuery = z.infer<typeof ListPlacesQuerySchema>;
 export const GeneratePlaceRequestSchema = z.object({
   url: z.string().url().describe('The URL to generate a place from'),
   sourceType: SourcePlatformSchema.describe('The source platform type'),
-});
+})
 
-export type GeneratePlaceRequest = z.infer<typeof GeneratePlaceRequestSchema>;
+export type GeneratePlaceRequest = z.infer<typeof GeneratePlaceRequestSchema>
 
 export const CreatePlaceRequestSchema = z
   .object({
     name: z.string().describe('The official name of the place'),
     short_name: z.string().optional().describe('A shortened or informal name'),
-    description: z
-      .string()
-      .optional()
-      .describe('Cleaned description of the place'),
+    description: z.string().optional().describe('Cleaned description of the place'),
     type: PlaceTypeSchema.describe('Primary place type'),
     address: z.string().optional(),
     city: z.string().optional(),
@@ -85,22 +79,15 @@ export const CreatePlaceRequestSchema = z
     tags: z
       .array(
         z.object({
-          type: z.enum([
-            'CUISINE',
-            'MEAL_TYPE',
-            'DIET',
-            'SEASON',
-            'OCCASION',
-            'CUSTOM',
-          ]),
+          type: z.enum(['CUISINE', 'MEAL_TYPE', 'DIET', 'SEASON', 'OCCASION', 'CUSTOM']),
           value: z.string(),
-        }),
+        })
       )
       .optional(),
   })
-  .describe('Structured place data extracted from input');
+  .describe('Structured place data extracted from input')
 
-export type CreatePlaceRequest = z.infer<typeof CreatePlaceRequestSchema>;
+export type CreatePlaceRequest = z.infer<typeof CreatePlaceRequestSchema>
 
 // ============================================================================
 // Response Schemas
@@ -110,7 +97,7 @@ export const PlaceTagSchema = z.object({
   id: z.string(),
   name: z.string(),
   type: z.string(),
-});
+})
 
 export const PlaceListItemSchema = z.object({
   id: z.string(),
@@ -128,19 +115,19 @@ export const PlaceListItemSchema = z.object({
   tags: z.array(
     z.object({
       tag: PlaceTagSchema,
-    }),
+    })
   ),
   PlaceFavorite: z.array(
     z.object({
       id: z.string(),
-    }),
+    })
   ),
   _count: z.object({
     PlaceFavorite: z.number(),
   }),
-});
+})
 
-export type PlaceListItem = z.infer<typeof PlaceListItemSchema>;
+export type PlaceListItem = z.infer<typeof PlaceListItemSchema>
 
 export const PlaceDetailSchema = z.object({
   id: z.string(),
@@ -177,16 +164,16 @@ export const PlaceDetailSchema = z.object({
   PlaceFavorite: z.array(
     z.object({
       id: z.string(),
-    }),
+    })
   ),
   tags: z.array(
     z.object({
       tag: PlaceTagSchema,
-    }),
+    })
   ),
-});
+})
 
-export type PlaceDetail = z.infer<typeof PlaceDetailSchema>;
+export type PlaceDetail = z.infer<typeof PlaceDetailSchema>
 
 export const GeneratePlaceResponseSchema = z.object({
   status: z.literal(202),
@@ -195,6 +182,6 @@ export const GeneratePlaceResponseSchema = z.object({
     bullJobId: z.string(),
     jobId: z.string(),
   }),
-});
+})
 
-export type GeneratePlaceResponse = z.infer<typeof GeneratePlaceResponseSchema>;
+export type GeneratePlaceResponse = z.infer<typeof GeneratePlaceResponseSchema>

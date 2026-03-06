@@ -1,4 +1,4 @@
-import z from 'zod';
+import z from 'zod'
 
 export const CookbookItemSchema = z.object({
   id: z.string(),
@@ -15,6 +15,6 @@ export const CookbookItemSchema = z.object({
       jobId: z.string(),
     }),
   }),
-});
+})
 
-export type CookbookItem = z.infer<typeof CookbookItemSchema>;
+export type CookbookItem = z.infer<typeof CookbookItemSchema>

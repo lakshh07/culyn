@@ -1,4 +1,4 @@
-import z from 'zod';
+import z from 'zod'
 
 /**
  * Schema for creating a recipe request (used by AI extraction)
@@ -76,6 +76,6 @@ export const CreateRecipeRequestSchema = z
       )
       .describe('Tags that categorize and describe the recipe'),
   })
-  .describe('Complete structured recipe data extracted from the input');
+  .describe('Complete structured recipe data extracted from the input')
 
-export type CreateRecipeRequest = z.infer<typeof CreateRecipeRequestSchema>;
+export type CreateRecipeRequest = z.infer<typeof CreateRecipeRequestSchema>

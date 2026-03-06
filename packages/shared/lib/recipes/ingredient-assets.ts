@@ -1,7 +1,7 @@
 type IngredientKeywordConfig = {
-  slug: string;
-  keywords: string[];
-};
+  slug: string
+  keywords: string[]
+}
 
 const INGREDIENT_KEYWORDS: IngredientKeywordConfig[] = [
   { slug: 'pepper', keywords: ['pepper', 'peppers'] },
@@ -31,12 +31,7 @@ const INGREDIENT_KEYWORDS: IngredientKeywordConfig[] = [
   { slug: 'bread', keywords: ['bread', 'slice of bread', 'slices of bread'] },
   {
     slug: 'green-chili',
-    keywords: [
-      'green chilli',
-      'green chillies',
-      'green chilies',
-      'green chili',
-    ],
+    keywords: ['green chilli', 'green chillies', 'green chilies', 'green chili'],
   },
   { slug: 'besan', keywords: ['besan', 'gram flour'] },
   { slug: 'paneer', keywords: ['paneer', 'paneer cubes'] },
@@ -54,13 +49,7 @@ const INGREDIENT_KEYWORDS: IngredientKeywordConfig[] = [
   { slug: 'water', keywords: ['water'] },
   {
     slug: 'aamchur',
-    keywords: [
-      'aamchur',
-      'amchur',
-      'amchoor',
-      'dried mango powder',
-      'dry mango powder',
-    ],
+    keywords: ['aamchur', 'amchur', 'amchoor', 'dried mango powder', 'dry mango powder'],
   },
   {
     slug: 'onion',
@@ -72,11 +61,7 @@ const INGREDIENT_KEYWORDS: IngredientKeywordConfig[] = [
   },
   {
     slug: 'schezwan-chutney',
-    keywords: [
-      'schezwan chutney',
-      'schezwan chutney paste',
-      'schezwan chutney sauce',
-    ],
+    keywords: ['schezwan chutney', 'schezwan chutney paste', 'schezwan chutney sauce'],
   },
   {
     slug: 'green-chutney',
@@ -114,7 +99,7 @@ const INGREDIENT_KEYWORDS: IngredientKeywordConfig[] = [
   { slug: 'sugar', keywords: ['icing sugar', 'sugar'] },
   { slug: 'nutella', keywords: ['nutella', 'nutella spread'] },
   { slug: 'roll-puff-pastry', keywords: ['roll puff pastry'] },
-];
+]
 
 const normalize = (value: string): string => {
   return value
@@ -122,37 +107,34 @@ const normalize = (value: string): string => {
     .replace(/[_-]+/g, ' ')
     .replace(/[^a-z0-9\s]/g, ' ')
     .replace(/\s+/g, ' ')
-    .trim();
-};
+    .trim()
+}
 
 export const getIngredientSlugFromText = (input: string): string | null => {
-  if (!input) return null;
+  if (!input) return null
 
-  const normalizedInput = normalize(input);
+  const normalizedInput = normalize(input)
 
   for (const { slug, keywords } of INGREDIENT_KEYWORDS) {
     for (const keyword of keywords) {
-      const normalizedKeyword = normalize(keyword);
+      const normalizedKeyword = normalize(keyword)
 
-      if (!normalizedKeyword) continue;
+      if (!normalizedKeyword) continue
 
       if (normalizedInput.includes(normalizedKeyword)) {
-        return slug;
+        return slug
       }
     }
   }
 
-  return null;
-};
+  return null
+}
 
-export const getIngredientImageUrl = (
-  input: string,
-  ingredientImageBaseUrl: string
-): string => {
-  const slug = getIngredientSlugFromText(input);
-  if (!slug) return '';
+export const getIngredientImageUrl = (input: string, ingredientImageBaseUrl: string): string => {
+  const slug = getIngredientSlugFromText(input)
+  if (!slug) return ''
 
-  return `${ingredientImageBaseUrl}/ingredients/${slug}.png`;
-};
+  return `${ingredientImageBaseUrl}/ingredients/${slug}.png`
+}
 
-export { INGREDIENT_KEYWORDS };
+export { INGREDIENT_KEYWORDS }

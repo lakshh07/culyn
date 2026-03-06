@@ -1,5 +1,5 @@
-import z from 'zod';
-import { SourcePlatformSchema } from '../places';
+import z from 'zod'
+import { SourcePlatformSchema } from '../places'
 
 // ============================================================================
 // Enums
@@ -16,9 +16,9 @@ export const ProductCategorySchema = z.enum([
   'BOOKS',
   'TOYS',
   'OTHER',
-]);
+])
 
-export type ProductCategory = z.infer<typeof ProductCategorySchema>;
+export type ProductCategory = z.infer<typeof ProductCategorySchema>
 
 // ============================================================================
 // Query Parameters
@@ -36,9 +36,9 @@ export const ListProductsQuerySchema = z.object({
     .default('newest'),
   limit: z.coerce.number().optional().default(20),
   offset: z.coerce.number().optional().default(0),
-});
+})
 
-export type ListProductsQuery = z.infer<typeof ListProductsQuerySchema>;
+export type ListProductsQuery = z.infer<typeof ListProductsQuerySchema>
 
 // ============================================================================
 // Request Schemas
@@ -47,9 +47,9 @@ export type ListProductsQuery = z.infer<typeof ListProductsQuerySchema>;
 export const GenerateProductRequestSchema = z.object({
   url: z.string().url().describe('The URL to generate a product from'),
   sourceType: SourcePlatformSchema.describe('The source platform type'),
-});
+})
 
-export type GenerateProductRequest = z.infer<typeof GenerateProductRequestSchema>;
+export type GenerateProductRequest = z.infer<typeof GenerateProductRequestSchema>
 
 export const CreateProductRequestSchema = z
   .object({
@@ -68,22 +68,15 @@ export const CreateProductRequestSchema = z
     tags: z
       .array(
         z.object({
-          type: z.enum([
-            'CUISINE',
-            'MEAL_TYPE',
-            'DIET',
-            'SEASON',
-            'OCCASION',
-            'CUSTOM',
-          ]),
+          type: z.enum(['CUISINE', 'MEAL_TYPE', 'DIET', 'SEASON', 'OCCASION', 'CUSTOM']),
           value: z.string(),
         })
       )
       .optional(),
   })
-  .describe('Structured product data extracted from input');
+  .describe('Structured product data extracted from input')
 
-export type CreateProductRequest = z.infer<typeof CreateProductRequestSchema>;
+export type CreateProductRequest = z.infer<typeof CreateProductRequestSchema>
 
 // ============================================================================
 // Response Schemas
@@ -93,7 +86,7 @@ export const ProductTagSchema = z.object({
   id: z.string(),
   name: z.string(),
   type: z.string(),
-});
+})
 
 export const ProductListItemSchema = z.object({
   id: z.string(),
@@ -118,9 +111,9 @@ export const ProductListItemSchema = z.object({
   _count: z.object({
     ProductFavorite: z.number(),
   }),
-});
+})
 
-export type ProductListItem = z.infer<typeof ProductListItemSchema>;
+export type ProductListItem = z.infer<typeof ProductListItemSchema>
 
 export const ProductDetailSchema = z.object({
   id: z.string(),
@@ -159,9 +152,9 @@ export const ProductDetailSchema = z.object({
       tag: ProductTagSchema,
     })
   ),
-});
+})
 
-export type ProductDetail = z.infer<typeof ProductDetailSchema>;
+export type ProductDetail = z.infer<typeof ProductDetailSchema>
 
 export const GenerateProductResponseSchema = z.object({
   status: z.literal(202),
@@ -170,6 +163,6 @@ export const GenerateProductResponseSchema = z.object({
     bullJobId: z.string(),
     jobId: z.string(),
   }),
-});
+})
 
-export type GenerateProductResponse = z.infer<typeof GenerateProductResponseSchema>;
+export type GenerateProductResponse = z.infer<typeof GenerateProductResponseSchema>

@@ -1,4 +1,4 @@
-import z from 'zod';
+import z from 'zod'
 
 /**
  * Schema for creating a recipe request
@@ -11,9 +11,7 @@ export const CreateRecipeRequestSchema = z
       .describe(
         'A concise and catchy version of the recipe title (3-7 words, no hyphens or long descriptors)'
       ),
-    description: z
-      .string()
-      .describe('A brief, appetizing description of the recipe'),
+    description: z.string().describe('A brief, appetizing description of the recipe'),
     calories: z.number().describe('Total calories per serving'),
     carbs_g: z.number().describe('Total carbohydrates in grams per serving'),
     protein_g: z.number().describe('Total protein in grams per serving'),
@@ -31,26 +29,18 @@ export const CreateRecipeRequestSchema = z
     ingredients: z
       .array(
         z.object({
-          name: z
-            .string()
-            .describe('The name of the ingredient (standardized and clean)'),
+          name: z.string().describe('The name of the ingredient (standardized and clean)'),
           quantity: z
             .string()
-            .describe(
-              'The quantity with unit (e.g., "2 tbsp", "1 cup", "1/2 tsp")'
-            ),
+            .describe('The quantity with unit (e.g., "2 tbsp", "1 cup", "1/2 tsp")'),
         })
       )
       .describe('List of all ingredients needed for the recipe'),
     cooking_steps: z
       .array(
         z.object({
-          step_number: z
-            .number()
-            .describe('The sequential step number (1, 2, 3, etc.)'),
-          step_description: z
-            .string()
-            .describe('Clear, concise instruction for this cooking step'),
+          step_number: z.number().describe('The sequential step number (1, 2, 3, etc.)'),
+          step_description: z.string().describe('Clear, concise instruction for this cooking step'),
           tools_required: z
             .array(z.string())
             .describe(
@@ -59,9 +49,7 @@ export const CreateRecipeRequestSchema = z
           ingredients_used: z
             .array(
               z.object({
-                name: z
-                  .string()
-                  .describe('Name of the ingredient used in this step'),
+                name: z.string().describe('Name of the ingredient used in this step'),
                 quantity: z
                   .string()
                   .describe(
@@ -77,14 +65,7 @@ export const CreateRecipeRequestSchema = z
       .array(
         z.object({
           type: z
-            .enum([
-              'CUISINE',
-              'MEAL_TYPE',
-              'DIET',
-              'SEASON',
-              'OCCASION',
-              'CUSTOM',
-            ])
+            .enum(['CUISINE', 'MEAL_TYPE', 'DIET', 'SEASON', 'OCCASION', 'CUSTOM'])
             .describe('The category type of this tag'),
           value: z
             .string()
@@ -95,6 +76,6 @@ export const CreateRecipeRequestSchema = z
       )
       .describe('Tags that categorize and describe the recipe'),
   })
-  .describe('Complete structured recipe data extracted from the input');
+  .describe('Complete structured recipe data extracted from the input')
 
-export type CreateRecipeRequest = z.infer<typeof CreateRecipeRequestSchema>;
+export type CreateRecipeRequest = z.infer<typeof CreateRecipeRequestSchema>
