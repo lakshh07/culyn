@@ -2,16 +2,10 @@
 nixPkgs = ['bun']
 
 [phases.install]
-cmds = [
-  'cd apps/backend',
-  'bun install'
-]
+cmds = ['bun install']
 
 [phases.build]
-cmds = [
-  'cd apps/backend',
-  'bunx prisma generate'
-]
+cmds = ['cd apps/backend && bunx prisma generate']
 
 [start]
 cmd = 'cd apps/backend && bun run start'

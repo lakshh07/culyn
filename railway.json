@@ -2,14 +2,12 @@
   "$schema": "https://railway.app/railway.schema.json",
   "build": {
     "builder": "NIXPACKS",
-    "buildCommand": "cd apps/backend && bun install && bunx prisma generate"
+    "buildCommand": "bun install && cd apps/backend && bunx prisma generate"
   },
   "deploy": {
     "startCommand": "cd apps/backend && bun run start",
     "restartPolicyType": "ON_FAILURE",
     "restartPolicyMaxRetries": 10
   },
-  "watch": [
-    "apps/backend/**"
-  ]
+  "watch": ["apps/backend/**"]
 }
