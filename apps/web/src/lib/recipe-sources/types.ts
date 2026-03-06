@@ -1,4 +1,4 @@
-import { RecipeSourceType } from '@/generated/prisma/enums'
+import { RecipeSourceType } from '@culyn/shared/types'
 
 /**
  * Base interface for recipe source data

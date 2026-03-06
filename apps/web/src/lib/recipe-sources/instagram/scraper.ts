@@ -3,7 +3,7 @@
  * Extracts caption, display URL, and owner username from Instagram posts/reels
  */
 
-import { RecipeSourceType } from '@/generated/prisma/enums'
+import { RecipeSourceType } from '@culyn/shared/types'
 import { InstagramRecipeSourceData } from '@/lib/recipe-sources/types'
 
 const USER_AGENT = process.env.USER_AGENT

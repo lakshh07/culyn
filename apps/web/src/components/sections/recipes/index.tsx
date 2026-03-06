@@ -40,7 +40,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { Skeleton } from '@/components/ui/skeleton'
-import { Ingredient, Tag } from '@/generated/prisma/client'
+import { Ingredient, Tag } from '@culyn/shared/types'
 import { Api } from '@/lib/api'
 import { ClientErrorHandler } from '@/lib/errors'
 import { cn } from '@/lib/utils'

@@ -1,13 +1,12 @@
-import { Recipe } from '@/generated/prisma/client'
 import { Api } from '@/lib/api'
-import { RecipeDetail } from '@culyn/shared/schemas'
+import { RecipeDetail, RecipeListItem } from '@culyn/shared/schemas'
 import { useQuery } from '@tanstack/react-query'
 
 export const useRecipes = () => {
   const { data: recipes, isLoading: isLoadingRecipes } = useQuery({
     queryKey: ['v1', 'recipes'],
     queryFn: async () => {
-      const response = await Api.v1.get<Recipe[]>('/recipes')
+      const response = await Api.v1.get<RecipeListItem[]>('/recipes')
       return response.data
     },
   })

@@ -1,4 +1,4 @@
-import { Job } from '@/generated/prisma/client'
+import { Job } from '@culyn/shared/types'
 import { Api } from '@/lib/api'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { useEffect, useRef } from 'react'

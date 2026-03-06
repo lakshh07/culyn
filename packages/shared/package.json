@@ -13,7 +13,9 @@
     "./lib": "./lib/index.ts"
   },
   "scripts": {
-    "typecheck": "bunx tsc --noEmit"
+    "typecheck": "bunx tsc --noEmit",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
   },
   "dependencies": {
     "luxon": "^3.7.2",
@@ -21,6 +23,7 @@
   },
   "devDependencies": {
     "@types/luxon": "^3.7.1",
+    "prettier": "^3.8.1",
     "typescript": "^5.9.3"
   }
 }

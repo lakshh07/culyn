@@ -1,4 +1,4 @@
-import { RecipeSourceType } from '@/generated/prisma/enums'
+import { RecipeSourceType } from '@culyn/shared/types'
 import { RecipeSourceHandler } from '@/lib/recipe-sources/base'
 import { InstagramReelsRecipeSourceHandler } from '@/lib/recipe-sources/instagram/reels'
 

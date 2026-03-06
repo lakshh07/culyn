@@ -17,7 +17,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { RecipeSourceType } from '@/generated/prisma/enums'
 import { Api } from '@/lib/api'
 import { ClientErrorHandler } from '@/lib/errors'
 import { getCurrentDate, getMealTypeByTime } from '@/lib/utils'
@@ -27,6 +26,7 @@ import React, { useState } from 'react'
 import { toast } from 'sonner'
 import { Highlighter } from '@/components/ui/highlighter'
 import { motion } from 'motion/react'
+import { RecipeSourceType } from '@culyn/shared/types'
 
 export const CreateRecipe = () => {
   const [recipeInput, setRecipeInput] = useState('')
