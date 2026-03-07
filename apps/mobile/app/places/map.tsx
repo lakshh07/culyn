@@ -188,11 +188,9 @@ export default function PlacesMapScreen() {
       {/* Bottom Sheet for selected place */}
       <Host style={styles.sheetHost}>
         <BottomSheet
-          isOpened={!!selectedPlace}
-          presentationDragIndicator="visible"
-          presentationDetents={[0.2, 0.5]}
-          onIsOpenedChange={open => {
-            if (!open) setSelectedPlace(null)
+          isPresented={!!selectedPlace}
+          onIsPresentedChange={isPresented => {
+            if (!isPresented) setSelectedPlace(null)
           }}>
           {selectedPlace && (
             <View style={[styles.sheetContent, { backgroundColor: colors.background }]}>
