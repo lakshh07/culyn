@@ -2,10 +2,14 @@
 nixPkgs = ['bun']
 
 [phases.install]
-cmds = ['bun install']
+cmds = [
+  'bun install --frozen-lockfile'
+]
 
 [phases.build]
-cmds = ['cd apps/backend && bunx prisma generate']
+cmds = [
+  'cd apps/backend && bunx prisma generate'
+]
 
 [start]
 cmd = 'cd apps/backend && bun run start'
