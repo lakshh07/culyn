@@ -1,4 +1,3 @@
-import { startWorkers } from '@/bull/workers'
 import { auth } from '@/lib/auth'
 import { errorHandler } from '@/lib/http'
 import { logger } from '@/middleware/logger'
@@ -55,9 +54,6 @@ app.get('/', c => {
     status: 'running',
   })
 })
-
-// Start BullMQ workers for background job processing
-startWorkers()
 
 export default {
   port: 8000,

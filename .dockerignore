@@ -1,0 +1,20 @@
+node_modules
+apps/*/node_modules
+packages/*/node_modules
+
+# Env files — never bake secrets into the image
+.env
+.env.*
+apps/**/.env
+apps/**/.env.*
+
+# Mobile/web source not needed in backend image
+apps/mobile/src
+apps/mobile/assets
+apps/mobile/app
+apps/web/src
+apps/web/app
+apps/web/.next
+
+*.log
+.DS_Store
