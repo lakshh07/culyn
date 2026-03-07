@@ -17,8 +17,8 @@ COPY apps/backend/ ./apps/backend/
 
 WORKDIR /app/apps/backend
 
-# Generate Prisma client at build time
-RUN bunx prisma generate
+# Generate Prisma client at build time (dummy URL — generate doesn't connect to DB)
+RUN DATABASE_URL="postgresql://x:x@localhost/x" bunx prisma generate
 
 EXPOSE 8000
 
