@@ -5,8 +5,9 @@ services:
     dockerfilePath: ./apps/backend/Dockerfile
     dockerContext: .
     plan: starter
+    autoDeploy: false
     healthCheckPath: /api/v1/health
-    startCommand: bunx prisma migrate deploy && bun run src/index.ts
+    dockerCommand: bunx prisma migrate deploy && bun run src/index.ts
     envVars:
       - key: NODE_ENV
         value: production
@@ -58,7 +59,8 @@ services:
     dockerfilePath: ./apps/backend/Dockerfile
     dockerContext: .
     plan: starter
-    startCommand: bun run src/worker.ts
+    autoDeploy: false
+    dockerCommand: bun run src/worker.ts
     envVars:
       - key: NODE_ENV
         value: production
@@ -92,3 +94,4 @@ services:
     name: culyn-redis
     plan: free
     maxmemoryPolicy: noeviction
+    ipAllowList: []
