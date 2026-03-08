@@ -6,7 +6,7 @@ const createApiClient = (version: ApiVersion = 'v1'): AxiosInstance => {
   const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
 
   return axios.create({
-    baseURL: `${backendUrl}/api/${version}`,
+    baseURL: `${backendUrl}/${version}`,
     headers: { 'Content-Type': 'application/json' },
     withCredentials: true,
   })

@@ -5,6 +5,7 @@ import * as SecureStore from 'expo-secure-store'
 
 export const authClient = createAuthClient({
   baseURL: process.env.EXPO_PUBLIC_CULYN_API_URL,
+  basePath: '/auth',
   plugins: [
     expoClient({
       scheme: 'culynapp',

@@ -17,7 +17,7 @@ export function useSendMessage(conversationId: string) {
       try {
         const cookies = authClient.getCookie()
         const response = await fetch(
-          `${API_BASE_URL}/api/v1/chat/conversations/${conversationId}/messages`,
+          `${API_BASE_URL}/v1/chat/conversations/${conversationId}/messages`,
           {
             method: 'POST',
             headers: {

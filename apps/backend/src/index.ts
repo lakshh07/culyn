@@ -41,11 +41,11 @@ app.use(
 
 app.onError(errorHandler)
 
-app.on(['POST', 'GET'], '/api/auth/*', c => {
+app.on(['POST', 'GET'], '/auth/*', c => {
   return auth.handler(c.req.raw)
 })
 
-app.route('/api/v1', v1Routes)
+app.route('/v1', v1Routes)
 
 app.get('/', c => {
   return c.json({

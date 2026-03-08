@@ -22,7 +22,7 @@ export const apiClient = (version: 'v1' = 'v1'): AxiosInstance => {
 
   // Create new instance
   const instance = axios.create({
-    baseURL: `${API_BASE_URL}/api/${version}`,
+    baseURL: `${API_BASE_URL}/${version}`,
     timeout: 10000,
     headers: {
       'Content-Type': 'application/json',
