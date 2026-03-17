@@ -12,6 +12,8 @@ import { recipeAIService } from '@/lib/services/recipe/recipe-ai.service'
 import { recipeImageService } from '@/lib/services/recipe/recipe-image.service'
 import { recipePersistenceService } from '@/lib/services/recipe/recipe-persistence.service'
 import { detectSourcePlatform, scrapeAndDownload } from '@/lib/source-scrapers'
+import { downloadInstagramMedia } from '@/lib/source-scrapers/instagram/downloader'
+import type { DownloadedMedia, ScrapedData } from '@/lib/source-scrapers/types'
 import { CookingStep } from '@culyn/shared/schemas'
 import { JobStatus, RecipeSourceType, type ContentCategory } from '@prisma/client'
 import { Worker, type Job } from 'bullmq'
@@ -27,7 +29,7 @@ const ClassificationSchema = z.object({
 async function processContentImport(
   job: Job<ContentImportJobData, ContentImportJobResult>
 ): Promise<ContentImportJobResult> {
-  const { userId, organizationId, url } = job.data
+  const { userId, organizationId, url, scrapedData: preScrapedData } = job.data
 
   try {
     await db.job.updateMany({
@@ -43,7 +45,17 @@ async function processContentImport(
     await job.updateProgress(5)
 
     // ── Scrape and download media ──
-    const { scraped, media } = await scrapeAndDownload(url, platform)
+    // When pre-scraped data is provided (from instagram-scrape worker), skip re-scraping
+    let scraped: ScrapedData
+    let media: DownloadedMedia
+    if (preScrapedData) {
+      scraped = preScrapedData
+      media = await downloadInstagramMedia(scraped)
+    } else {
+      const result = await scrapeAndDownload(url, platform)
+      scraped = result.scraped
+      media = result.media
+    }
     await job.updateProgress(15)
 
     const recordId = randomUUID()
