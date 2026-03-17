@@ -1,101 +1,57 @@
+import { getRedis } from '@/lib/redis'
 import type { ScrapedData } from '../types'
+import { scrapeViaApify } from './providers/apify'
+import { IgNotFoundError, IgRateLimitError, scrapeViaGraphQL } from './providers/graphql'
 
-const USER_AGENT = process.env.USER_AGENT
-const X_IG_APP_ID = process.env.X_IG_APP_ID
+const CACHE_TTL_SECONDS = 3600 // 1 hour
 
-interface InstagramMediaResponse {
-  data?: {
-    xdt_shortcode_media?: {
-      edge_media_to_caption?: {
-        edges?: Array<{
-          node?: {
-            text?: string
-          }
-        }>
-      }
-      display_url?: string
-      owner?: {
-        username?: string
-      }
-      video_url?: string
-    }
-  }
-}
-
-/**
- * Extracts the post/reel ID from an Instagram URL
- */
 export function extractPostId(url: string): string | null {
   const regex = /instagram.com\/(?:[A-Za-z0-9_.]+\/)?(p|reels|reel|stories)\/([A-Za-z0-9-_]+)/
   const match = url.match(regex)
   return match && match[2] ? match[2] : null
 }
 
-/**
- * Checks if a URL is an Instagram URL
- */
 export function isInstagramUrl(url: string): boolean {
   return /instagram\.com\/(p|reels|reel|stories)\//.test(url)
 }
 
-/**
- * Fetches Instagram post data including caption, display URL, and owner username
- */
 export async function getInstagramPostData(url: string): Promise<ScrapedData> {
   const postId = extractPostId(url)
+  if (!postId) throw new Error('Invalid Instagram URL')
 
-  if (!postId) {
-    throw new Error('Invalid Instagram URL')
+  const redis = await getRedis()
+  const cacheKey = `ig:scraped:${postId}`
+
+  const cached = await redis.get(cacheKey)
+  if (cached) {
+    return JSON.parse(cached) as ScrapedData
   }
 
-  if (!USER_AGENT || !X_IG_APP_ID) {
-    throw new Error('Instagram scraper headers not found in ENV')
+  const provider = process.env.IG_SCRAPER_PROVIDER ?? 'internal'
+  let scraped: ScrapedData
+
+  if (provider === 'apify') {
+    scraped = await scrapeViaApify(url)
+  } else {
+    try {
+      scraped = await scrapeViaGraphQL(postId)
+    } catch (err) {
+      // Post is gone — don't waste an Apify call, fail immediately
+      if (err instanceof IgNotFoundError) throw err
+
+      // Instagram rate-limited our IP — go straight to Apify, no retry
+      if (err instanceof IgRateLimitError) {
+        console.warn('[IGScraper] Rate limited by Instagram, falling back to Apify')
+        scraped = await scrapeViaApify(url)
+      } else {
+        const message = err instanceof Error ? err.message : String(err)
+        console.warn(`[IGScraper] Internal strategy failed (${message}), falling back to Apify`)
+        scraped = await scrapeViaApify(url)
+      }
+    }
   }
 
-  try {
-    const graphqlUrl = new URL('https://www.instagram.com/api/graphql')
-    graphqlUrl.searchParams.set('variables', JSON.stringify({ shortcode: postId }))
-    graphqlUrl.searchParams.set('doc_id', '10015901848480474')
-    graphqlUrl.searchParams.set('lsd', 'AVqbxe3J_YA')
+  await redis.set(cacheKey, JSON.stringify(scraped), { EX: CACHE_TTL_SECONDS })
 
-    const response = await fetch(graphqlUrl, {
-      method: 'POST',
-      headers: {
-        'User-Agent': USER_AGENT,
-        'Content-Type': 'application/x-www-form-urlencoded',
-        'X-IG-App-ID': X_IG_APP_ID,
-        'X-FB-LSD': 'AVqbxe3J_YA',
-        'X-ASBD-ID': '129477',
-        'Sec-Fetch-Site': 'same-origin',
-      },
-    })
-
-    if (!response.ok) {
-      throw new Error(`Instagram API returned status ${response.status}`)
-    }
-
-    const json = (await response.json()) as InstagramMediaResponse
-    const media = json?.data?.xdt_shortcode_media
-
-    if (!media) {
-      throw new Error('No media data found in response')
-    }
-
-    const caption = media?.edge_media_to_caption?.edges?.[0]?.node?.text || ''
-    const displayUrl = media?.display_url
-    const ownerUsername = media?.owner?.username || ''
-    const videoUrl = media?.video_url
-
-    return {
-      caption,
-      displayUrl,
-      ownerUsername,
-      videoUrl,
-    }
-  } catch (error) {
-    if (error instanceof Error) {
-      throw new Error(`Failed to fetch Instagram data: ${error.message}`)
-    }
-    throw new Error('Failed to fetch Instagram data: Unknown error')
-  }
+  return scraped
 }
