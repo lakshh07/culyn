@@ -29,8 +29,8 @@ declare module 'bun' {
     AI_GATEWAY_API_KEY: string
     GOOGLE_MAPS_API_KEY: string
 
-    USER_AGENT: string
     X_IG_APP_ID: string
+    APIFY_API_KEY: string
   }
 }
 
