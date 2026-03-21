@@ -2,8 +2,8 @@ import { BackIcon } from '@/components/icons'
 import { useThemeColors } from '@/constants/useTheme'
 import { usePlaces } from '@/hooks/places/usePlaces'
 import { PlaceListItem } from '@culyn/shared/schemas'
-import { Feather } from '@expo/vector-icons'
 import { BottomSheet, Host } from '@expo/ui/swift-ui'
+import { Feather } from '@expo/vector-icons'
 import { GlassView } from 'expo-glass-effect'
 import { useRouter } from 'expo-router'
 import React, { useMemo, useRef, useState } from 'react'
@@ -188,9 +188,9 @@ export default function PlacesMapScreen() {
       {/* Bottom Sheet for selected place */}
       <Host style={styles.sheetHost}>
         <BottomSheet
-          isPresented={!!selectedPlace}
-          onIsPresentedChange={isPresented => {
-            if (!isPresented) setSelectedPlace(null)
+          isOpened={!!selectedPlace}
+          onIsOpenedChange={isOpened => {
+            if (!isOpened) setSelectedPlace(null)
           }}>
           {selectedPlace && (
             <View style={[styles.sheetContent, { backgroundColor: colors.background }]}>

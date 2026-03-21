@@ -1,50 +1,125 @@
-# Welcome to your Expo app 👋
+# Culyn Mobile
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+## Development
 
-## Get started
-
-1. Install dependencies
-
-   ```bash
-   npm install
-   ```
-
-2. Start the app
-
-   ```bash
-   npx expo start
-   ```
-
-In the output, you'll find options to open the app in a
-
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
+Install dependencies and start the dev server:
 
 ```bash
-npm run reset-project
+pnpm install
+npx expo start
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+## Environment Setup
 
-## Learn more
+Copy the relevant env file before building:
 
-To learn more about developing your project with Expo, look at the following resources:
+| Environment | File              | API                |
+| ----------- | ----------------- | ------------------ |
+| Staging     | `.env.staging`    | Staging backend    |
+| Production  | `.env.production` | Production backend |
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+Fill in `EXPO_PUBLIC_CULYN_API_URL` in each file with the correct backend URL.
 
-## Join the community
+---
 
-Join our community of developers creating universal apps.
+## Build Workflow
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+### Staging → TestFlight (local Xcode build)
+
+Use this for testing before shipping to the App Store. No EAS quota used.
+
+**1. Sync native code for staging:**
+
+```bash
+APP_ENV=staging npx expo prebuild
+cd ios && pod install && cd ..
+```
+
+**2. Open in Xcode and archive:**
+
+```bash
+open ios/culynapp.xcworkspace
+```
+
+- Select **`culynapp Staging`** scheme (top bar)
+- Select **Any iOS Device (arm64)** as the target
+- **Product → Archive**
+- In the Organizer: **Distribute App → App Store Connect → Upload**
+- In App Store Connect → **TestFlight → Internal Testing** → add testers
+
+> The staging app uses bundle ID `com.culyn-ai.staging` and app name **Culyn (Staging)**.
+> Both staging and production apps can be installed on the same device simultaneously.
+
+---
+
+### Production → App Store (EAS build)
+
+Use this when the build is verified in staging and ready to ship.
+
+**1. Fill in `eas.json` submit config** (one-time):
+
+```json
+"submit": {
+  "production": {
+    "ios": {
+      "appleId": "your@email.com",
+      "ascAppId": "YOUR_APP_STORE_CONNECT_APP_ID"
+    }
+  }
+}
+```
+
+**2. Build and submit:**
+
+```bash
+eas build -p ios --profile production --auto-submit
+```
+
+This builds remotely and submits directly to App Store Connect for review.
+
+---
+
+## One-time Apple Setup
+
+These are done once in the Apple Developer Portal and App Store Connect:
+
+1. **Register staging bundle ID** — [developer.apple.com](https://developer.apple.com) → Certificates, Identifiers & Profiles → Identifiers → `+` → `com.culyn-ai.staging`
+2. **Create staging app in App Store Connect** — [appstoreconnect.apple.com](https://appstoreconnect.apple.com) → My Apps → `+` → New App → use `com.culyn-ai.staging`
+3. **Add internal testers** — TestFlight → Internal Testing → add yourself and testers
+
+---
+
+## EAS Credentials (first EAS build only)
+
+```bash
+eas credentials
+```
+
+Lets EAS auto-manage signing certificates and provisioning profiles.
+
+---
+
+## Version Management
+
+EAS handles build number auto-increment (`appVersionSource: "remote"` in `eas.json`).
+
+```bash
+# Check current build number
+eas build:version:get -p ios
+
+# Set manually if needed
+eas build:version:set -p ios --build-number 42
+```
+
+---
+
+## Key Files
+
+| File                  | Purpose                                                             |
+| --------------------- | ------------------------------------------------------------------- |
+| `app.config.ts`       | Dynamic config — switches bundle ID and app name based on `APP_ENV` |
+| `eas.json`            | EAS build profiles (production only)                                |
+| `.env.staging`        | Staging env vars (gitignored)                                       |
+| `.env.production`     | Production env vars (gitignored)                                    |
+| `constants/config.ts` | Runtime `APP_ENV` and `API_URL` exports                             |
+| `lib/api.ts`          | Axios client using `API_URL` from `constants/config.ts`             |

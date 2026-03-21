@@ -1,15 +1,8 @@
+import { API_URL } from '@/constants/config'
 import { authClient } from '@/lib/auth-client'
 import axios, { AxiosError, AxiosInstance, AxiosResponse } from 'axios'
-import Constants from 'expo-constants'
 
-const getApiUrl = () => {
-  if (__DEV__) {
-    return process.env.EXPO_PUBLIC_CULYN_API_URL
-  }
-  return Constants.expoConfig?.extra?.apiUrl || 'https://your-api-domain.com'
-}
-
-export const API_BASE_URL = getApiUrl()
+export const API_BASE_URL = API_URL
 
 // Create a singleton instance map to reuse axios instances
 const axiosInstances = new Map<string, AxiosInstance>()
@@ -33,10 +26,6 @@ export const apiClient = (version: 'v1' = 'v1'): AxiosInstance => {
   instance.interceptors.request.use(
     config => {
       const cookies = authClient.getCookie()
-      if (__DEV__) {
-        console.log('[API] Request URL:', config.url)
-        console.log('[API] Cookies:', cookies ? 'Present' : 'Missing')
-      }
       if (cookies) {
         config.headers.Cookie = cookies
       }
@@ -52,14 +41,7 @@ export const apiClient = (version: 'v1' = 'v1'): AxiosInstance => {
     (response: AxiosResponse) => response,
     (error: AxiosError) => {
       if (error.response?.status === 401) {
-        if (__DEV__) {
-          console.error('[API] 401 Unauthorized:', {
-            url: error.config?.url,
-            message: error.response?.data,
-          })
-        }
-        // Token expired or invalid, trigger re-authentication
-        // Better Auth will handle session refresh automatically
+        // Token expired or invalid — Better Auth handles session refresh automatically
       }
       return Promise.reject(error)
     }
