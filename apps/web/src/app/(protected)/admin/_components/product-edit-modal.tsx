@@ -20,8 +20,16 @@ import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 
 const PRODUCT_CATEGORIES = [
-  'BEAUTY', 'TECH', 'FASHION', 'KITCHEN', 'HOME',
-  'HEALTH', 'SPORTS', 'BOOKS', 'TOYS', 'OTHER',
+  'BEAUTY',
+  'TECH',
+  'FASHION',
+  'KITCHEN',
+  'HOME',
+  'HEALTH',
+  'SPORTS',
+  'BOOKS',
+  'TOYS',
+  'OTHER',
 ] as const
 
 const jsonField = z
@@ -29,7 +37,12 @@ const jsonField = z
   .optional()
   .refine(val => {
     if (!val?.trim()) return true
-    try { JSON.parse(val); return true } catch { return false }
+    try {
+      JSON.parse(val)
+      return true
+    } catch {
+      return false
+    }
   }, 'Invalid JSON')
 
 const schema = z.object({
@@ -119,7 +132,7 @@ export function ProductEditModal({ product, open, onClose, queryKey }: ProductEd
 
   return (
     <Dialog open={open} onOpenChange={v => !v && onClose()}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-h-[90vh] max-w-2xl overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Edit Product</DialogTitle>
         </DialogHeader>
@@ -146,7 +159,9 @@ export function ProductEditModal({ product, open, onClose, queryKey }: ProductEd
                 className="border-input h-9 w-full rounded-md border bg-transparent px-3 py-1 text-sm">
                 <option value="">—</option>
                 {PRODUCT_CATEGORIES.map(c => (
-                  <option key={c} value={c}>{c}</option>
+                  <option key={c} value={c}>
+                    {c}
+                  </option>
                 ))}
               </select>
             </div>
@@ -178,8 +193,15 @@ export function ProductEditModal({ product, open, onClose, queryKey }: ProductEd
             <Textarea {...register('notes')} rows={2} />
           </div>
           <div className="flex items-center gap-2">
-            <input type="checkbox" id="productIsPublic" {...register('isPublic')} className="size-4" />
-            <label htmlFor="productIsPublic" className="text-sm">Public</label>
+            <input
+              type="checkbox"
+              id="productIsPublic"
+              {...register('isPublic')}
+              className="size-4"
+            />
+            <label htmlFor="productIsPublic" className="text-sm">
+              Public
+            </label>
           </div>
           <div className="space-y-1">
             <label className="text-xs font-medium">Specifications (JSON)</label>
@@ -190,7 +212,7 @@ export function ProductEditModal({ product, open, onClose, queryKey }: ProductEd
               className="font-mono text-xs"
             />
             {formState.errors.specifications && (
-              <p className="text-xs text-destructive">{formState.errors.specifications.message}</p>
+              <p className="text-destructive text-xs">{formState.errors.specifications.message}</p>
             )}
           </div>
           <div className="space-y-1">
@@ -202,11 +224,13 @@ export function ProductEditModal({ product, open, onClose, queryKey }: ProductEd
               className="font-mono text-xs"
             />
             {formState.errors.features && (
-              <p className="text-xs text-destructive">{formState.errors.features.message}</p>
+              <p className="text-destructive text-xs">{formState.errors.features.message}</p>
             )}
           </div>
           <DialogFooter>
-            <Button type="button" variant="outline" onClick={onClose}>Cancel</Button>
+            <Button type="button" variant="outline" onClick={onClose}>
+              Cancel
+            </Button>
             <Button type="submit" disabled={formState.isSubmitting}>
               {formState.isSubmitting ? 'Saving…' : 'Save'}
             </Button>

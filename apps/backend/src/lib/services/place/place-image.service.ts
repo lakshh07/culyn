@@ -26,9 +26,7 @@ export class PlaceImageService {
   }
 
   private generateImagePrompt(place: GeneratePlaceImageOptions['place']): string {
-    const typeLabel = place.type
-      ? place.type.replace(/_/g, ' ').toLowerCase()
-      : 'establishment'
+    const typeLabel = place.type ? place.type.replace(/_/g, ' ').toLowerCase() : 'establishment'
     const cuisineText = place.cuisine ? ` specializing in ${place.cuisine} cuisine` : ''
     const cityText = place.city ? ` in ${place.city}` : ''
 

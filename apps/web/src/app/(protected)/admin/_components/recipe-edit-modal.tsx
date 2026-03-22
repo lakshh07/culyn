@@ -24,7 +24,12 @@ const jsonField = z
   .optional()
   .refine(val => {
     if (!val?.trim()) return true
-    try { JSON.parse(val); return true } catch { return false }
+    try {
+      JSON.parse(val)
+      return true
+    } catch {
+      return false
+    }
   }, 'Invalid JSON')
 
 const schema = z.object({
@@ -126,7 +131,7 @@ export function RecipeEditModal({ recipe, open, onClose, queryKey }: RecipeEditM
 
   return (
     <Dialog open={open} onOpenChange={v => !v && onClose()}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-h-[90vh] max-w-2xl overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Edit Recipe</DialogTitle>
         </DialogHeader>
@@ -196,7 +201,9 @@ export function RecipeEditModal({ recipe, open, onClose, queryKey }: RecipeEditM
           </div>
           <div className="flex items-center gap-2">
             <input type="checkbox" id="isPublic" {...register('isPublic')} className="size-4" />
-            <label htmlFor="isPublic" className="text-sm">Public</label>
+            <label htmlFor="isPublic" className="text-sm">
+              Public
+            </label>
           </div>
           <div className="space-y-1">
             <label className="text-xs font-medium">Ingredients (JSON)</label>
@@ -207,7 +214,7 @@ export function RecipeEditModal({ recipe, open, onClose, queryKey }: RecipeEditM
               className="font-mono text-xs"
             />
             {formState.errors.ingredients && (
-              <p className="text-xs text-destructive">{formState.errors.ingredients.message}</p>
+              <p className="text-destructive text-xs">{formState.errors.ingredients.message}</p>
             )}
           </div>
           <div className="space-y-1">
@@ -219,11 +226,13 @@ export function RecipeEditModal({ recipe, open, onClose, queryKey }: RecipeEditM
               className="font-mono text-xs"
             />
             {formState.errors.cookingSteps && (
-              <p className="text-xs text-destructive">{formState.errors.cookingSteps.message}</p>
+              <p className="text-destructive text-xs">{formState.errors.cookingSteps.message}</p>
             )}
           </div>
           <DialogFooter>
-            <Button type="button" variant="outline" onClick={onClose}>Cancel</Button>
+            <Button type="button" variant="outline" onClick={onClose}>
+              Cancel
+            </Button>
             <Button type="submit" disabled={formState.isSubmitting}>
               {formState.isSubmitting ? 'Saving…' : 'Save'}
             </Button>

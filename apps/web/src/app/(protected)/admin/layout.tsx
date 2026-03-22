@@ -27,11 +27,11 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   if (!session || !session.user.isAdmin) return null
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="bg-background min-h-screen">
       <div className="border-b">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="flex h-14 items-center gap-6">
-            <span className="text-sm font-semibold text-muted-foreground">Admin</span>
+            <span className="text-muted-foreground text-sm font-semibold">Admin</span>
             <nav className="flex gap-1">
               {tabs.map(tab => (
                 <Link

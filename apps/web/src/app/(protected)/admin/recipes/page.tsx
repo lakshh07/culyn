@@ -38,12 +38,14 @@ export default function AdminRecipesPage() {
             placeholder="Search…"
             className="w-48"
           />
-          <Button type="submit" variant="outline" size="sm">Search</Button>
+          <Button type="submit" variant="outline" size="sm">
+            Search
+          </Button>
         </form>
       </div>
 
       {isLoading ? (
-        <p className="text-sm text-muted-foreground">Loading…</p>
+        <p className="text-muted-foreground text-sm">Loading…</p>
       ) : (
         <AdminTable
           headers={HEADERS}
@@ -59,27 +61,27 @@ export default function AdminRecipesPage() {
                   <img
                     src={recipe.imageUrl}
                     alt={recipe.title ?? ''}
-                    className="rounded object-cover size-10"
+                    className="size-10 rounded object-cover"
                   />
                 ) : (
-                  <div className="size-10 rounded bg-muted" />
+                  <div className="bg-muted size-10 rounded" />
                 )}
               </td>
               <td className="px-4 py-2">
-                <div className="font-medium text-sm">{recipe.title ?? '—'}</div>
+                <div className="text-sm font-medium">{recipe.title ?? '—'}</div>
                 {recipe.shortTitle && (
-                  <div className="text-xs text-muted-foreground">{recipe.shortTitle}</div>
+                  <div className="text-muted-foreground text-xs">{recipe.shortTitle}</div>
                 )}
               </td>
-              <td className="px-4 py-2 text-sm text-muted-foreground">
+              <td className="text-muted-foreground px-4 py-2 text-sm">
                 {recipe.cookTime ? `${recipe.cookTime}m` : '—'}
               </td>
-              <td className="px-4 py-2 text-sm text-muted-foreground">
+              <td className="text-muted-foreground px-4 py-2 text-sm">
                 {recipe.difficulty ?? '—'}
               </td>
               <td className="px-4 py-2">
                 <span
-                  className={`text-xs px-1.5 py-0.5 rounded-full ${
+                  className={`rounded-full px-1.5 py-0.5 text-xs ${
                     recipe.isPublic
                       ? 'bg-green-100 text-green-700'
                       : 'bg-muted text-muted-foreground'
@@ -87,7 +89,7 @@ export default function AdminRecipesPage() {
                   {recipe.isPublic ? 'Public' : 'Private'}
                 </span>
               </td>
-              <td className="px-4 py-2 text-xs text-muted-foreground">
+              <td className="text-muted-foreground px-4 py-2 text-xs">
                 {new Date(recipe.createdAt).toLocaleDateString()}
               </td>
               <td className="px-4 py-2">
@@ -99,11 +101,7 @@ export default function AdminRecipesPage() {
                     title="Edit">
                     <PencilIcon className="text-muted-foreground" />
                   </Button>
-                  <ImageRegenButton
-                    entityType="recipes"
-                    slug={recipe.slug}
-                    queryKey={queryKey}
-                  />
+                  <ImageRegenButton entityType="recipes" slug={recipe.slug} queryKey={queryKey} />
                 </div>
               </td>
             </tr>

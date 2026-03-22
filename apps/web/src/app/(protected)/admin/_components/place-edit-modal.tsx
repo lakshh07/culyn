@@ -20,8 +20,15 @@ import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 
 const PLACE_TYPES = [
-  'RESTAURANT', 'CAFE', 'BAR', 'BAKERY', 'FOOD_TRUCK',
-  'MARKET', 'GROCERY_STORE', 'SPECIALTY_SHOP', 'OTHER',
+  'RESTAURANT',
+  'CAFE',
+  'BAR',
+  'BAKERY',
+  'FOOD_TRUCK',
+  'MARKET',
+  'GROCERY_STORE',
+  'SPECIALTY_SHOP',
+  'OTHER',
 ] as const
 
 const jsonField = z
@@ -29,7 +36,12 @@ const jsonField = z
   .optional()
   .refine(val => {
     if (!val?.trim()) return true
-    try { JSON.parse(val); return true } catch { return false }
+    try {
+      JSON.parse(val)
+      return true
+    } catch {
+      return false
+    }
   }, 'Invalid JSON')
 
 const schema = z.object({
@@ -123,7 +135,7 @@ export function PlaceEditModal({ place, open, onClose, queryKey }: PlaceEditModa
 
   return (
     <Dialog open={open} onOpenChange={v => !v && onClose()}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-h-[90vh] max-w-2xl overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Edit Place</DialogTitle>
         </DialogHeader>
@@ -150,7 +162,9 @@ export function PlaceEditModal({ place, open, onClose, queryKey }: PlaceEditModa
                 className="border-input h-9 w-full rounded-md border bg-transparent px-3 py-1 text-sm">
                 <option value="">—</option>
                 {PLACE_TYPES.map(t => (
-                  <option key={t} value={t}>{t.replace(/_/g, ' ')}</option>
+                  <option key={t} value={t}>
+                    {t.replace(/_/g, ' ')}
+                  </option>
                 ))}
               </select>
             </div>
@@ -200,8 +214,15 @@ export function PlaceEditModal({ place, open, onClose, queryKey }: PlaceEditModa
             <Textarea {...register('notes')} rows={2} />
           </div>
           <div className="flex items-center gap-2">
-            <input type="checkbox" id="placeIsPublic" {...register('isPublic')} className="size-4" />
-            <label htmlFor="placeIsPublic" className="text-sm">Public</label>
+            <input
+              type="checkbox"
+              id="placeIsPublic"
+              {...register('isPublic')}
+              className="size-4"
+            />
+            <label htmlFor="placeIsPublic" className="text-sm">
+              Public
+            </label>
           </div>
           <div className="space-y-1">
             <label className="text-xs font-medium">Hours (JSON)</label>
@@ -212,11 +233,13 @@ export function PlaceEditModal({ place, open, onClose, queryKey }: PlaceEditModa
               className="font-mono text-xs"
             />
             {formState.errors.hours && (
-              <p className="text-xs text-destructive">{formState.errors.hours.message}</p>
+              <p className="text-destructive text-xs">{formState.errors.hours.message}</p>
             )}
           </div>
           <DialogFooter>
-            <Button type="button" variant="outline" onClick={onClose}>Cancel</Button>
+            <Button type="button" variant="outline" onClick={onClose}>
+              Cancel
+            </Button>
             <Button type="submit" disabled={formState.isSubmitting}>
               {formState.isSubmitting ? 'Saving…' : 'Save'}
             </Button>

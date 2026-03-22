@@ -20,14 +20,14 @@ export function AdminTable({
 }: AdminTableProps) {
   return (
     <div className="space-y-4">
-      <div className="rounded-lg border overflow-hidden">
+      <div className="overflow-hidden rounded-lg border">
         <table className="w-full text-sm">
           <thead className="bg-muted/50">
             <tr>
               {headers.map(h => (
                 <th
                   key={h}
-                  className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                  className="text-muted-foreground px-4 py-3 text-left text-xs font-medium tracking-wide uppercase">
                   {h}
                 </th>
               ))}
@@ -36,7 +36,7 @@ export function AdminTable({
           <tbody className="divide-y">{children}</tbody>
         </table>
       </div>
-      <div className="flex items-center justify-between text-sm text-muted-foreground">
+      <div className="text-muted-foreground flex items-center justify-between text-sm">
         <span>{total} total</span>
         <div className="flex items-center gap-2">
           <Button
