@@ -99,6 +99,7 @@ const INGREDIENT_KEYWORDS: IngredientKeywordConfig[] = [
   { slug: 'sugar', keywords: ['icing sugar', 'sugar'] },
   { slug: 'nutella', keywords: ['nutella', 'nutella spread'] },
   { slug: 'roll-puff-pastry', keywords: ['roll puff pastry'] },
+  { slug: 'mixed-herbs', keywords: ['mixed herbs', 'herbs'] },
 ]
 
 const normalize = (value: string): string => {
