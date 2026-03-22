@@ -9,6 +9,7 @@ export type Session = {
     email: string
     name?: string | null
     image?: string | null
+    isAdmin?: boolean
   }
   session: {
     id: string
