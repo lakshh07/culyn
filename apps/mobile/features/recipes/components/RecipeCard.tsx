@@ -176,8 +176,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   imageWrapper: {
-    width: 160,
-    height: 160,
+    width: 170,
+    height: 170,
     borderRadius: 75,
     overflow: 'hidden',
     backgroundColor: '#f5f5f5',

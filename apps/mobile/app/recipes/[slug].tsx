@@ -1,18 +1,20 @@
-import { BackIcon, ChefHatIcon, HeartIcon } from '@/components/icons'
 import { useThemeColors } from '@/constants/useTheme'
 import { useRecipeBySlug } from '@/hooks/recipes/useRecipeBySlug'
+import { useRecipeFavorite } from '@/hooks/recipes/useRecipeFavorite'
+import { useAddToShoppingList } from '@/hooks/shopping-list/useAddToShoppingList'
 import { getIngredientImageUrl } from '@culyn/shared/lib'
 import { DIFFICULTY_MAP, scaleIngredientQuantity } from '@culyn/shared/utils'
 import { Feather } from '@expo/vector-icons'
-import { GlassView } from 'expo-glass-effect'
+import * as Haptics from 'expo-haptics'
 import { LinearGradient } from 'expo-linear-gradient'
 import { useLocalSearchParams, useRouter } from 'expo-router'
-import React, { useMemo, useState } from 'react'
+import React, { useMemo, useRef, useState } from 'react'
 import {
   Dimensions,
   Image,
   Linking,
   Pressable,
+  Animated as RNAnimated,
   ScrollView,
   StyleSheet,
   Text,
@@ -31,11 +33,6 @@ const getInitials = (name: string): string => {
   return name.substring(0, 2).toUpperCase()
 }
 
-const handleAddIngredient = (ingredientName: string) => {
-  // TODO: Implement add to grocery list functionality
-  console.log('Add ingredient:', ingredientName)
-}
-
 export default function RecipeDetailScreen() {
   const colors = useThemeColors()
   const router = useRouter()
@@ -48,6 +45,61 @@ export default function RecipeDetailScreen() {
   const cardWidth = (availableWidth - cardGap * 3) / 4 // 4 cards with 3 gaps
 
   const { recipe } = useRecipeBySlug(slug)
+  const { addFavorite, removeFavorite } = useRecipeFavorite(slug)
+  const { addToList } = useAddToShoppingList()
+
+  const isFavorited = (recipe?.RecipeFavorite?.length ?? 0) > 0
+  const favoriteId = recipe?.RecipeFavorite?.[0]?.id
+
+  const [addedIngredientIds, setAddedIngredientIds] = useState<Set<string>>(new Set())
+
+  const handleToggleFavorite = () => {
+    if (isFavorited && favoriteId) removeFavorite.mutate(favoriteId)
+    else addFavorite.mutate()
+  }
+
+  const handleToggleIngredient = (ingredientId: string) => {
+    if (addedIngredientIds.has(ingredientId)) {
+      setAddedIngredientIds(prev => {
+        const next = new Set(prev)
+        next.delete(ingredientId)
+        return next
+      })
+    } else {
+      addToList.mutate({ recipeSlug: slug, ingredientIds: [ingredientId] })
+      setAddedIngredientIds(prev => new Set(prev).add(ingredientId))
+    }
+  }
+
+  const backScale = useRef(new RNAnimated.Value(1)).current
+  const heartScale = useRef(new RNAnimated.Value(1)).current
+  const ingredientScales = useRef(new Map<string, RNAnimated.Value>()).current
+
+  const getIngredientScale = (id: string) => {
+    if (!ingredientScales.has(id)) ingredientScales.set(id, new RNAnimated.Value(1))
+    return ingredientScales.get(id)!
+  }
+
+  const makePressHandlers = (animValue: RNAnimated.Value, onPress: () => void) => ({
+    onPressIn: () =>
+      RNAnimated.spring(animValue, {
+        toValue: 1.15,
+        useNativeDriver: true,
+        speed: 20,
+        bounciness: 6,
+      }).start(),
+    onPressOut: () =>
+      RNAnimated.spring(animValue, {
+        toValue: 1,
+        useNativeDriver: true,
+        speed: 20,
+        bounciness: 6,
+      }).start(),
+    onPress: () => {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
+      onPress()
+    },
+  })
 
   const originalServings = recipe?.servings || 2
   const [servings, setServings] = useState(originalServings)
@@ -112,21 +164,35 @@ export default function RecipeDetailScreen() {
     <SafeAreaView
       style={[styles.safeArea, { backgroundColor: colors.background }]}
       edges={['left', 'right']}>
+      <LinearGradient
+        colors={[colors.gradientStart, colors.gradientEnd]}
+        start={{ x: 0, y: 1 }}
+        end={{ x: 0, y: 0 }}
+        pointerEvents="none"
+        style={[styles.gradientOverlay2]}
+      />
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         <Image source={{ uri: recipe?.imageUrl ?? '' }} style={styles.heroImage} />
 
-        <Pressable
-          style={[styles.scrollableButtonContainer, { top: insets.top + 106 }]}
-          onPress={() => {
-            console.log('Scrollable button pressed')
-          }}
-          hitSlop={8}>
-          <GlassView
-            isInteractive={true}
-            style={[styles.buttonGlass, { backgroundColor: colors.background }]}>
-            <HeartIcon width={22} height={22} />
-          </GlassView>
-        </Pressable>
+        <RNAnimated.View
+          style={[
+            styles.scrollableButtonContainer,
+            { top: insets.top + 65, transform: [{ scale: heartScale }] },
+          ]}>
+          <Pressable {...makePressHandlers(heartScale, handleToggleFavorite)} hitSlop={8}>
+            <View style={styles.heartButton}>
+              <Image
+                source={
+                  isFavorited
+                    ? require('@/assets/icons/heart-fill.png')
+                    : require('@/assets/icons/heart.png')
+                }
+                style={styles.heartIcon}
+                resizeMode="contain"
+              />
+            </View>
+          </Pressable>
+        </RNAnimated.View>
 
         <View style={styles.contentContainer}>
           <View style={styles.recipeInfoContainer}>
@@ -264,26 +330,43 @@ export default function RecipeDetailScreen() {
                         borderColor: colors.border,
                       },
                     ]}>
-                    <View style={styles.ingredientImageContainer}>
-                      {imageUrl ? (
-                        <Image
-                          source={{ uri: imageUrl }}
-                          style={styles.ingredientImage}
-                          resizeMode="cover"
-                        />
-                      ) : (
-                        <View style={styles.ingredientImagePlaceholder}>
-                          <Text style={styles.ingredientImageInitials}>
-                            {getInitials(ri.ingredient.name)}
-                          </Text>
-                        </View>
-                      )}
-                      <Pressable
-                        style={styles.addButton}
-                        onPress={() => handleAddIngredient(ri.ingredient.name)}
-                        hitSlop={8}>
-                        <Feather name="plus" size={14} color="#000000" />
-                      </Pressable>
+                    <View style={styles.ingredientImageWrapper}>
+                      <View style={styles.ingredientImageContainer}>
+                        {imageUrl ? (
+                          <Image
+                            source={{ uri: imageUrl }}
+                            style={styles.ingredientImage}
+                            resizeMode="cover"
+                          />
+                        ) : (
+                          <View style={styles.ingredientImagePlaceholder}>
+                            <Text style={styles.ingredientImageInitials}>
+                              {getInitials(ri.ingredient.name)}
+                            </Text>
+                          </View>
+                        )}
+                      </View>
+                      <RNAnimated.View
+                        style={[
+                          styles.addButton,
+                          addedIngredientIds.has(ri.ingredient.id)
+                            ? { backgroundColor: '#22C55E' }
+                            : undefined,
+                          { transform: [{ scale: getIngredientScale(ri.ingredient.id) }] },
+                        ]}>
+                        <Pressable
+                          style={styles.addButtonPressable}
+                          {...makePressHandlers(getIngredientScale(ri.ingredient.id), () =>
+                            handleToggleIngredient(ri.ingredient.id)
+                          )}
+                          hitSlop={8}>
+                          <Feather
+                            name={addedIngredientIds.has(ri.ingredient.id) ? 'check' : 'plus'}
+                            size={14}
+                            color={addedIngredientIds.has(ri.ingredient.id) ? '#FFFFFF' : '#000000'}
+                          />
+                        </Pressable>
+                      </RNAnimated.View>
                     </View>
                     <View style={styles.ingredientTextContainer}>
                       <Text
@@ -356,23 +439,21 @@ export default function RecipeDetailScreen() {
           </View>
         </View>
       </ScrollView>
-      <Pressable
-        style={[
-          styles.buttonContainer,
-          {
-            top: insets.top,
-          },
-        ]}
-        onPress={() => router.back()}
-        hitSlop={8}>
-        <GlassView
-          isInteractive={true}
-          style={[styles.buttonGlass, { backgroundColor: colors.background }]}>
-          <BackIcon width={22} height={22} />
-        </GlassView>
-      </Pressable>
+      <RNAnimated.View
+        style={[styles.buttonContainer, { top: insets.top, transform: [{ scale: backScale }] }]}>
+        <Pressable {...makePressHandlers(backScale, () => router.back())} hitSlop={8}>
+          <View style={styles.heartButton}>
+            <Image
+              source={require('@/assets/icons/back.png')}
+              style={styles.heartIcon}
+              resizeMode="contain"
+            />
+          </View>
+        </Pressable>
+      </RNAnimated.View>
 
-      <GlassView style={[styles.footer, { backgroundColor: colors.background }]}>
+      {/* TODO: Add cooking button and quantity buttons */}
+      {/* <GlassView style={[styles.footer, { backgroundColor: colors.background }]}>
         <View style={styles.footerLeft}>
           <Pressable
             style={styles.quantityButton}
@@ -404,7 +485,7 @@ export default function RecipeDetailScreen() {
             </LinearGradient>
           </Pressable>
         </View>
-      </GlassView>
+      </GlassView> */}
 
       <LinearGradient
         colors={[colors.gradientStart, colors.gradientEnd]}
@@ -423,7 +504,6 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     position: 'relative',
-    top: '-6%',
     paddingBottom: 24,
   },
   buttonContainer: {
@@ -436,9 +516,26 @@ const styles = StyleSheet.create({
     left: 18,
     zIndex: 9998,
   },
+  heartButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 15,
+    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    elevation: 3,
+    shadowColor: '#000',
+    shadowOpacity: 0.15,
+    shadowRadius: 3,
+    shadowOffset: { width: 0, height: 1 },
+  },
+  heartIcon: {
+    width: 22,
+    height: 22,
+  },
   buttonGlass: {
     padding: 8,
-    borderRadius: 999,
+    borderRadius: 15,
     shadowColor: '#000',
     shadowOpacity: 0.15,
     shadowRadius: 4,
@@ -448,7 +545,7 @@ const styles = StyleSheet.create({
   heroImage: {
     width: '100%',
     height: 420,
-    marginTop: -24,
+    marginTop: -55,
     position: 'relative',
     right: '-14%',
     marginBottom: -8,
@@ -562,10 +659,14 @@ const styles = StyleSheet.create({
     // shadowOffset: { width: 0, height: 4 },
     // elevation: 2,
   },
-  ingredientImageContainer: {
+  ingredientImageWrapper: {
     width: '98%',
     aspectRatio: 1,
     position: 'relative',
+  },
+  ingredientImageContainer: {
+    width: '100%',
+    height: '100%',
     borderRadius: 16,
     overflow: 'hidden',
   },
@@ -595,11 +696,18 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: '#fff',
+    zIndex: 10,
     shadowColor: '#000',
     shadowOpacity: 0.15,
     shadowRadius: 3,
     shadowOffset: { width: 0, height: 1 },
-    elevation: 2,
+    elevation: 10,
+  },
+  addButtonPressable: {
+    width: '100%',
+    height: '100%',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   ingredientTextContainer: {
     paddingVertical: 10,
@@ -738,5 +846,15 @@ const styles = StyleSheet.create({
     right: 0,
     bottom: 0,
     height: 100,
+    opacity: 0.5,
+  },
+  gradientOverlay2: {
+    zIndex: 9995,
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    top: 0,
+    height: 100,
+    opacity: 0.5,
   },
 })
