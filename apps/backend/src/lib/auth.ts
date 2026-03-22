@@ -12,6 +12,15 @@ export const auth = betterAuth({
   database: prismaAdapter(prisma, {
     provider: 'postgresql',
   }),
+  user: {
+    additionalFields: {
+      isAdmin: {
+        type: 'boolean',
+        defaultValue: false,
+        returned: true,
+      },
+    },
+  },
   emailAndPassword: {
     enabled: true,
     requireEmailVerification: false,
@@ -25,6 +34,7 @@ export const auth = betterAuth({
   secret: process.env.BETTER_AUTH_SECRET as string,
   trustedOrigins: [
     'culynapp://',
+    process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000',
     ...(process.env.NODE_ENV === 'development'
       ? [
           'exp://*/*',
