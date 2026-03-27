@@ -1,35 +1,43 @@
+import { UpgradeSheet } from '@/components/UpgradeSheet'
 import { ErrorState } from '@/components/ui/ErrorState'
 import { ContentCardSkeleton } from '@/components/ui/Skeleton'
 import { useThemeColors } from '@/constants/useTheme'
+import { HomeHeroBlock, HomeSearchBar, HomeTabsRow } from '@/features/home/components/HomeHeader'
+import { PlaceCard } from '@/features/places/components/PlaceCard'
+import { ProductCard } from '@/features/products/components/ProductCard'
+import { RecipeCard } from '@/features/recipes/components/RecipeCard'
 import { SearchOverlay } from '@/features/search/components/SearchOverlay'
 import { useSearchAnimation } from '@/features/search/hooks/useSearchAnimation'
 import { useSearchFilters } from '@/features/search/hooks/useSearchFilters'
 import { ApiFilterParams } from '@/features/search/types'
-import { PlaceCard } from '@/features/places/components/PlaceCard'
-import { ProductCard } from '@/features/products/components/ProductCard'
-import { RecipeCard } from '@/features/recipes/components/RecipeCard'
-import { HomeHeader } from '@/features/home/components/HomeHeader'
-import { useUnifiedContent, UnifiedContentFilters } from '@/hooks/content/useUnifiedContent'
+import { UnifiedContentFilters, useUnifiedContent } from '@/hooks/content/useUnifiedContent'
 import {
   ContentCategory,
-  RecipeListItem,
   PlaceListItem,
   ProductListItem,
+  RecipeListItem,
 } from '@culyn/shared/schemas'
-import { UpgradeSheet } from '@/components/UpgradeSheet'
 import { Feather } from '@expo/vector-icons'
 import * as Haptics from 'expo-haptics'
 import { useLocalSearchParams, useRouter } from 'expo-router'
 import React, { useCallback, useEffect, useState } from 'react'
-import { ActivityIndicator, FlatList, StatusBar, StyleSheet, Text, View } from 'react-native'
+import { ActivityIndicator, StatusBar, StyleSheet, Text, View } from 'react-native'
+import Animated, {
+  useAnimatedScrollHandler,
+  useAnimatedStyle,
+  useSharedValue,
+} from 'react-native-reanimated'
+import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
 export default function DiscoverScreen() {
   const colors = useThemeColors()
   const router = useRouter()
+  const insets = useSafeAreaInsets()
   const { showUpgrade } = useLocalSearchParams<{ showUpgrade?: string }>()
   const [showUpgradeSheet, setShowUpgradeSheet] = useState(false)
   const [selectedCategory, setSelectedCategory] = useState<ContentCategory>('RECIPE')
   const [searchOpen, setSearchOpen] = useState(false)
+  const [tabsRowHeight, setTabsRowHeight] = useState(82)
 
   useEffect(() => {
     if (showUpgrade === '1') {
@@ -37,8 +45,8 @@ export default function DiscoverScreen() {
       router.setParams({ showUpgrade: undefined })
     }
   }, [showUpgrade, router])
-  const [appliedFilters, setAppliedFilters] = useState<UnifiedContentFilters | null>(null)
 
+  const [appliedFilters, setAppliedFilters] = useState<UnifiedContentFilters | null>(null)
   const { filters, dispatch, clearAll, getApiParams, hasActiveFilters } = useSearchFilters()
 
   const {
@@ -53,6 +61,27 @@ export default function DiscoverScreen() {
   const { items, isLoading, error, refetch, fetchNextPage, hasNextPage, isFetchingNextPage } =
     useUnifiedContent(selectedCategory, appliedFilters)
 
+  const scrollY = useSharedValue(0)
+  const heroHeight = useSharedValue(148)
+
+  const scrollHandler = useAnimatedScrollHandler({
+    onScroll: event => {
+      scrollY.value = event.contentOffset.y
+    },
+  })
+
+  const tabsTranslateStyle = useAnimatedStyle(() => {
+    const offset = Math.max(0, heroHeight.value - scrollY.value)
+    return {
+      transform: [{ translateY: offset }],
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: offset <= 0 ? 0.08 : 0,
+      shadowRadius: 8,
+      elevation: offset <= 0 ? 4 : 0,
+    }
+  })
+
   const handleSearchOpen = useCallback(() => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
     setSearchOpen(true)
@@ -61,13 +90,11 @@ export default function DiscoverScreen() {
 
   const handleSearchClose = useCallback(() => {
     closeAnimation()
-    // Delay state reset so animation can play
     setTimeout(() => setSearchOpen(false), 300)
   }, [closeAnimation])
 
   const handleSearch = useCallback(() => {
     const params = getApiParams(selectedCategory) as ApiFilterParams
-    // Convert to plain object for the unified content hook
     setAppliedFilters(
       Object.keys(params).length > 0 ? (params as unknown as UnifiedContentFilters) : null
     )
@@ -80,9 +107,13 @@ export default function DiscoverScreen() {
     handleSearchClose()
   }, [clearAll, handleSearchClose])
 
-  const handleCategoryChange = useCallback((category: ContentCategory) => {
-    setSelectedCategory(category)
-  }, [])
+  const handleCategoryChange = useCallback(
+    (category: ContentCategory) => {
+      setSelectedCategory(category)
+      scrollY.value = 0
+    },
+    [scrollY]
+  )
 
   const handleEndReached = useCallback(() => {
     if (hasNextPage && !isFetchingNextPage) {
@@ -99,10 +130,7 @@ export default function DiscoverScreen() {
             <RecipeCard
               item={recipeItem}
               onPress={() =>
-                router.push({
-                  pathname: '/recipes/[slug]',
-                  params: { slug: recipeItem.slug },
-                })
+                router.push({ pathname: '/recipes/[slug]', params: { slug: recipeItem.slug } })
               }
             />
           </View>
@@ -117,10 +145,7 @@ export default function DiscoverScreen() {
               id={placeItem.id}
               item={placeItem}
               onPress={() =>
-                router.push({
-                  pathname: '/places/[slug]',
-                  params: { slug: placeItem.slug },
-                })
+                router.push({ pathname: '/places/[slug]', params: { slug: placeItem.slug } })
               }
             />
           </View>
@@ -134,10 +159,7 @@ export default function DiscoverScreen() {
             <ProductCard
               item={productItem}
               onPress={() =>
-                router.push({
-                  pathname: '/products/[slug]',
-                  params: { slug: productItem.slug },
-                })
+                router.push({ pathname: '/products/[slug]', params: { slug: productItem.slug } })
               }
             />
           </View>
@@ -194,28 +216,72 @@ export default function DiscoverScreen() {
   return (
     <View style={[styles.container, { backgroundColor: colors.backgroundSecondary }]}>
       <StatusBar barStyle="dark-content" translucent backgroundColor="transparent" />
-      <HomeHeader
-        selectedCategory={selectedCategory}
-        onCategoryChange={handleCategoryChange}
-        onSearchPress={handleSearchOpen}
-        onMapPress={() => router.push('/places/map')}
-        headerFadeStyle={headerFadeStyle}
-        hasActiveFilters={hasActiveFilters(selectedCategory)}
-      />
-      <FlatList
-        key={selectedCategory}
-        data={items ?? []}
-        numColumns={2}
-        renderItem={renderItem}
-        keyExtractor={item => item.id}
-        onEndReached={handleEndReached}
-        onEndReachedThreshold={0.3}
-        ListEmptyComponent={ListEmptyComponent}
-        ListFooterComponent={ListFooterComponent}
-        contentContainerStyle={styles.listContent}
-        columnWrapperStyle={styles.columnWrapper}
-        showsVerticalScrollIndicator={false}
-      />
+
+      <Animated.View
+        style={[{ backgroundColor: colors.headerBackground, zIndex: 20 }, headerFadeStyle]}>
+        <View style={{ height: insets.top }} />
+        <HomeSearchBar
+          selectedCategory={selectedCategory}
+          onSearchPress={handleSearchOpen}
+          onMapPress={() => router.push('/places/map')}
+          hasActiveFilters={hasActiveFilters(selectedCategory)}
+        />
+      </Animated.View>
+
+      <View style={[styles.contentArea]}>
+        <Animated.FlatList
+          key={selectedCategory}
+          onScroll={scrollHandler}
+          scrollEventThrottle={16}
+          bounces={false}
+          overScrollMode="never"
+          ListHeaderComponent={
+            <Animated.View
+              style={[
+                headerFadeStyle,
+                {
+                  marginHorizontal: -12,
+                  marginTop: -12,
+                  backgroundColor: colors.headerBackground,
+                },
+              ]}>
+              <HomeHeroBlock
+                onLayout={e => {
+                  heroHeight.value = e.nativeEvent.layout.height
+                }}
+              />
+              <View
+                style={{ height: tabsRowHeight + 12, backgroundColor: colors.backgroundSecondary }}
+              />
+            </Animated.View>
+          }
+          data={items ?? []}
+          numColumns={2}
+          renderItem={renderItem}
+          keyExtractor={item => item.id}
+          onEndReached={handleEndReached}
+          onEndReachedThreshold={0.3}
+          ListEmptyComponent={ListEmptyComponent}
+          ListFooterComponent={ListFooterComponent}
+          contentContainerStyle={styles.listContent}
+          columnWrapperStyle={styles.columnWrapper}
+          showsVerticalScrollIndicator={false}
+        />
+
+        <Animated.View
+          onLayout={e => setTabsRowHeight(Math.round(e.nativeEvent.layout.height))}
+          style={[
+            styles.tabsOverlay,
+            tabsTranslateStyle,
+            headerFadeStyle,
+            { backgroundColor: colors.headerBackground },
+          ]}>
+          <HomeTabsRow
+            selectedCategory={selectedCategory}
+            onCategoryChange={handleCategoryChange}
+          />
+        </Animated.View>
+      </View>
 
       <SearchOverlay
         isOpen={searchOpen}
@@ -239,6 +305,16 @@ export default function DiscoverScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+  },
+  contentArea: {
+    flex: 1,
+  },
+  tabsOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    zIndex: 15,
   },
   listContent: {
     paddingHorizontal: 12,
