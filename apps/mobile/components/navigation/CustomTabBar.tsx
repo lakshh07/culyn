@@ -8,7 +8,7 @@ import Animated, { useAnimatedStyle, useSharedValue, withSpring } from 'react-na
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
 const TAB_BAR_HEIGHT = 52
-const GRADIENT_HEIGHT = 50
+const GRADIENT_HEIGHT = 15
 
 type TabConfig = {
   label: string
@@ -91,7 +91,7 @@ export default function CustomTabBar({ state, descriptors, navigation }: BottomT
         },
       ]}>
       <LinearGradient
-        colors={[colors.gradientStart, colors.gradientEnd]}
+        colors={[colors.gradientStart, colors.background]}
         start={{ x: 0, y: 0 }}
         end={{ x: 0, y: 1 }}
         pointerEvents="none"

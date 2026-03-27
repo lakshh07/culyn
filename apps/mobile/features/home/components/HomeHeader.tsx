@@ -286,8 +286,8 @@ const styles = StyleSheet.create({
   },
   heroBlock: {
     paddingHorizontal: 30,
-    paddingTop: 32,
-    paddingBottom: 32,
+    paddingTop: 38,
+    paddingBottom: 28,
     gap: 6,
   },
   welcomeFaint: {
@@ -306,7 +306,7 @@ const styles = StyleSheet.create({
     fontFamily: 'EBGaramond_400Regular',
   },
   tabsRow: {
-    paddingTop: 12,
+    paddingTop: 10,
     flexDirection: 'row',
     position: 'relative',
   },
