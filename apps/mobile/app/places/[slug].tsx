@@ -1,13 +1,23 @@
-import { BackIcon, HeartFillIcon, HeartIcon } from '@/components/icons'
 import { useThemeColors } from '@/constants/useTheme'
 import { usePlaceBySlug } from '@/hooks/places/usePlaceBySlug'
 import { usePlaceFavorite } from '@/hooks/places/usePlaceFavorite'
 import { Feather } from '@expo/vector-icons'
 import { GlassView } from 'expo-glass-effect'
+import * as Haptics from 'expo-haptics'
 import { LinearGradient } from 'expo-linear-gradient'
 import { useLocalSearchParams, useRouter } from 'expo-router'
-import React from 'react'
-import { Image, Linking, Platform, Pressable, Share, StyleSheet, Text, View } from 'react-native'
+import React, { useRef } from 'react'
+import {
+  Image,
+  Linking,
+  Platform,
+  Pressable,
+  Animated as RNAnimated,
+  Share,
+  StyleSheet,
+  Text,
+  View,
+} from 'react-native'
 import MapView, { Marker } from 'react-native-maps'
 import Animated, {
   FadeInUp,
@@ -36,6 +46,9 @@ export default function PlaceDetailScreen() {
   const { place } = usePlaceBySlug(slug)
   const { addFavorite, removeFavorite } = usePlaceFavorite(slug)
   const scrollY = useSharedValue(0)
+
+  const backScale = useRef(new RNAnimated.Value(1)).current
+  const heartScale = useRef(new RNAnimated.Value(1)).current
 
   const scrollHandler = useAnimatedScrollHandler({
     onScroll: event => {
@@ -74,13 +87,6 @@ export default function PlaceDetailScreen() {
 
   const handleWebsite = () => {
     if (place.website) Linking.openURL(place.website)
-  }
-
-  const handleAskAI = () => {
-    router.push({
-      pathname: '/chat-detail/[id]',
-      params: { id: 'new', contextType: 'PLACE', placeId: place.id },
-    })
   }
 
   const handleShare = async () => {
@@ -133,12 +139,40 @@ export default function PlaceDetailScreen() {
     return null
   })()
 
+  const makePressHandlers = (animValue: RNAnimated.Value, onPress: () => void) => ({
+    onPressIn: () =>
+      RNAnimated.spring(animValue, {
+        toValue: 1.15,
+        useNativeDriver: true,
+        speed: 20,
+        bounciness: 6,
+      }).start(),
+    onPressOut: () =>
+      RNAnimated.spring(animValue, {
+        toValue: 1,
+        useNativeDriver: true,
+        speed: 20,
+        bounciness: 6,
+      }).start(),
+    onPress: () => {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
+      onPress()
+    },
+  })
+
   const tags = place.tags || []
 
   return (
     <SafeAreaView
       style={[styles.container, { backgroundColor: colors.background }]}
       edges={['left', 'right']}>
+      <LinearGradient
+        colors={[colors.gradientStart, colors.gradientEnd]}
+        start={{ x: 0, y: 1 }}
+        end={{ x: 0, y: 0 }}
+        pointerEvents="none"
+        style={[styles.gradientOverlay2]}
+      />
       <Animated.ScrollView
         onScroll={scrollHandler}
         scrollEventThrottle={16}
@@ -158,7 +192,7 @@ export default function PlaceDetailScreen() {
             )}
           </Animated.View>
           <LinearGradient
-            colors={['transparent', 'rgba(255,255,255,1)']}
+            colors={['transparent', 'rgba(0,0,0,1)']}
             style={styles.heroGradient}
             pointerEvents="none"
           />
@@ -173,11 +207,19 @@ export default function PlaceDetailScreen() {
               <View style={[styles.typeBadge]}>
                 <Text style={styles.typeBadgeText}>{typeLabel}</Text>
               </View>
-              {place.cuisine && (
-                <Text style={[styles.metaText, { color: colors.textSecondary }]}>
-                  {place.cuisine}
-                </Text>
-              )}
+
+              {(() => {
+                const cuisine =
+                  typeof place.cuisine === 'string' ? place.cuisine.trim() : place.cuisine
+                const cuisineLower = typeof cuisine === 'string' ? cuisine.toLowerCase() : undefined
+
+                if (!cuisine) return null
+                if (cuisineLower === 'null' || cuisineLower === 'undefined') return null
+
+                return (
+                  <Text style={[styles.metaText, { color: colors.textSecondary }]}>{cuisine}</Text>
+                )
+              })()}
             </View>
 
             {place.description && (
@@ -336,30 +378,36 @@ export default function PlaceDetailScreen() {
       </Animated.ScrollView>
 
       {/* Back Button */}
-      <Pressable
-        style={[styles.backButton, { top: insets.top }]}
-        onPress={() => router.back()}
-        hitSlop={8}>
-        <GlassView
-          isInteractive={true}
-          style={[styles.glassButton, { backgroundColor: colors.background }]}>
-          <BackIcon width={22} height={22} />
-        </GlassView>
-      </Pressable>
+      <RNAnimated.View
+        style={[styles.buttonContainer, { top: insets.top, transform: [{ scale: backScale }] }]}>
+        <Pressable {...makePressHandlers(backScale, () => router.back())} hitSlop={8}>
+          <View style={styles.button}>
+            <Image
+              source={require('@/assets/icons/back.png')}
+              style={styles.icon}
+              resizeMode="contain"
+            />
+          </View>
+        </Pressable>
+      </RNAnimated.View>
 
       {/* Glass Footer Bar */}
       <GlassView style={[styles.footer, { backgroundColor: colors.background }]}>
-        <Pressable onPress={handleToggleFavorite} hitSlop={8} style={styles.footerAction}>
-          {isFavorited ? (
-            <HeartFillIcon width={22} height={22} color="#EF4444" />
-          ) : (
-            <HeartIcon width={22} height={22} />
-          )}
+        <Pressable {...makePressHandlers(heartScale, handleToggleFavorite)} hitSlop={8}>
+          <Image
+            source={
+              isFavorited
+                ? require('@/assets/icons/heart-fill.png')
+                : require('@/assets/icons/heart.png')
+            }
+            style={styles.icon}
+            resizeMode="contain"
+          />
         </Pressable>
 
-        <Pressable onPress={handleAskAI} hitSlop={8} style={styles.footerAction}>
+        {/* <Pressable onPress={handleAskAI} hitSlop={8} style={styles.footerAction}>
           <Feather name="message-circle" size={20} color={colors.textPrimary} />
-        </Pressable>
+        </Pressable> */}
 
         <Pressable onPress={handleShare} hitSlop={8} style={styles.footerAction}>
           <Feather name="share" size={20} color={colors.textPrimary} />
@@ -427,12 +475,18 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
-    height: HERO_HEIGHT / 3,
+    opacity: 0.5,
+    height: HERO_HEIGHT / 4,
   },
   contentContainer: {
     paddingHorizontal: 18,
     paddingTop: 20,
     gap: 28,
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    backgroundColor: 'white',
+    marginTop: -20,
+    overflow: 'hidden',
   },
   infoContainer: {
     gap: 12,
@@ -630,8 +684,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     paddingVertical: 8,
-    paddingHorizontal: 14,
-    gap: 16,
+    paddingLeft: 20,
+    paddingRight: 8,
+    gap: 20,
   },
   footerAction: {
     padding: 4,
@@ -656,6 +711,38 @@ const styles = StyleSheet.create({
     right: 0,
     bottom: 0,
     height: 100,
+    opacity: 0.5,
     pointerEvents: 'none',
+  },
+  gradientOverlay2: {
+    zIndex: 9995,
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    top: 0,
+    height: 100,
+    opacity: 0.5,
+  },
+  buttonContainer: {
+    position: 'absolute',
+    left: 18,
+    zIndex: 9999,
+  },
+  icon: {
+    width: 22,
+    height: 22,
+  },
+  button: {
+    width: 40,
+    height: 40,
+    borderRadius: 15,
+    backgroundColor: 'rgba(255, 255, 255, 1)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    elevation: 3,
+    shadowColor: '#000',
+    shadowOpacity: 0.15,
+    shadowRadius: 3,
+    shadowOffset: { width: 0, height: 1 },
   },
 })
