@@ -30,7 +30,10 @@ export function UpgradeSheet({ visible, onClose }: UpgradeSheetProps) {
   return (
     <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
       <View style={styles.wrapper}>
-        <Pressable style={[styles.backdrop, { backgroundColor: colors.overlayBackdrop }]} onPress={onClose} />
+        <Pressable
+          style={[styles.backdrop, { backgroundColor: colors.overlayBackdrop }]}
+          onPress={onClose}
+        />
 
         <View
           style={[
@@ -75,7 +78,9 @@ export function UpgradeSheet({ visible, onClose }: UpgradeSheetProps) {
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 1 }}
               style={styles.gradientBtn}>
-              <Text style={[styles.upgradeBtnText, { color: colors.white }]}>Try Pro — ₹49/month</Text>
+              <Text style={[styles.upgradeBtnText, { color: colors.white }]}>
+                Try Pro — ₹49/month
+              </Text>
             </LinearGradient>
           </TouchableOpacity>
 

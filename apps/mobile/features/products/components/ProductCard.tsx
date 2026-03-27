@@ -78,7 +78,11 @@ export function ProductCard({ item, onPress, onHeartPress }: ProductCardProps) {
             </View>
           )}
 
-          <Animated.View style={[styles.heartButton, { backgroundColor: colors.cardOverlay, transform: [{ scale: heartScale }] }]}>
+          <Animated.View
+            style={[
+              styles.heartButton,
+              { backgroundColor: colors.cardOverlay, transform: [{ scale: heartScale }] },
+            ]}>
             <Pressable
               onPress={handleHeartPress}
               onPressIn={handleHeartPressIn}
@@ -104,8 +108,14 @@ export function ProductCard({ item, onPress, onHeartPress }: ProductCardProps) {
           </Text>
 
           <View style={styles.metaRow}>
-            <View style={[styles.categoryBadge, { backgroundColor: colors.white, shadowColor: colors.black }]}>
-              <Text style={[styles.categoryBadgeText, { color: colors.black }]}>{categoryLabel}</Text>
+            <View
+              style={[
+                styles.categoryBadge,
+                { backgroundColor: colors.white, shadowColor: colors.black },
+              ]}>
+              <Text style={[styles.categoryBadgeText, { color: colors.black }]}>
+                {categoryLabel}
+              </Text>
             </View>
             {item.brand && (
               <Text style={[styles.brandText, { color: colors.textMuted }]} numberOfLines={1}>

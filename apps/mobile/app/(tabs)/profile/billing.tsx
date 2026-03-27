@@ -222,27 +222,41 @@ export default function BillingScreen() {
             end={{ x: 1, y: 1 }}
             style={styles.planGradient}>
             <View style={styles.planRow}>
-              <Text style={[styles.planLabel, { fontFamily: 'Poppins_500Medium', color: colors.white }]}>
+              <Text
+                style={[
+                  styles.planLabel,
+                  { fontFamily: 'Poppins_500Medium', color: colors.white },
+                ]}>
                 Current Plan
               </Text>
               {isPro && (
                 <View style={styles.proBadge}>
-                  <Text style={[styles.proBadgeText, { fontFamily: 'Poppins_500Medium', color: colors.white }]}>
+                  <Text
+                    style={[
+                      styles.proBadgeText,
+                      { fontFamily: 'Poppins_500Medium', color: colors.white },
+                    ]}>
                     ⭐ PRO
                   </Text>
                 </View>
               )}
             </View>
 
-            <Text style={[styles.planName, { fontFamily: 'EBGaramond_700Bold', color: colors.white }]}>
+            <Text
+              style={[styles.planName, { fontFamily: 'EBGaramond_700Bold', color: colors.white }]}>
               {isPro ? '₹49' : 'Free'}
             </Text>
-            <Text style={[styles.planPrice, { fontFamily: 'Poppins_400Regular', color: colors.white }]}>
+            <Text
+              style={[styles.planPrice, { fontFamily: 'Poppins_400Regular', color: colors.white }]}>
               {isPro ? 'per month' : 'Forever free'}
             </Text>
 
             {isPro && (
-              <Text style={[styles.nextBilling, { fontFamily: 'Poppins_400Regular', color: colors.white }]}>
+              <Text
+                style={[
+                  styles.nextBilling,
+                  { fontFamily: 'Poppins_400Regular', color: colors.white },
+                ]}>
                 {subscription?.chargeAt
                   ? `Next billing: ${formatDate(subscription.chargeAt)}`
                   : subscription?.currentPeriodEnd
@@ -253,7 +267,11 @@ export default function BillingScreen() {
 
             {isPro && subscription?.daysLeft != null && subscription.daysLeft > 0 && (
               <View style={styles.daysLeft}>
-                <Text style={[styles.daysLeftText, { fontFamily: 'Poppins_500Medium', color: colors.white }]}>
+                <Text
+                  style={[
+                    styles.daysLeftText,
+                    { fontFamily: 'Poppins_500Medium', color: colors.white },
+                  ]}>
                   {subscription.cancelAtPeriodEnd
                     ? `Cancels on ${subscription.currentPeriodEnd ? formatDate(subscription.currentPeriodEnd) : 'period end'}`
                     : `${subscription.daysLeft} days remaining`}
@@ -316,7 +334,11 @@ export default function BillingScreen() {
               {upgrading ? (
                 <ActivityIndicator size="small" color={colors.white} />
               ) : (
-                <Text style={[styles.upgradeButtonText, { fontFamily: 'Poppins_500Medium', color: colors.white }]}>
+                <Text
+                  style={[
+                    styles.upgradeButtonText,
+                    { fontFamily: 'Poppins_500Medium', color: colors.white },
+                  ]}>
                   Try Pro — ₹49/month
                 </Text>
               )}
@@ -524,7 +546,11 @@ export default function BillingScreen() {
                         </Text>
                       ) : null}
                       {inv.status === 'failed' && inv.errorDescription ? (
-                        <Text style={[styles.invoiceError, { fontFamily: 'Poppins_400Regular', color: colors.error }]}>
+                        <Text
+                          style={[
+                            styles.invoiceError,
+                            { fontFamily: 'Poppins_400Regular', color: colors.error },
+                          ]}>
                           {inv.errorDescription}
                         </Text>
                       ) : null}
@@ -544,7 +570,8 @@ export default function BillingScreen() {
                         style={[
                           styles.invoiceStatus,
                           {
-                            backgroundColor: inv.status === 'paid' ? colors.successSoft : colors.errorSoft,
+                            backgroundColor:
+                              inv.status === 'paid' ? colors.successSoft : colors.errorSoft,
                           },
                         ]}>
                         <Text

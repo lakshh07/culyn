@@ -213,7 +213,9 @@ export default function PlacesMapScreen() {
                   <View style={styles.sheetMeta}>
                     <View
                       style={[styles.sheetTypeBadge, { backgroundColor: colors.categoryPlace }]}>
-                      <Text style={[styles.sheetTypeBadgeText, { color: colors.white }]}>{typeLabel(selectedPlace.type)}</Text>
+                      <Text style={[styles.sheetTypeBadgeText, { color: colors.white }]}>
+                        {typeLabel(selectedPlace.type)}
+                      </Text>
                     </View>
                     {selectedPlace.cuisine && (
                       <Text style={[styles.sheetCuisine, { color: colors.textSecondary }]}>

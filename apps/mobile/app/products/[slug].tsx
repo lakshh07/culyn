@@ -172,8 +172,14 @@ export default function ProductDetailScreen() {
             <Text style={[styles.title, { color: colors.textPrimary }]}>{product.name}</Text>
 
             <View style={styles.metaRow}>
-              <View style={[styles.categoryBadge, { backgroundColor: colors.white, shadowColor: colors.black }]}>
-                <Text style={[styles.categoryBadgeText, { color: colors.black }]}>{categoryLabel}</Text>
+              <View
+                style={[
+                  styles.categoryBadge,
+                  { backgroundColor: colors.white, shadowColor: colors.black },
+                ]}>
+                <Text style={[styles.categoryBadgeText, { color: colors.black }]}>
+                  {categoryLabel}
+                </Text>
               </View>
               {product.brand && product.brand !== 'Unspecified' && (
                 <Text style={[styles.metaText, { color: colors.textSecondary }]}>
@@ -322,9 +328,7 @@ export default function ProductDetailScreen() {
                   <View
                     key={t.tag.id}
                     style={[styles.tagChip, { backgroundColor: colors.chipBackground }]}>
-                    <Text style={[styles.tagText, { color: colors.chipText }]}>
-                      {t.tag.name}
-                    </Text>
+                    <Text style={[styles.tagText, { color: colors.chipText }]}>{t.tag.name}</Text>
                   </View>
                 ))}
               </View>

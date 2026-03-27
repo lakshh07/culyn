@@ -692,7 +692,9 @@ export default function OnboardingScreen() {
               onPress={handleAppleSignIn}
               disabled={formState.loading}>
               <Ionicons name="logo-apple" size={20} color={colors.white} />
-              <Text style={[styles.appleBtnText, { color: colors.white }]}>Continue with Apple</Text>
+              <Text style={[styles.appleBtnText, { color: colors.white }]}>
+                Continue with Apple
+              </Text>
             </TouchableOpacity>
 
             <TouchableOpacity

@@ -11,7 +11,9 @@ import React from 'react'
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 
-const getContextBadges = (colors: ThemeColors): Record<string, { label: string; color: string }> => ({
+const getContextBadges = (
+  colors: ThemeColors
+): Record<string, { label: string; color: string }> => ({
   RECIPE: { label: 'Recipe', color: colors.categoryRecipe },
   PLACE: { label: 'Place', color: colors.categoryPlace },
   PRODUCT: { label: 'Product', color: colors.categoryProduct },
@@ -93,7 +95,9 @@ export default function AiChatScreen() {
                       {conv.title || 'New Chat'}
                     </Text>
                     <View style={[styles.contextBadge, { backgroundColor: badge.color }]}>
-                      <Text style={[styles.contextBadgeText, { color: colors.white }]}>{badge.label}</Text>
+                      <Text style={[styles.contextBadgeText, { color: colors.white }]}>
+                        {badge.label}
+                      </Text>
                     </View>
                   </View>
                   {lastMessage?.content && (

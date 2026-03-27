@@ -339,8 +339,13 @@ export default function RecipeDetailScreen() {
                             resizeMode="cover"
                           />
                         ) : (
-                          <View style={[styles.ingredientImagePlaceholder, { backgroundColor: colors.surface }]}>
-                            <Text style={[styles.ingredientImageInitials, { color: colors.textMuted }]}>
+                          <View
+                            style={[
+                              styles.ingredientImagePlaceholder,
+                              { backgroundColor: colors.surface },
+                            ]}>
+                            <Text
+                              style={[styles.ingredientImageInitials, { color: colors.textMuted }]}>
                               {getInitials(ri.ingredient.name)}
                             </Text>
                           </View>
@@ -349,7 +354,11 @@ export default function RecipeDetailScreen() {
                       <RNAnimated.View
                         style={[
                           styles.addButton,
-                          { backgroundColor: addedIngredientIds.has(ri.ingredient.id) ? colors.success : colors.white },
+                          {
+                            backgroundColor: addedIngredientIds.has(ri.ingredient.id)
+                              ? colors.success
+                              : colors.white,
+                          },
                           { transform: [{ scale: getIngredientScale(ri.ingredient.id) }] },
                         ]}>
                         <Pressable
@@ -361,7 +370,9 @@ export default function RecipeDetailScreen() {
                           <Feather
                             name={addedIngredientIds.has(ri.ingredient.id) ? 'check' : 'plus'}
                             size={14}
-                            color={addedIngredientIds.has(ri.ingredient.id) ? colors.white : colors.black}
+                            color={
+                              addedIngredientIds.has(ri.ingredient.id) ? colors.white : colors.black
+                            }
                           />
                         </Pressable>
                       </RNAnimated.View>

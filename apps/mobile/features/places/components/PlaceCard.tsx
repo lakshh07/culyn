@@ -79,7 +79,11 @@ export function PlaceCard({ id, item, onPress, onHeartPress }: PlaceCardProps) {
             </View>
           )}
 
-          <Animated.View style={[styles.heartButton, { backgroundColor: colors.cardOverlay, transform: [{ scale: heartScale }] }]}>
+          <Animated.View
+            style={[
+              styles.heartButton,
+              { backgroundColor: colors.cardOverlay, transform: [{ scale: heartScale }] },
+            ]}>
             <Pressable
               onPress={handleHeartPress}
               onPressIn={handleHeartPressIn}
@@ -105,7 +109,11 @@ export function PlaceCard({ id, item, onPress, onHeartPress }: PlaceCardProps) {
           </Text>
 
           <View style={styles.metaRow}>
-            <View style={[styles.typeBadge, { backgroundColor: colors.white, shadowColor: colors.black }]}>
+            <View
+              style={[
+                styles.typeBadge,
+                { backgroundColor: colors.white, shadowColor: colors.black },
+              ]}>
               <Text style={[styles.typeBadgeText, { color: colors.black }]}>{typeLabel}</Text>
             </View>
             {item.city && (

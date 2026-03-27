@@ -64,7 +64,11 @@ export function RecipeCard({ item, onPress, onHeartPress }: RecipeCardProps) {
         onPressIn={handlePressIn}
         onPressOut={handlePressOut}
         style={[styles.container, { backgroundColor: colors.cardBackgroundElevated }]}>
-        <Animated.View style={[styles.heartButton, { backgroundColor: colors.cardOverlay, transform: [{ scale: heartScale }] }]}>
+        <Animated.View
+          style={[
+            styles.heartButton,
+            { backgroundColor: colors.cardOverlay, transform: [{ scale: heartScale }] },
+          ]}>
           <Pressable
             onPress={handleHeartPress}
             onPressIn={handleHeartPressIn}

@@ -204,7 +204,11 @@ export default function PlaceDetailScreen() {
             <Text style={[styles.title, { color: colors.textPrimary }]}>{place.name}</Text>
 
             <View style={styles.metaRow}>
-              <View style={[styles.typeBadge, { backgroundColor: colors.white, shadowColor: colors.black }]}>
+              <View
+                style={[
+                  styles.typeBadge,
+                  { backgroundColor: colors.white, shadowColor: colors.black },
+                ]}>
                 <Text style={[styles.typeBadgeText, { color: colors.black }]}>{typeLabel}</Text>
               </View>
 
@@ -366,9 +370,7 @@ export default function PlaceDetailScreen() {
                   <View
                     key={t.tag.id}
                     style={[styles.tagChip, { backgroundColor: colors.chipBackground }]}>
-                    <Text style={[styles.tagText, { color: colors.chipText }]}>
-                      {t.tag.name}
-                    </Text>
+                    <Text style={[styles.tagText, { color: colors.chipText }]}>{t.tag.name}</Text>
                   </View>
                 ))}
               </View>

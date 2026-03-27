@@ -121,7 +121,9 @@ export function UnifiedContentCard({
 
         <View style={styles.footerRow}>
           <View style={[styles.categoryBadge, { backgroundColor: categoryColor }]}>
-            <Text style={[styles.categoryLabel, { color: colors.white }]}>{CATEGORY_LABELS[category]}</Text>
+            <Text style={[styles.categoryLabel, { color: colors.white }]}>
+              {CATEGORY_LABELS[category]}
+            </Text>
           </View>
           {metaLine && (
             <View style={styles.footerItem}>
