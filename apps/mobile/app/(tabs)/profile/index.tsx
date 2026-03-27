@@ -111,13 +111,6 @@ export default function ProfileScreen() {
             onPress={() => router.push('/(tabs)/profile/basic-info')}
           />
           <SettingsRow
-            icon={<Text style={styles.icon}>🎨</Text>}
-            title="App Appearance"
-            subtitle="Theme and display settings"
-            chevron
-            onPress={() => router.push('/(tabs)/profile/appearance')}
-          />
-          <SettingsRow
             icon={<Text style={styles.icon}>🥗</Text>}
             title="Dietary Preferences"
             subtitle="Diet types, allergens, and dislikes"
@@ -143,7 +136,11 @@ export default function ProfileScreen() {
             rightElement={
               isFree ? (
                 <View style={[styles.proBadge, { backgroundColor: colors.primary }]}>
-                  <Text style={[styles.proBadgeText, { fontFamily: 'Poppins_500Medium', color: colors.white }]}>
+                  <Text
+                    style={[
+                      styles.proBadgeText,
+                      { fontFamily: 'Poppins_500Medium', color: colors.white },
+                    ]}>
                     PRO
                   </Text>
                 </View>
