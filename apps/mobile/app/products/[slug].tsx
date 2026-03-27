@@ -149,7 +149,7 @@ export default function ProductDetailScreen() {
         showsVerticalScrollIndicator={false}
         bounces={false}>
         {/* Hero Image */}
-        <View style={styles.heroContainer}>
+        <View style={[styles.heroContainer, { backgroundColor: colors.black }]}>
           <Animated.View style={[styles.heroImageWrapper, heroAnimatedStyle]}>
             {product.imageUrl ? (
               <Image source={{ uri: product.imageUrl }} style={styles.heroImage} />
@@ -166,14 +166,14 @@ export default function ProductDetailScreen() {
             pointerEvents="none"
           />
         </View>
-        <View style={styles.contentContainer}>
+        <View style={[styles.contentContainer, { backgroundColor: colors.background }]}>
           {/* Header Info */}
           <Animated.View entering={FadeInUp.delay(100).duration(500)} style={styles.infoContainer}>
             <Text style={[styles.title, { color: colors.textPrimary }]}>{product.name}</Text>
 
             <View style={styles.metaRow}>
-              <View style={[styles.categoryBadge]}>
-                <Text style={styles.categoryBadgeText}>{categoryLabel}</Text>
+              <View style={[styles.categoryBadge, { backgroundColor: colors.white, shadowColor: colors.black }]}>
+                <Text style={[styles.categoryBadgeText, { color: colors.black }]}>{categoryLabel}</Text>
               </View>
               {product.brand && product.brand !== 'Unspecified' && (
                 <Text style={[styles.metaText, { color: colors.textSecondary }]}>
@@ -289,7 +289,7 @@ export default function ProductDetailScreen() {
                   key={index}
                   entering={FadeInLeft.delay(450 + index * 60)}
                   style={styles.featureRow}>
-                  <Feather name="check-circle" size={16} color={colors.categoryProduct} />
+                  <Feather name="check-circle" size={16} color={colors.primary} />
                   <Text style={[styles.featureText, { color: colors.textPrimary }]}>{feature}</Text>
                 </Animated.View>
               ))}
@@ -321,8 +321,8 @@ export default function ProductDetailScreen() {
                 {tags.map(t => (
                   <View
                     key={t.tag.id}
-                    style={[styles.tagChip, { backgroundColor: colors.categoryProductSoft }]}>
-                    <Text style={[styles.tagText, { color: colors.categoryProduct }]}>
+                    style={[styles.tagChip, { backgroundColor: colors.chipBackground }]}>
+                    <Text style={[styles.tagText, { color: colors.chipText }]}>
                       {t.tag.name}
                     </Text>
                   </View>
@@ -337,7 +337,7 @@ export default function ProductDetailScreen() {
       <RNAnimated.View
         style={[styles.buttonContainer, { top: insets.top, transform: [{ scale: backScale }] }]}>
         <Pressable {...makePressHandlers(backScale, () => router.back())} hitSlop={8}>
-          <View style={styles.button}>
+          <View style={[styles.button, { backgroundColor: colors.white }]}>
             <Image
               source={require('@/assets/icons/back.png')}
               style={styles.icon}
@@ -353,7 +353,7 @@ export default function ProductDetailScreen() {
           { top: insets.top, transform: [{ scale: heartScale }] },
         ]}>
         <Pressable {...makePressHandlers(heartScale, handleToggleFavorite)} hitSlop={8}>
-          <View style={styles.button}>
+          <View style={[styles.button, { backgroundColor: colors.white }]}>
             <Image
               source={
                 isFavorited
@@ -421,7 +421,7 @@ const styles = StyleSheet.create({
   heroContainer: {
     height: HERO_HEIGHT,
     overflow: 'hidden',
-    backgroundColor: '#000',
+    backgroundColor: '#000000', // overridden inline with colors.black
   },
   heroImageWrapper: {
     position: 'absolute',
@@ -478,7 +478,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 6,
     paddingVertical: 2,
     borderRadius: 6,
-    shadowColor: '#000',
+    shadowColor: '#000000',
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.1,
     shadowRadius: 2,
@@ -486,7 +486,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(255, 255, 255, 1)',
   },
   categoryBadgeText: {
-    color: '#000',
+    color: '#000000', // overridden inline with colors.black
     fontSize: 11,
     fontFamily: 'Poppins_400Regular',
     fontWeight: '600',
@@ -589,7 +589,7 @@ const styles = StyleSheet.create({
   glassButton: {
     padding: 8,
     borderRadius: 999,
-    shadowColor: '#000',
+    shadowColor: '#000000',
     shadowOpacity: 0.15,
     shadowRadius: 4,
     shadowOffset: { width: 0, height: 2 },
@@ -602,7 +602,7 @@ const styles = StyleSheet.create({
     transform: [{ translateX: '-50%' }],
     borderRadius: 9999,
     zIndex: 9996,
-    shadowColor: '#000',
+    shadowColor: '#000000',
     shadowOpacity: 0.15,
     shadowRadius: 4,
     shadowOffset: { width: 0, height: 2 },
@@ -626,7 +626,7 @@ const styles = StyleSheet.create({
     borderRadius: 9999,
   },
   buyButtonText: {
-    color: '#FFFFFF',
+    color: '#FFFFFF', // white text on gradient button
     fontSize: 14,
     fontFamily: 'Syne_500Medium',
   },
@@ -672,7 +672,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     elevation: 3,
-    shadowColor: '#000',
+    shadowColor: '#000000',
     shadowOpacity: 0.15,
     shadowRadius: 3,
     shadowOffset: { width: 0, height: 1 },

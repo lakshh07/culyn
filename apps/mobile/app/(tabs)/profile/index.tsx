@@ -143,7 +143,7 @@ export default function ProfileScreen() {
             rightElement={
               isFree ? (
                 <View style={[styles.proBadge, { backgroundColor: colors.primary }]}>
-                  <Text style={[styles.proBadgeText, { fontFamily: 'Poppins_500Medium' }]}>
+                  <Text style={[styles.proBadgeText, { fontFamily: 'Poppins_500Medium', color: colors.white }]}>
                     PRO
                   </Text>
                 </View>

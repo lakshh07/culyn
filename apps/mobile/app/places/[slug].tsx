@@ -180,7 +180,7 @@ export default function PlaceDetailScreen() {
         showsVerticalScrollIndicator={false}
         bounces={false}>
         {/* Hero Image */}
-        <View style={styles.heroContainer}>
+        <View style={[styles.heroContainer, { backgroundColor: colors.black }]}>
           <Animated.View style={[styles.heroImageWrapper, heroAnimatedStyle]}>
             {place.imageUrl ? (
               <Image source={{ uri: place.imageUrl }} style={styles.heroImage} />
@@ -198,14 +198,14 @@ export default function PlaceDetailScreen() {
           />
         </View>
 
-        <View style={styles.contentContainer}>
+        <View style={[styles.contentContainer, { backgroundColor: colors.background }]}>
           {/* Header Info */}
           <Animated.View entering={FadeInUp.delay(100).duration(500)} style={styles.infoContainer}>
             <Text style={[styles.title, { color: colors.textPrimary }]}>{place.name}</Text>
 
             <View style={styles.metaRow}>
-              <View style={[styles.typeBadge]}>
-                <Text style={styles.typeBadgeText}>{typeLabel}</Text>
+              <View style={[styles.typeBadge, { backgroundColor: colors.white, shadowColor: colors.black }]}>
+                <Text style={[styles.typeBadgeText, { color: colors.black }]}>{typeLabel}</Text>
               </View>
 
               {(() => {
@@ -274,14 +274,14 @@ export default function PlaceDetailScreen() {
                     pitchEnabled={false}>
                     <Marker
                       coordinate={{ latitude: lat, longitude: lng }}
-                      pinColor={colors.categoryPlace}
+                      pinColor={colors.primary}
                     />
                   </MapView>
                   <Pressable
-                    style={[styles.openMapsButton, { backgroundColor: colors.categoryPlace }]}
+                    style={[styles.openMapsButton, { backgroundColor: colors.primary }]}
                     onPress={handleOpenInMaps}>
-                    <Feather name="navigation" size={14} color="#FFFFFF" />
-                    <Text style={styles.openMapsText}>Open in Maps</Text>
+                    <Feather name="navigation" size={14} color={colors.white} />
+                    <Text style={[styles.openMapsText, { color: colors.white }]}>Open in Maps</Text>
                   </Pressable>
                 </View>
               )}
@@ -289,7 +289,7 @@ export default function PlaceDetailScreen() {
               {(place.address || place.city) && (
                 <View
                   style={[styles.locationCard, { backgroundColor: colors.backgroundSecondary }]}>
-                  <Feather name="map-pin" size={18} color={colors.categoryPlace} />
+                  <Feather name="map-pin" size={18} color={colors.primary} />
                   <View style={styles.locationTextContainer}>
                     {place.address && (
                       <Text style={[styles.locationAddress, { color: colors.textPrimary }]}>
@@ -331,7 +331,7 @@ export default function PlaceDetailScreen() {
                   <Pressable
                     onPress={handleCall}
                     style={[styles.contactButton, { backgroundColor: colors.backgroundSecondary }]}>
-                    <Feather name="phone" size={18} color={colors.categoryPlace} />
+                    <Feather name="phone" size={18} color={colors.primary} />
                     <Text style={[styles.contactText, { color: colors.textPrimary }]}>Call</Text>
                   </Pressable>
                 )}
@@ -339,7 +339,7 @@ export default function PlaceDetailScreen() {
                   <Pressable
                     onPress={handleWebsite}
                     style={[styles.contactButton, { backgroundColor: colors.backgroundSecondary }]}>
-                    <Feather name="globe" size={18} color={colors.categoryPlace} />
+                    <Feather name="globe" size={18} color={colors.primary} />
                     <Text style={[styles.contactText, { color: colors.textPrimary }]}>Website</Text>
                   </Pressable>
                 )}
@@ -365,8 +365,8 @@ export default function PlaceDetailScreen() {
                 {tags.map(t => (
                   <View
                     key={t.tag.id}
-                    style={[styles.tagChip, { backgroundColor: colors.categoryPlaceSoft }]}>
-                    <Text style={[styles.tagText, { color: colors.categoryPlace }]}>
+                    style={[styles.tagChip, { backgroundColor: colors.chipBackground }]}>
+                    <Text style={[styles.tagText, { color: colors.chipText }]}>
                       {t.tag.name}
                     </Text>
                   </View>
@@ -381,7 +381,7 @@ export default function PlaceDetailScreen() {
       <RNAnimated.View
         style={[styles.buttonContainer, { top: insets.top, transform: [{ scale: backScale }] }]}>
         <Pressable {...makePressHandlers(backScale, () => router.back())} hitSlop={8}>
-          <View style={styles.button}>
+          <View style={[styles.button, { backgroundColor: colors.white }]}>
             <Image
               source={require('@/assets/icons/back.png')}
               style={styles.icon}
@@ -415,14 +415,10 @@ export default function PlaceDetailScreen() {
 
         {hasCoords && (
           <Pressable onPress={handleOpenInMaps} hitSlop={8}>
-            <LinearGradient
-              colors={[colors.primaryGradientStart, colors.primaryGradientEnd]}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 1 }}
-              style={styles.directionsButton}>
-              <Feather name="navigation" size={16} color="#FFFFFF" />
-              <Text style={styles.directionsText}>Directions</Text>
-            </LinearGradient>
+            <View style={[styles.directionsButton, { backgroundColor: colors.primary }]}>
+              <Feather name="navigation" size={16} color={colors.white} />
+              <Text style={[styles.directionsText, { color: colors.white }]}>Directions</Text>
+            </View>
           </Pressable>
         )}
       </GlassView>
@@ -449,7 +445,7 @@ const styles = StyleSheet.create({
   heroContainer: {
     height: HERO_HEIGHT,
     overflow: 'hidden',
-    backgroundColor: '#000',
+    backgroundColor: '#000000', // overridden inline with colors.black
   },
   heroImageWrapper: {
     position: 'absolute',
@@ -506,7 +502,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     paddingVertical: 4,
     borderRadius: 8,
-    shadowColor: '#000',
+    shadowColor: '#000000',
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.1,
     shadowRadius: 2,
@@ -514,7 +510,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(255, 255, 255, 1)',
   },
   typeBadgeText: {
-    color: '#000',
+    color: '#000000', // overridden inline with colors.black
     fontSize: 11,
     fontFamily: 'Poppins_400Regular',
     fontWeight: '600',
@@ -663,7 +659,7 @@ const styles = StyleSheet.create({
   glassButton: {
     padding: 8,
     borderRadius: 999,
-    shadowColor: '#000',
+    shadowColor: '#000000',
     shadowOpacity: 0.15,
     shadowRadius: 4,
     shadowOffset: { width: 0, height: 2 },
@@ -676,7 +672,7 @@ const styles = StyleSheet.create({
     transform: [{ translateX: '-50%' }],
     borderRadius: 9999,
     zIndex: 9996,
-    shadowColor: '#000',
+    shadowColor: '#000000',
     shadowOpacity: 0.15,
     shadowRadius: 4,
     shadowOffset: { width: 0, height: 2 },
@@ -740,7 +736,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     elevation: 3,
-    shadowColor: '#000',
+    shadowColor: '#000000',
     shadowOpacity: 0.15,
     shadowRadius: 3,
     shadowOffset: { width: 0, height: 1 },

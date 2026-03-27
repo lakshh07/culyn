@@ -184,7 +184,7 @@ const styles = StyleSheet.create({
   recipeCard: {
     borderRadius: 16,
     padding: 16,
-    shadowColor: '#000',
+    shadowColor: '#000000',
     shadowOpacity: 0.02,
     shadowRadius: 8,
     shadowOffset: { width: 0, height: 2 },
@@ -247,12 +247,12 @@ const styles = StyleSheet.create({
     height: '100%',
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#F5F3F0',
+    backgroundColor: '#EEF5FB', // overridden inline with colors.border
   },
   ingredientImageInitials: {
     fontSize: 16,
     fontFamily: 'Syne_400Regular',
-    color: '#9CA3AF',
+    color: '#6A89A7', // overridden inline with colors.textMuted
   },
   ingredientInfo: {
     flex: 1,

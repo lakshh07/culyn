@@ -74,7 +74,7 @@ export default function DiscoverScreen() {
     const offset = Math.max(0, heroHeight.value - scrollY.value)
     return {
       transform: [{ translateY: offset }],
-      shadowColor: '#000',
+      shadowColor: colors.black,
       shadowOffset: { width: 0, height: 2 },
       shadowOpacity: offset <= 0 ? 0.08 : 0,
       shadowRadius: 8,

@@ -2,7 +2,7 @@ import * as React from 'react'
 import Svg, { Path, SvgProps } from 'react-native-svg'
 
 export default function ChefHatIcon(props: SvgProps) {
-  const color = props.color || '#343C54'
+  const color = props.color || '#111827'
   return (
     <Svg
       width={props.width ?? 80}

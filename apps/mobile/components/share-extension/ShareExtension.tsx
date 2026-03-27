@@ -54,29 +54,29 @@ function extractUrl(text: string | undefined): string | undefined {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.95)',
+    backgroundColor: 'rgba(0,0,0,0.95)', // dark overlay (share extension has its own dark theme)
     alignItems: 'center',
     justifyContent: 'center',
     paddingHorizontal: 24,
   },
   checkmark: {
     fontSize: 32,
-    color: '#4ADE80',
+    color: '#4ADE80', // success color (dark theme)
     marginBottom: 8,
   },
   title: {
     fontSize: 18,
     fontWeight: '600',
-    color: '#FFFFFF',
+    color: '#FFFFFF', // white text on dark background
     marginBottom: 4,
   },
   subtitle: {
     fontSize: 14,
-    color: '#9CA3AF',
+    color: '#88BDF2', // textMuted (dark theme)
   },
   errorText: {
     fontSize: 16,
-    color: '#F87171',
+    color: '#F87171', // error color (dark theme)
     marginBottom: 16,
     textAlign: 'center',
   },
@@ -84,11 +84,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
     paddingVertical: 10,
     borderRadius: 8,
-    backgroundColor: '#374151',
+    backgroundColor: '#2E3F4F', // surface (dark theme)
   },
   dismissText: {
     fontSize: 14,
     fontWeight: '500',
-    color: '#FFFFFF',
+    color: '#FFFFFF', // white text on dark button
   },
 })

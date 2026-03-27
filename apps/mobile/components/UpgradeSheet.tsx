@@ -30,7 +30,7 @@ export function UpgradeSheet({ visible, onClose }: UpgradeSheetProps) {
   return (
     <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
       <View style={styles.wrapper}>
-        <Pressable style={styles.backdrop} onPress={onClose} />
+        <Pressable style={[styles.backdrop, { backgroundColor: colors.overlayBackdrop }]} onPress={onClose} />
 
         <View
           style={[
@@ -75,7 +75,7 @@ export function UpgradeSheet({ visible, onClose }: UpgradeSheetProps) {
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 1 }}
               style={styles.gradientBtn}>
-              <Text style={styles.upgradeBtnText}>Try Pro — ₹49/month</Text>
+              <Text style={[styles.upgradeBtnText, { color: colors.white }]}>Try Pro — ₹49/month</Text>
             </LinearGradient>
           </TouchableOpacity>
 
@@ -103,7 +103,7 @@ const styles = StyleSheet.create({
     borderTopRightRadius: 24,
     paddingHorizontal: 24,
     paddingTop: 12,
-    shadowColor: '#000',
+    shadowColor: '#000000',
     shadowOffset: { width: 0, height: -4 },
     shadowOpacity: 0.12,
     shadowRadius: 16,
@@ -165,7 +165,7 @@ const styles = StyleSheet.create({
     borderRadius: 14,
     alignItems: 'center',
     justifyContent: 'center',
-    shadowColor: '#8B5CF6',
+    shadowColor: '#6A89A7', // colors.primary (light theme)
     shadowOpacity: 0.3,
     shadowRadius: 8,
     shadowOffset: { width: 0, height: 4 },

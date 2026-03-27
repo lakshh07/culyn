@@ -1,5 +1,6 @@
 import { ErrorState } from '@/components/ui/ErrorState'
 import { ChatRowSkeleton } from '@/components/ui/Skeleton'
+import { ThemeColors } from '@/constants/colors'
 import { useThemeColors } from '@/constants/useTheme'
 import { useChatConversations } from '@/hooks/chat/useChatConversations'
 import { apiClient } from '@/lib/api'
@@ -10,15 +11,16 @@ import React from 'react'
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 
-const CONTEXT_BADGES: Record<string, { label: string; color: string }> = {
-  RECIPE: { label: 'Recipe', color: '#EF4444' },
-  PLACE: { label: 'Place', color: '#14B8A6' },
-  PRODUCT: { label: 'Product', color: '#22C55E' },
-  GENERAL: { label: 'General', color: '#8B5CF6' },
-}
+const getContextBadges = (colors: ThemeColors): Record<string, { label: string; color: string }> => ({
+  RECIPE: { label: 'Recipe', color: colors.categoryRecipe },
+  PLACE: { label: 'Place', color: colors.categoryPlace },
+  PRODUCT: { label: 'Product', color: colors.categoryProduct },
+  GENERAL: { label: 'General', color: colors.primary },
+})
 
 export default function AiChatScreen() {
   const colors = useThemeColors()
+  const contextBadges = getContextBadges(colors)
   const router = useRouter()
   const { conversations, isLoading, error, refetch } = useChatConversations()
 
@@ -54,7 +56,7 @@ export default function AiChatScreen() {
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 1 }}
             style={styles.newChatButton}>
-            <Feather name="plus" size={20} color="#FFFFFF" />
+            <Feather name="plus" size={20} color={colors.white} />
           </LinearGradient>
         </Pressable>
       </View>
@@ -70,7 +72,7 @@ export default function AiChatScreen() {
       ) : conversations && conversations.length > 0 ? (
         <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.listContent}>
           {conversations.map(conv => {
-            const badge = CONTEXT_BADGES[conv.contextType] || CONTEXT_BADGES.GENERAL
+            const badge = contextBadges[conv.contextType] || contextBadges.GENERAL
             const lastMessage = (conv as any).lastMessage
 
             return (
@@ -91,7 +93,7 @@ export default function AiChatScreen() {
                       {conv.title || 'New Chat'}
                     </Text>
                     <View style={[styles.contextBadge, { backgroundColor: badge.color }]}>
-                      <Text style={styles.contextBadgeText}>{badge.label}</Text>
+                      <Text style={[styles.contextBadgeText, { color: colors.white }]}>{badge.label}</Text>
                     </View>
                   </View>
                   {lastMessage?.content && (
@@ -184,7 +186,7 @@ const styles = StyleSheet.create({
     borderRadius: 6,
   },
   contextBadgeText: {
-    color: '#FFFFFF',
+    color: '#FFFFFF', // overridden inline with colors.white
     fontSize: 9,
     fontFamily: 'Poppins_400Regular',
     fontWeight: '600',

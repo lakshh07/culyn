@@ -1,7 +1,7 @@
 import Svg, { Path, SvgProps } from 'react-native-svg'
 
 export default function HeartFillIcon(props: SvgProps) {
-  const color = props.color || '#ff0f00'
+  const color = props.color || '#EF4444'
   return (
     <Svg
       width={props.width ?? 80}

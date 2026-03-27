@@ -222,27 +222,27 @@ export default function BillingScreen() {
             end={{ x: 1, y: 1 }}
             style={styles.planGradient}>
             <View style={styles.planRow}>
-              <Text style={[styles.planLabel, { fontFamily: 'Poppins_500Medium' }]}>
+              <Text style={[styles.planLabel, { fontFamily: 'Poppins_500Medium', color: colors.white }]}>
                 Current Plan
               </Text>
               {isPro && (
                 <View style={styles.proBadge}>
-                  <Text style={[styles.proBadgeText, { fontFamily: 'Poppins_500Medium' }]}>
+                  <Text style={[styles.proBadgeText, { fontFamily: 'Poppins_500Medium', color: colors.white }]}>
                     ⭐ PRO
                   </Text>
                 </View>
               )}
             </View>
 
-            <Text style={[styles.planName, { fontFamily: 'EBGaramond_700Bold' }]}>
+            <Text style={[styles.planName, { fontFamily: 'EBGaramond_700Bold', color: colors.white }]}>
               {isPro ? '₹49' : 'Free'}
             </Text>
-            <Text style={[styles.planPrice, { fontFamily: 'Poppins_400Regular' }]}>
+            <Text style={[styles.planPrice, { fontFamily: 'Poppins_400Regular', color: colors.white }]}>
               {isPro ? 'per month' : 'Forever free'}
             </Text>
 
             {isPro && (
-              <Text style={[styles.nextBilling, { fontFamily: 'Poppins_400Regular' }]}>
+              <Text style={[styles.nextBilling, { fontFamily: 'Poppins_400Regular', color: colors.white }]}>
                 {subscription?.chargeAt
                   ? `Next billing: ${formatDate(subscription.chargeAt)}`
                   : subscription?.currentPeriodEnd
@@ -253,7 +253,7 @@ export default function BillingScreen() {
 
             {isPro && subscription?.daysLeft != null && subscription.daysLeft > 0 && (
               <View style={styles.daysLeft}>
-                <Text style={[styles.daysLeftText, { fontFamily: 'Poppins_500Medium' }]}>
+                <Text style={[styles.daysLeftText, { fontFamily: 'Poppins_500Medium', color: colors.white }]}>
                   {subscription.cancelAtPeriodEnd
                     ? `Cancels on ${subscription.currentPeriodEnd ? formatDate(subscription.currentPeriodEnd) : 'period end'}`
                     : `${subscription.daysLeft} days remaining`}
@@ -314,9 +314,9 @@ export default function BillingScreen() {
               onPress={handleUpgrade}
               disabled={upgrading}>
               {upgrading ? (
-                <ActivityIndicator size="small" color="#fff" />
+                <ActivityIndicator size="small" color={colors.white} />
               ) : (
-                <Text style={[styles.upgradeButtonText, { fontFamily: 'Poppins_500Medium' }]}>
+                <Text style={[styles.upgradeButtonText, { fontFamily: 'Poppins_500Medium', color: colors.white }]}>
                   Try Pro — ₹49/month
                 </Text>
               )}
@@ -524,7 +524,7 @@ export default function BillingScreen() {
                         </Text>
                       ) : null}
                       {inv.status === 'failed' && inv.errorDescription ? (
-                        <Text style={[styles.invoiceError, { fontFamily: 'Poppins_400Regular' }]}>
+                        <Text style={[styles.invoiceError, { fontFamily: 'Poppins_400Regular', color: colors.error }]}>
                           {inv.errorDescription}
                         </Text>
                       ) : null}
@@ -544,14 +544,14 @@ export default function BillingScreen() {
                         style={[
                           styles.invoiceStatus,
                           {
-                            backgroundColor: inv.status === 'paid' ? '#22C55E20' : '#EF444420',
+                            backgroundColor: inv.status === 'paid' ? colors.successSoft : colors.errorSoft,
                           },
                         ]}>
                         <Text
                           style={[
                             styles.invoiceStatusText,
                             {
-                              color: inv.status === 'paid' ? '#22C55E' : '#EF4444',
+                              color: inv.status === 'paid' ? colors.success : colors.error,
                               fontFamily: 'Poppins_500Medium',
                             },
                           ]}>
@@ -605,12 +605,12 @@ export default function BillingScreen() {
           <View
             style={[
               styles.cancelNotice,
-              { backgroundColor: '#EF444410', borderColor: '#EF444430' },
+              { backgroundColor: colors.errorSoft, borderColor: colors.error },
             ]}>
             <Text
               style={[
                 styles.cancelNoticeText,
-                { color: '#EF4444', fontFamily: 'Poppins_400Regular' },
+                { color: colors.error, fontFamily: 'Poppins_400Regular' },
               ]}>
               Your plan stays active until {formatDate(subscription.currentPeriodEnd)}, then reverts
               to Free.
@@ -633,7 +633,7 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     overflow: 'hidden',
     elevation: 4,
-    shadowColor: '#000',
+    shadowColor: '#000000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 8,
@@ -723,7 +723,7 @@ const styles = StyleSheet.create({
   invoiceLeft: { flex: 1, gap: 2 },
   invoiceDate: { fontSize: 14, lineHeight: 20 },
   invoiceMethod: { fontSize: 12, lineHeight: 18 },
-  invoiceError: { fontSize: 12, lineHeight: 18, color: '#EF4444' },
+  invoiceError: { fontSize: 12, lineHeight: 18, color: '#EF4444' }, // overridden inline with colors.error
   invoiceRight: { flexDirection: 'row', alignItems: 'center', gap: 10 },
   invoiceAmount: { fontSize: 15, lineHeight: 22 },
   invoiceStatus: { paddingHorizontal: 8, paddingVertical: 3, borderRadius: 8 },

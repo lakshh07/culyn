@@ -112,7 +112,7 @@ type GradientButtonProps = {
   disabled?: boolean
   loading?: boolean
   text: string
-  colors: { primaryGradientStart: string; primaryGradientEnd: string }
+  colors: { primaryGradientStart: string; primaryGradientEnd: string; white: string }
   style?: object
 }
 
@@ -135,9 +135,9 @@ const GradientButton = React.memo<GradientButtonProps>(function GradientButton({
         end={{ x: 1, y: 1 }}
         style={styles.gradientBtn}>
         {loading ? (
-          <ActivityIndicator color="#FFFFFF" />
+          <ActivityIndicator color={colors.white} />
         ) : (
-          <Text style={styles.primaryBtnText}>{text}</Text>
+          <Text style={[styles.primaryBtnText, { color: colors.white }]}>{text}</Text>
         )}
       </LinearGradient>
     </TouchableOpacity>
@@ -480,11 +480,11 @@ export default function OnboardingScreen() {
                 start={{ x: 0, y: 0 }}
                 end={{ x: 1, y: 1 }}
                 style={styles.getStartedBtn}>
-                <Text style={styles.getStartedText}>Get Started</Text>
+                <Text style={[styles.getStartedText, { color: colors.white }]}>Get Started</Text>
                 <Ionicons
                   name="arrow-forward"
                   size={18}
-                  color="#FFFFFF"
+                  color={colors.white}
                   style={{ marginLeft: 8 }}
                 />
               </LinearGradient>
@@ -691,8 +691,8 @@ export default function OnboardingScreen() {
               style={styles.appleBtn}
               onPress={handleAppleSignIn}
               disabled={formState.loading}>
-              <Ionicons name="logo-apple" size={20} color="#FFFFFF" />
-              <Text style={styles.appleBtnText}>Continue with Apple</Text>
+              <Ionicons name="logo-apple" size={20} color={colors.white} />
+              <Text style={[styles.appleBtnText, { color: colors.white }]}>Continue with Apple</Text>
             </TouchableOpacity>
 
             <TouchableOpacity
@@ -779,7 +779,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    shadowColor: '#8B5CF6',
+    shadowColor: '#6A89A7', // colors.primary (light theme)
     shadowOpacity: 0.35,
     shadowRadius: 12,
     shadowOffset: { width: 0, height: 6 },
@@ -799,7 +799,7 @@ const styles = StyleSheet.create({
   // Sheet overlay
   backdrop: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: '#000000',
+    backgroundColor: '#000000', // dark overlay backdrop
     zIndex: 10,
   },
   sheet: {
@@ -809,7 +809,7 @@ const styles = StyleSheet.create({
     right: 0,
     borderTopLeftRadius: 28,
     borderTopRightRadius: 28,
-    shadowColor: '#000',
+    shadowColor: '#000000',
     shadowOpacity: 0.18,
     shadowRadius: 24,
     shadowOffset: { width: 0, height: -4 },
@@ -894,7 +894,7 @@ const styles = StyleSheet.create({
     borderRadius: 14,
     alignItems: 'center',
     justifyContent: 'center',
-    shadowColor: '#8B5CF6',
+    shadowColor: '#6A89A7', // colors.primary (light theme)
     shadowOpacity: 0.3,
     shadowRadius: 8,
     shadowOffset: { width: 0, height: 4 },
@@ -932,7 +932,7 @@ const styles = StyleSheet.create({
   appleBtn: {
     height: 52,
     borderRadius: 14,
-    backgroundColor: '#000000',
+    backgroundColor: '#000000', // Apple brand color, always black
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
@@ -956,7 +956,7 @@ const styles = StyleSheet.create({
   googleG: {
     fontSize: 18,
     fontFamily: 'Poppins_500Medium',
-    color: '#4285F4',
+    color: '#4285F4', // colors.googleBrand — Google brand color, always same
     fontWeight: '700',
   },
   googleBtnText: {

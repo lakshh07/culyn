@@ -64,7 +64,7 @@ export function RecipeCard({ item, onPress, onHeartPress }: RecipeCardProps) {
         onPressIn={handlePressIn}
         onPressOut={handlePressOut}
         style={[styles.container, { backgroundColor: colors.cardBackgroundElevated }]}>
-        <Animated.View style={[styles.heartButton, { transform: [{ scale: heartScale }] }]}>
+        <Animated.View style={[styles.heartButton, { backgroundColor: colors.cardOverlay, transform: [{ scale: heartScale }] }]}>
           <Pressable
             onPress={handleHeartPress}
             onPressIn={handleHeartPressIn}
@@ -92,7 +92,7 @@ export function RecipeCard({ item, onPress, onHeartPress }: RecipeCardProps) {
 
         {/* Row 2: Image Section */}
         <View style={styles.imageRow}>
-          <View style={styles.imageWrapper}>
+          <View style={[styles.imageWrapper, { backgroundColor: colors.surface }]}>
             <Image
               source={item.imageUrl ? { uri: item.imageUrl } : require('@/assets/images/logo.png')}
               style={styles.image}
@@ -128,7 +128,7 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     flexDirection: 'column',
     height: 260,
-    shadowColor: '#000',
+    shadowColor: '#000000',
     shadowOpacity: 0.02,
     shadowRadius: 10,
     shadowOffset: { width: 0, height: 4 },
@@ -141,7 +141,7 @@ const styles = StyleSheet.create({
     width: 30,
     height: 30,
     borderRadius: 15,
-    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+    backgroundColor: 'rgba(255, 255, 255, 0.9)', // overridden inline with colors.cardOverlay
     justifyContent: 'center',
     alignItems: 'center',
     overflow: 'visible',
@@ -181,7 +181,7 @@ const styles = StyleSheet.create({
     borderRadius: 75,
     overflow: 'hidden',
     backgroundColor: '#f5f5f5',
-    shadowColor: '#000',
+    shadowColor: '#000000',
     shadowOpacity: 0.08,
     shadowRadius: 10,
     shadowOffset: { width: 0, height: 6 },
