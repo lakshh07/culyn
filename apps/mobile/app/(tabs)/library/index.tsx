@@ -2,7 +2,7 @@ import { ErrorState } from '@/components/ui/ErrorState'
 import { ContentCardSkeleton } from '@/components/ui/Skeleton'
 import { useThemeColors } from '@/constants/useTheme'
 import { UnifiedContentCard } from '@/features/content/components/UnifiedContentCard'
-import { HomeHeader } from '@/features/home/components/HomeHeader'
+// import { HomeHeader } from '@/features/home/components/HomeHeader'
 import { useLibrary } from '@/hooks/library/useLibrary'
 import { ContentCategory, UnifiedContentItem } from '@culyn/shared/schemas'
 import { Feather } from '@expo/vector-icons'
@@ -84,11 +84,11 @@ export default function LibraryScreen() {
 
   return (
     <View style={[styles.container, { backgroundColor: colors.backgroundSecondary }]}>
-      <HomeHeader
+      {/* <HomeHeader
         selectedCategory={selectedCategory}
         onCategoryChange={setSelectedCategory}
         onMapPress={() => router.push('/places/map')}
-      />
+      /> */}
       <FlatList
         key={selectedCategory}
         data={items ?? []}

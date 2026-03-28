@@ -180,7 +180,7 @@ export default function RecipeDetailScreen() {
             { top: insets.top + 65, transform: [{ scale: heartScale }] },
           ]}>
           <Pressable {...makePressHandlers(heartScale, handleToggleFavorite)} hitSlop={8}>
-            <View style={styles.heartButton}>
+            <View style={[styles.heartButton, { backgroundColor: colors.white }]}>
               <Image
                 source={
                   isFavorited
@@ -339,8 +339,13 @@ export default function RecipeDetailScreen() {
                             resizeMode="cover"
                           />
                         ) : (
-                          <View style={styles.ingredientImagePlaceholder}>
-                            <Text style={styles.ingredientImageInitials}>
+                          <View
+                            style={[
+                              styles.ingredientImagePlaceholder,
+                              { backgroundColor: colors.surface },
+                            ]}>
+                            <Text
+                              style={[styles.ingredientImageInitials, { color: colors.textMuted }]}>
                               {getInitials(ri.ingredient.name)}
                             </Text>
                           </View>
@@ -349,9 +354,11 @@ export default function RecipeDetailScreen() {
                       <RNAnimated.View
                         style={[
                           styles.addButton,
-                          addedIngredientIds.has(ri.ingredient.id)
-                            ? { backgroundColor: '#22C55E' }
-                            : undefined,
+                          {
+                            backgroundColor: addedIngredientIds.has(ri.ingredient.id)
+                              ? colors.success
+                              : colors.white,
+                          },
                           { transform: [{ scale: getIngredientScale(ri.ingredient.id) }] },
                         ]}>
                         <Pressable
@@ -363,7 +370,9 @@ export default function RecipeDetailScreen() {
                           <Feather
                             name={addedIngredientIds.has(ri.ingredient.id) ? 'check' : 'plus'}
                             size={14}
-                            color={addedIngredientIds.has(ri.ingredient.id) ? '#FFFFFF' : '#000000'}
+                            color={
+                              addedIngredientIds.has(ri.ingredient.id) ? colors.white : colors.black
+                            }
                           />
                         </Pressable>
                       </RNAnimated.View>
@@ -479,7 +488,7 @@ export default function RecipeDetailScreen() {
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 1 }}
               style={styles.cookButton}>
-              <ChefHatIcon width={20} height={20} color="#FFFFFF" />
+              <ChefHatIcon width={20} height={20} color={colors.white} />
 
               <Text style={styles.cookButtonText}>Cook</Text>
             </LinearGradient>
@@ -520,11 +529,11 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 15,
-    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+    backgroundColor: '#FFFFFF', // overridden inline with colors.white
     justifyContent: 'center',
     alignItems: 'center',
     elevation: 3,
-    shadowColor: '#000',
+    shadowColor: '#000000',
     shadowOpacity: 0.15,
     shadowRadius: 3,
     shadowOffset: { width: 0, height: 1 },
@@ -536,7 +545,7 @@ const styles = StyleSheet.create({
   buttonGlass: {
     padding: 8,
     borderRadius: 15,
-    shadowColor: '#000',
+    shadowColor: '#000000',
     shadowOpacity: 0.15,
     shadowRadius: 4,
     shadowOffset: { width: 0, height: 2 },
@@ -679,12 +688,12 @@ const styles = StyleSheet.create({
     height: '100%',
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#F5F3F0',
+    backgroundColor: '#EEF5FB', // overridden inline with colors.surface
   },
   ingredientImageInitials: {
     fontSize: 16,
     fontFamily: 'Syne_400Regular',
-    color: '#9CA3AF',
+    color: '#6A89A7', // overridden inline with colors.textMuted
   },
   addButton: {
     position: 'absolute',
@@ -695,9 +704,9 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#fff',
+    backgroundColor: '#FFFFFF', // overridden inline with colors.white
     zIndex: 10,
-    shadowColor: '#000',
+    shadowColor: '#000000',
     shadowOpacity: 0.15,
     shadowRadius: 3,
     shadowOffset: { width: 0, height: 1 },
@@ -789,7 +798,7 @@ const styles = StyleSheet.create({
     transform: [{ translateX: '-50%' }],
     borderRadius: 9999,
     zIndex: 9996,
-    shadowColor: '#000',
+    shadowColor: '#000000',
     shadowOpacity: 0.15,
     shadowRadius: 4,
     shadowOffset: { width: 0, height: 2 },
@@ -833,7 +842,7 @@ const styles = StyleSheet.create({
     borderRadius: 9999,
   },
   cookButtonText: {
-    color: '#FFFFFF',
+    color: '#FFFFFF', // white text on gradient button
     fontSize: 15,
     lineHeight: 18,
     fontFamily: 'Syne_500Medium',

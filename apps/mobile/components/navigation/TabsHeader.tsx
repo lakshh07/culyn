@@ -25,7 +25,7 @@ export default function TabsHeader() {
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
           style={styles.proButton}>
-          <Text style={styles.proButtonText}>Try Pro</Text>
+          <Text style={[styles.proButtonText, { color: colors.white }]}>Try Pro</Text>
         </LinearGradient>
         <Avatar
           imageUrl={session?.user?.image}
@@ -64,7 +64,7 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     paddingHorizontal: 22,
     borderRadius: 16,
-    shadowColor: '#8b5cf6',
+    shadowColor: '#6A89A7', // colors.primary (light theme)
     shadowOpacity: 0.4,
     shadowRadius: 12,
     shadowOffset: { width: 0, height: 6 },

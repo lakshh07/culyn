@@ -147,7 +147,7 @@ export default function ChatDetailScreen() {
                   style={[
                     styles.messageText,
                     {
-                      color: isUser ? '#FFFFFF' : colors.textPrimary,
+                      color: isUser ? colors.white : colors.textPrimary,
                     },
                   ]}>
                   {msg.content}

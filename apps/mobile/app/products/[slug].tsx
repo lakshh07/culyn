@@ -1,13 +1,20 @@
-import { BackIcon, HeartFillIcon, HeartIcon } from '@/components/icons'
 import { useThemeColors } from '@/constants/useTheme'
 import { useProductBySlug } from '@/hooks/products/useProductBySlug'
 import { useProductFavorite } from '@/hooks/products/useProductFavorite'
 import { Feather } from '@expo/vector-icons'
-import { GlassView } from 'expo-glass-effect'
+import * as Haptics from 'expo-haptics'
 import { LinearGradient } from 'expo-linear-gradient'
 import { useLocalSearchParams, useRouter } from 'expo-router'
-import React from 'react'
-import { Image, Linking, Pressable, Share, StyleSheet, Text, View } from 'react-native'
+import React, { useRef } from 'react'
+import {
+  Image,
+  Linking,
+  Pressable,
+  Animated as RNAnimated,
+  StyleSheet,
+  Text,
+  View,
+} from 'react-native'
 import Animated, {
   FadeInLeft,
   FadeInUp,
@@ -36,6 +43,9 @@ export default function ProductDetailScreen() {
   const { product } = useProductBySlug(slug)
   const { addFavorite, removeFavorite } = useProductFavorite(slug)
   const scrollY = useSharedValue(0)
+
+  const backScale = useRef(new RNAnimated.Value(1)).current
+  const heartScale = useRef(new RNAnimated.Value(1)).current
 
   const scrollHandler = useAnimatedScrollHandler({
     onScroll: event => {
@@ -68,29 +78,30 @@ export default function ProductDetailScreen() {
     }
   }
 
-  const handleBuy = () => {
-    const url = product.affiliateUrl || product.purchaseUrl
-    if (url) Linking.openURL(url)
-  }
-
-  const handleAskAI = () => {
-    router.push({
-      pathname: '/chat-detail/[id]',
-      params: { id: 'new', contextType: 'PRODUCT', productId: product.id },
-    })
-  }
-
-  const handleShare = async () => {
-    try {
-      await Share.share({
-        message: `Check out ${product.name}${product.brand ? ` by ${product.brand}` : ''}`,
-      })
-    } catch {}
-  }
-
   const handleOpenLink = () => {
     if (product.sourceUrl) Linking.openURL(product.sourceUrl)
   }
+
+  const makePressHandlers = (animValue: RNAnimated.Value, onPress: () => void) => ({
+    onPressIn: () =>
+      RNAnimated.spring(animValue, {
+        toValue: 1.15,
+        useNativeDriver: true,
+        speed: 20,
+        bounciness: 6,
+      }).start(),
+    onPressOut: () =>
+      RNAnimated.spring(animValue, {
+        toValue: 1,
+        useNativeDriver: true,
+        speed: 20,
+        bounciness: 6,
+      }).start(),
+    onPress: () => {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
+      onPress()
+    },
+  })
 
   const features = Array.isArray(product.features) ? product.features : []
   const categoryLabel = product.category.replace(/_/g, ' ').toLowerCase()
@@ -124,6 +135,13 @@ export default function ProductDetailScreen() {
     <SafeAreaView
       style={[styles.container, { backgroundColor: colors.background }]}
       edges={['left', 'right']}>
+      <LinearGradient
+        colors={[colors.gradientStart, colors.gradientEnd]}
+        start={{ x: 0, y: 1 }}
+        end={{ x: 0, y: 0 }}
+        pointerEvents="none"
+        style={[styles.gradientOverlay2]}
+      />
       <Animated.ScrollView
         onScroll={scrollHandler}
         scrollEventThrottle={16}
@@ -131,7 +149,7 @@ export default function ProductDetailScreen() {
         showsVerticalScrollIndicator={false}
         bounces={false}>
         {/* Hero Image */}
-        <View style={styles.heroContainer}>
+        <View style={[styles.heroContainer, { backgroundColor: colors.black }]}>
           <Animated.View style={[styles.heroImageWrapper, heroAnimatedStyle]}>
             {product.imageUrl ? (
               <Image source={{ uri: product.imageUrl }} style={styles.heroImage} />
@@ -143,30 +161,46 @@ export default function ProductDetailScreen() {
             )}
           </Animated.View>
           <LinearGradient
-            colors={['transparent', 'rgba(255,255,255,1)']}
+            colors={['transparent', 'rgba(0,0,0,1)']}
             style={styles.heroGradient}
             pointerEvents="none"
           />
         </View>
-        <View style={styles.contentContainer}>
+        <View style={[styles.contentContainer, { backgroundColor: colors.background }]}>
           {/* Header Info */}
           <Animated.View entering={FadeInUp.delay(100).duration(500)} style={styles.infoContainer}>
             <Text style={[styles.title, { color: colors.textPrimary }]}>{product.name}</Text>
 
             <View style={styles.metaRow}>
-              <View style={[styles.categoryBadge]}>
-                <Text style={styles.categoryBadgeText}>{categoryLabel}</Text>
+              <View
+                style={[
+                  styles.categoryBadge,
+                  { backgroundColor: colors.white, shadowColor: colors.black },
+                ]}>
+                <Text style={[styles.categoryBadgeText, { color: colors.black }]}>
+                  {categoryLabel}
+                </Text>
               </View>
               {product.brand && product.brand !== 'Unspecified' && (
                 <Text style={[styles.metaText, { color: colors.textSecondary }]}>
                   {product.brand}
                 </Text>
               )}
-              {product.modelNumber && (
-                <Text style={[styles.metaText, { color: colors.textMuted }]}>
-                  {product.modelNumber}
-                </Text>
-              )}
+              {(() => {
+                const modelNumber =
+                  typeof product.modelNumber === 'string'
+                    ? product.modelNumber.trim()
+                    : product.modelNumber
+                const modelNumberLower =
+                  typeof modelNumber === 'string' ? modelNumber.toLowerCase() : undefined
+
+                if (!modelNumber) return null
+                if (modelNumberLower === 'null' || modelNumberLower === 'undefined') return null
+
+                return (
+                  <Text style={[styles.metaText, { color: colors.textMuted }]}>{modelNumber}</Text>
+                )
+              })()}
             </View>
 
             {product.description && (
@@ -261,7 +295,7 @@ export default function ProductDetailScreen() {
                   key={index}
                   entering={FadeInLeft.delay(450 + index * 60)}
                   style={styles.featureRow}>
-                  <Feather name="check-circle" size={16} color={colors.categoryProduct} />
+                  <Feather name="check-circle" size={16} color={colors.primary} />
                   <Text style={[styles.featureText, { color: colors.textPrimary }]}>{feature}</Text>
                 </Animated.View>
               ))}
@@ -269,14 +303,21 @@ export default function ProductDetailScreen() {
           )}
 
           {/* Notes */}
-          {product.notes && (
-            <Animated.View entering={FadeInUp.delay(500).duration(500)} style={styles.section}>
-              <Text style={[styles.sectionTitle, { color: colors.textPrimary }]}>Notes</Text>
-              <Text style={[styles.description, { color: colors.textSecondary }]}>
-                {product.notes}
-              </Text>
-            </Animated.View>
-          )}
+
+          {(() => {
+            const notes = typeof product.notes === 'string' ? product.notes.trim() : product.notes
+            const notesLower = typeof notes === 'string' ? notes.toLowerCase() : undefined
+
+            if (!notes) return null
+            if (notesLower === 'null' || notesLower === 'undefined') return null
+
+            return (
+              <Animated.View entering={FadeInUp.delay(500).duration(500)} style={styles.section}>
+                <Text style={[styles.sectionTitle, { color: colors.textPrimary }]}>Notes</Text>
+                <Text style={[styles.description, { color: colors.textSecondary }]}>{notes}</Text>
+              </Animated.View>
+            )
+          })()}
 
           {/* Tags */}
           {tags.length > 0 && (
@@ -286,10 +327,8 @@ export default function ProductDetailScreen() {
                 {tags.map(t => (
                   <View
                     key={t.tag.id}
-                    style={[styles.tagChip, { backgroundColor: colors.categoryProductSoft }]}>
-                    <Text style={[styles.tagText, { color: colors.categoryProduct }]}>
-                      {t.tag.name}
-                    </Text>
+                    style={[styles.tagChip, { backgroundColor: colors.chipBackground }]}>
+                    <Text style={[styles.tagText, { color: colors.chipText }]}>{t.tag.name}</Text>
                   </View>
                 ))}
               </View>
@@ -299,19 +338,41 @@ export default function ProductDetailScreen() {
       </Animated.ScrollView>
 
       {/* Back Button */}
-      <Pressable
-        style={[styles.backButton, { top: insets.top }]}
-        onPress={() => router.back()}
-        hitSlop={8}>
-        <GlassView
-          isInteractive={true}
-          style={[styles.glassButton, { backgroundColor: colors.background }]}>
-          <BackIcon width={22} height={22} />
-        </GlassView>
-      </Pressable>
+      <RNAnimated.View
+        style={[styles.buttonContainer, { top: insets.top, transform: [{ scale: backScale }] }]}>
+        <Pressable {...makePressHandlers(backScale, () => router.back())} hitSlop={8}>
+          <View style={[styles.button, { backgroundColor: colors.white }]}>
+            <Image
+              source={require('@/assets/icons/back.png')}
+              style={styles.icon}
+              resizeMode="contain"
+            />
+          </View>
+        </Pressable>
+      </RNAnimated.View>
+
+      <RNAnimated.View
+        style={[
+          styles.topRightButtonContainer,
+          { top: insets.top, transform: [{ scale: heartScale }] },
+        ]}>
+        <Pressable {...makePressHandlers(heartScale, handleToggleFavorite)} hitSlop={8}>
+          <View style={[styles.button, { backgroundColor: colors.white }]}>
+            <Image
+              source={
+                isFavorited
+                  ? require('@/assets/icons/heart-fill.png')
+                  : require('@/assets/icons/heart.png')
+              }
+              style={styles.icon}
+              resizeMode="contain"
+            />
+          </View>
+        </Pressable>
+      </RNAnimated.View>
 
       {/* Glass Footer Bar */}
-      <GlassView style={[styles.footer, { backgroundColor: colors.background }]}>
+      {/* <GlassView style={[styles.footer, { backgroundColor: colors.background }]}>
         <Pressable onPress={handleToggleFavorite} hitSlop={8} style={styles.footerAction}>
           {isFavorited ? (
             <HeartFillIcon width={22} height={22} color="#EF4444" />
@@ -340,7 +401,7 @@ export default function ProductDetailScreen() {
             </LinearGradient>
           </Pressable>
         )}
-      </GlassView>
+      </GlassView> */}
 
       {/* Bottom gradient */}
       <LinearGradient
@@ -364,7 +425,7 @@ const styles = StyleSheet.create({
   heroContainer: {
     height: HERO_HEIGHT,
     overflow: 'hidden',
-    backgroundColor: '#000',
+    backgroundColor: '#000000', // overridden inline with colors.black
   },
   heroImageWrapper: {
     position: 'absolute',
@@ -390,12 +451,18 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
-    height: HERO_HEIGHT / 3,
+    opacity: 0.5,
+    height: HERO_HEIGHT / 4,
   },
   contentContainer: {
     paddingHorizontal: 18,
     paddingTop: 20,
     gap: 28,
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    backgroundColor: 'white',
+    marginTop: -20,
+    overflow: 'hidden',
   },
   infoContainer: {
     gap: 10,
@@ -415,7 +482,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 6,
     paddingVertical: 2,
     borderRadius: 6,
-    shadowColor: '#000',
+    shadowColor: '#000000',
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.1,
     shadowRadius: 2,
@@ -423,7 +490,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(255, 255, 255, 1)',
   },
   categoryBadgeText: {
-    color: '#000',
+    color: '#000000', // overridden inline with colors.black
     fontSize: 11,
     fontFamily: 'Poppins_400Regular',
     fontWeight: '600',
@@ -526,7 +593,7 @@ const styles = StyleSheet.create({
   glassButton: {
     padding: 8,
     borderRadius: 999,
-    shadowColor: '#000',
+    shadowColor: '#000000',
     shadowOpacity: 0.15,
     shadowRadius: 4,
     shadowOffset: { width: 0, height: 2 },
@@ -539,7 +606,7 @@ const styles = StyleSheet.create({
     transform: [{ translateX: '-50%' }],
     borderRadius: 9999,
     zIndex: 9996,
-    shadowColor: '#000',
+    shadowColor: '#000000',
     shadowOpacity: 0.15,
     shadowRadius: 4,
     shadowOffset: { width: 0, height: 2 },
@@ -547,8 +614,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     paddingVertical: 8,
-    paddingHorizontal: 14,
-    gap: 16,
+    paddingLeft: 20,
+    paddingRight: 8,
+    gap: 20,
   },
   footerAction: {
     padding: 4,
@@ -562,7 +630,7 @@ const styles = StyleSheet.create({
     borderRadius: 9999,
   },
   buyButtonText: {
-    color: '#FFFFFF',
+    color: '#FFFFFF', // white text on gradient button
     fontSize: 14,
     fontFamily: 'Syne_500Medium',
   },
@@ -573,6 +641,44 @@ const styles = StyleSheet.create({
     right: 0,
     bottom: 0,
     height: 100,
+    opacity: 0.5,
     pointerEvents: 'none',
+  },
+  gradientOverlay2: {
+    zIndex: 9995,
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    top: 0,
+    height: 100,
+    opacity: 0.5,
+    pointerEvents: 'none',
+  },
+  buttonContainer: {
+    position: 'absolute',
+    left: 18,
+    zIndex: 9999,
+  },
+  topRightButtonContainer: {
+    position: 'absolute',
+    right: 18,
+    zIndex: 9999,
+  },
+  icon: {
+    width: 22,
+    height: 22,
+  },
+  button: {
+    width: 40,
+    height: 40,
+    borderRadius: 15,
+    backgroundColor: 'rgba(255, 255, 255, 1)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    elevation: 3,
+    shadowColor: '#000000',
+    shadowOpacity: 0.15,
+    shadowRadius: 3,
+    shadowOffset: { width: 0, height: 1 },
   },
 })

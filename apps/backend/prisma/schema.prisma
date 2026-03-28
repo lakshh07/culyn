@@ -7,22 +7,22 @@ datasource db {
 }
 
 model User {
-  id                 String              @id @default(cuid(2))
-  email              String              @unique
+  id                 String             @id @default(cuid(2))
+  email              String             @unique
   name               String?
   image              String?
-  emailVerified      Boolean             @default(false)
-  isAdmin            Boolean             @default(false)
+  emailVerified      Boolean            @default(false)
+  isAdmin            Boolean            @default(false)
   defaultOrgId       String?
-  createdAt          DateTime            @default(now())
-  updatedAt          DateTime            @updatedAt
+  createdAt          DateTime           @default(now())
+  updatedAt          DateTime           @updatedAt
   deletedAt          DateTime?
   sessions           Session[]
   accounts           Account[]
   passkeys           Passkey[]
   organizationsOwned Organization[]
   organizations      UserOrganization[]
-  dietaryPreferences DietaryPreference[]
+  dietaryPreference  DietaryPreference?
   chatConversations  ChatConversation[]
   recipeSuggestions  RecipeSuggestion[]
   recipeRatings      RecipeRating[]
@@ -692,19 +692,17 @@ model AiUsage {
 
 model DietaryPreference {
   id          String    @id @default(cuid(2))
-  userId      String
-  type        DietType
+  userId      String    @unique
+  types       Json? // Array of DietType strings
   allergens   Json? // Array of allergen strings
   dislikes    Json? // Array of disliked ingredients
-  preferences Json? // Additional custom preferences
+  preferences Json? // Array of additional preference strings
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
   deletedAt   DateTime?
   user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@unique([userId, type])
   @@index([userId])
-  @@index([type])
   @@index([deletedAt])
   @@map("dietary_preferences")
 }

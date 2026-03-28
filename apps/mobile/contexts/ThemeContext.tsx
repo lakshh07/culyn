@@ -1,6 +1,5 @@
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import React, { createContext, ReactNode, useContext, useEffect, useState } from 'react'
-import { useColorScheme as useRNColorScheme } from 'react-native'
 
 export type ThemeMode = 'light' | 'dark' | 'system'
 
@@ -16,7 +15,6 @@ const ThemeContext = createContext<ThemeContextType | undefined>(undefined)
 const THEME_STORAGE_KEY = '@theme_mode'
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
-  const systemColorScheme = useRNColorScheme()
   const [themeMode, setThemeModeState] = useState<ThemeMode>('system')
   const [isLoading, setIsLoading] = useState(true)
 
@@ -48,9 +46,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     }
   }
 
-  // Determine the effective theme based on mode and system preference
-  const effectiveTheme: 'light' | 'dark' =
-    themeMode === 'system' ? (systemColorScheme === 'dark' ? 'dark' : 'light') : themeMode
+  const effectiveTheme: 'light' | 'dark' = 'light'
 
   return (
     <ThemeContext.Provider value={{ themeMode, setThemeMode, effectiveTheme, isLoading }}>
@@ -59,8 +55,12 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   )
 }
 
+export function useThemeOptional(): ThemeContextType | undefined {
+  return useContext(ThemeContext)
+}
+
 export function useTheme() {
-  const context = useContext(ThemeContext)
+  const context = useThemeOptional()
   if (context === undefined) {
     throw new Error('useTheme must be used within a ThemeProvider')
   }

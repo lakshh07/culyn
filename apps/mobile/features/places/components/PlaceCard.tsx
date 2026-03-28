@@ -79,7 +79,11 @@ export function PlaceCard({ id, item, onPress, onHeartPress }: PlaceCardProps) {
             </View>
           )}
 
-          <Animated.View style={[styles.heartButton, { transform: [{ scale: heartScale }] }]}>
+          <Animated.View
+            style={[
+              styles.heartButton,
+              { backgroundColor: colors.cardOverlay, transform: [{ scale: heartScale }] },
+            ]}>
             <Pressable
               onPress={handleHeartPress}
               onPressIn={handleHeartPressIn}
@@ -105,8 +109,12 @@ export function PlaceCard({ id, item, onPress, onHeartPress }: PlaceCardProps) {
           </Text>
 
           <View style={styles.metaRow}>
-            <View style={[styles.typeBadge]}>
-              <Text style={styles.typeBadgeText}>{typeLabel}</Text>
+            <View
+              style={[
+                styles.typeBadge,
+                { backgroundColor: colors.white, shadowColor: colors.black },
+              ]}>
+              <Text style={[styles.typeBadgeText, { color: colors.black }]}>{typeLabel}</Text>
             </View>
             {item.city && (
               <Text style={[styles.cityText, { color: colors.textMuted }]} numberOfLines={1}>
@@ -129,7 +137,7 @@ const styles = StyleSheet.create({
     width: '100%',
     aspectRatio: 1,
     position: 'relative',
-    shadowColor: '#000',
+    shadowColor: '#000000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.15,
     shadowRadius: 4,
@@ -193,7 +201,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 6,
     paddingVertical: 2,
     borderRadius: 6,
-    shadowColor: '#000',
+    shadowColor: '#000000',
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.1,
     shadowRadius: 2,

@@ -157,13 +157,13 @@ export default function PlacesMapScreen() {
           <Feather
             name={showFavoritesOnly ? 'heart' : 'map-pin'}
             size={14}
-            color={showFavoritesOnly ? '#FFFFFF' : colors.textPrimary}
+            color={showFavoritesOnly ? colors.white : colors.textPrimary}
           />
           <Text
             style={[
               styles.filterText,
               {
-                color: showFavoritesOnly ? '#FFFFFF' : colors.textPrimary,
+                color: showFavoritesOnly ? colors.white : colors.textPrimary,
               },
             ]}>
             {showFavoritesOnly ? 'Favorites' : 'All Places'}
@@ -213,7 +213,9 @@ export default function PlacesMapScreen() {
                   <View style={styles.sheetMeta}>
                     <View
                       style={[styles.sheetTypeBadge, { backgroundColor: colors.categoryPlace }]}>
-                      <Text style={styles.sheetTypeBadgeText}>{typeLabel(selectedPlace.type)}</Text>
+                      <Text style={[styles.sheetTypeBadgeText, { color: colors.white }]}>
+                        {typeLabel(selectedPlace.type)}
+                      </Text>
                     </View>
                     {selectedPlace.cuisine && (
                       <Text style={[styles.sheetCuisine, { color: colors.textSecondary }]}>
@@ -240,8 +242,8 @@ export default function PlacesMapScreen() {
                   })
                 }}
                 style={[styles.viewDetailsButton, { backgroundColor: colors.categoryPlace }]}>
-                <Text style={styles.viewDetailsText}>View Details</Text>
-                <Feather name="chevron-right" size={16} color="#FFFFFF" />
+                <Text style={[styles.viewDetailsText, { color: colors.white }]}>View Details</Text>
+                <Feather name="chevron-right" size={16} color={colors.white} />
               </Pressable>
             </View>
           )}
@@ -266,7 +268,7 @@ const styles = StyleSheet.create({
   glassButton: {
     padding: 8,
     borderRadius: 999,
-    shadowColor: '#000',
+    shadowColor: '#000000',
     shadowOpacity: 0.15,
     shadowRadius: 4,
     shadowOffset: { width: 0, height: 2 },
@@ -286,7 +288,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 14,
     paddingVertical: 10,
     borderRadius: 20,
-    shadowColor: '#000',
+    shadowColor: '#000000',
     shadowOpacity: 0.15,
     shadowRadius: 4,
     shadowOffset: { width: 0, height: 2 },

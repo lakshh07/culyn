@@ -3,39 +3,39 @@ export const Colors = {
     // Base colors
     white: '#FFFFFF',
     black: '#000000',
-    surface: '#F9FAFB',
+    surface: '#EEF5FB',
     surfaceElevated: '#FFFFFF',
-    border: '#E5E7EB',
-    borderLight: '#F3F4F6',
+    border: '#C8D8E8',
+    borderLight: '#DDEAF5',
 
     // Background
     background: '#FFFFFF',
-    backgroundSecondary: '#F9FAFB',
+    backgroundSecondary: '#EEF5FB',
 
     // Text colors
     textPrimary: '#111827',
-    textSecondary: '#6B7280',
-    textMuted: '#9CA3AF',
-    textDisabled: '#D1D5DB',
+    textSecondary: '#384959',
+    textMuted: '#6A89A7',
+    textDisabled: '#BDDDFC',
 
     // Primary colors
-    primary: '#8B5CF6',
-    primarySoft: '#EDE9FE',
-    primaryPressed: '#7C3AED',
-    primaryGradientStart: '#8B5CF6',
-    primaryGradientEnd: '#6366F1',
+    primary: '#6A89A7',
+    primarySoft: '#EEF5FB',
+    primaryPressed: '#425B79',
+    primaryGradientStart: '#88BDF2',
+    primaryGradientEnd: '#6A89A7',
 
     // AI colors
-    ai: '#7C3AED',
-    aiSoft: '#F3E8FF',
+    ai: '#6A89A7',
+    aiSoft: '#EEF5FB',
 
     // Food/Recipe colors
     food: '#16A34A',
     foodSoft: '#DCFCE7',
 
     // Accent colors
-    accent: '#D2784A',
-    accentSoft: '#FED7AA',
+    accent: '#88BDF2',
+    accentSoft: '#EEF5FB',
 
     // Category colors
     categoryRecipe: '#EF4444',
@@ -52,73 +52,79 @@ export const Colors = {
     warningSoft: '#FEF3C7',
     error: '#EF4444',
     errorSoft: '#FEE2E2',
-    info: '#3B82F6',
-    infoSoft: '#DBEAFE',
+    info: '#88BDF2',
+    infoSoft: '#EEF5FB',
 
     // Card colors
-    cardBackground: '#F5F5F5',
+    cardBackground: '#EEF5FB',
     cardBackgroundElevated: '#FFFFFF',
 
     // Chip/Tag colors
-    chipBackground: '#F0F0F0',
-    chipBackgroundActive: '#3B2523',
-    chipText: '#6B6B6B',
+    chipBackground: '#DDEAF5',
+    chipBackgroundActive: '#384959',
+    chipText: '#6A89A7',
     chipTextActive: '#FFFFFF',
 
     // Search & Header colors
     searchBarBackground: '#FFFFFF',
-    searchBarText: '#717171',
-    searchBarIcon: '#222222',
+    searchBarText: '#6A89A7',
+    searchBarIcon: '#384959',
     headerBackground: '#FFFFFF',
-    tabIndicator: '#222222',
-    tabDivider: '#EBEBEB',
+    tabIndicator: '#384959',
+    tabDivider: '#C8D8E8',
 
     // Search overlay colors
     overlayBackdrop: 'rgba(0,0,0,0.4)',
     searchCardBackground: '#FFFFFF',
 
     // Gradient colors
-    gradientStart: 'rgba(255,255,255,0)',
-    gradientEnd: '#FFFFFF',
+    gradientStart: 'rgba(238,245,251,0)',
+    gradientEnd: '#EEF5FB',
+
+    // Card overlay (semi-transparent badge over card images)
+    cardOverlay: 'rgba(255,255,255,0.9)',
+
+    // Google brand color (external brand, unchanged)
+    googleBrand: '#4285F4',
   },
 
   dark: {
     // Base colors
     white: '#FFFFFF',
     black: '#000000',
-    surface: '#1F2937',
-    surfaceElevated: '#374151',
-    border: '#374151',
-    borderLight: '#4B5563',
+    surface: '#2E3F4F',
+    surfaceElevated: '#384959',
+    border: '#475E6D',
+    borderLight: '#566B7A',
 
     // Background
-    background: '#111827',
-    backgroundSecondary: '#1F2937',
+    background: '#243545',
+    backgroundSecondary: '#2E3F4F',
 
     // Text colors
-    textPrimary: '#F9FAFB',
-    textSecondary: '#D1D5DB',
-    textMuted: '#9CA3AF',
-    textDisabled: '#6B7280',
+    textPrimary: '#F0F7FF',
+    textSecondary: '#BDDDFC',
+    textMuted: '#88BDF2',
+    textDisabled: '#566B7A',
 
     // Primary colors
-    primary: '#A78BFA',
-    primarySoft: '#4C1D95',
-    primaryPressed: '#8B5CF6',
-    primaryGradientStart: '#A78BFA',
-    primaryGradientEnd: '#818CF8',
+    primary: '#88BDF2',
+    primarySoft: '#2E3F4F',
+    primaryPressed: '#BDDDFC',
+    primaryGradientStart: '#88BDF2',
+    primaryGradientEnd: '#6A89A7',
 
     // AI colors
-    ai: '#A78BFA',
-    aiSoft: '#4C1D95',
+    ai: '#88BDF2',
+    aiSoft: '#2E3F4F',
 
     // Food/Recipe colors
     food: '#4ADE80',
     foodSoft: '#14532D',
 
     // Accent colors
-    accent: '#FB923C',
-    accentSoft: '#7C2D12',
+    accent: '#BDDDFC',
+    accentSoft: '#2E3F4F',
 
     // Category colors
     categoryRecipe: '#F87171',
@@ -135,34 +141,40 @@ export const Colors = {
     warningSoft: '#78350F',
     error: '#F87171',
     errorSoft: '#7F1D1D',
-    info: '#60A5FA',
-    infoSoft: '#1E3A8A',
+    info: '#88BDF2',
+    infoSoft: '#2E3F4F',
 
     // Card colors
-    cardBackground: '#1F2937',
-    cardBackgroundElevated: '#374151',
+    cardBackground: '#2E3F4F',
+    cardBackgroundElevated: '#384959',
 
     // Chip/Tag colors
-    chipBackground: '#374151',
-    chipBackgroundActive: '#8B5CF6',
-    chipText: '#D1D5DB',
-    chipTextActive: '#FFFFFF',
+    chipBackground: '#384959',
+    chipBackgroundActive: '#88BDF2',
+    chipText: '#BDDDFC',
+    chipTextActive: '#243545',
 
     // Search & Header colors
-    searchBarBackground: '#374151',
-    searchBarText: '#9CA3AF',
-    searchBarIcon: '#D1D5DB',
-    headerBackground: '#111827',
-    tabIndicator: '#F9FAFB',
-    tabDivider: '#374151',
+    searchBarBackground: '#2E3F4F',
+    searchBarText: '#88BDF2',
+    searchBarIcon: '#BDDDFC',
+    headerBackground: '#243545',
+    tabIndicator: '#BDDDFC',
+    tabDivider: '#384959',
 
     // Search overlay colors
     overlayBackdrop: 'rgba(0,0,0,0.6)',
-    searchCardBackground: '#1F2937',
+    searchCardBackground: '#2E3F4F',
 
     // Gradient colors
-    gradientStart: 'rgba(17,24,39,0)',
-    gradientEnd: '#111827',
+    gradientStart: 'rgba(36,53,69,0)',
+    gradientEnd: '#243545',
+
+    // Card overlay (semi-transparent badge over card images)
+    cardOverlay: 'rgba(46,63,79,0.9)',
+
+    // Google brand color (external brand, unchanged)
+    googleBrand: '#4285F4',
   },
 }
 

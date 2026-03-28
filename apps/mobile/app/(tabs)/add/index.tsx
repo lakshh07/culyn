@@ -180,11 +180,11 @@ export default function AddScreen() {
             end={{ x: 1, y: 1 }}
             style={[styles.importButton, { opacity: isProcessing || !url.trim() ? 0.5 : 1 }]}>
             {isProcessing ? (
-              <ActivityIndicator size="small" color="#FFFFFF" />
+              <ActivityIndicator size="small" color={colors.white} />
             ) : (
               <>
-                <Feather name="download" size={18} color="#FFFFFF" />
-                <Text style={styles.importButtonText}>Import</Text>
+                <Feather name="download" size={18} color={colors.white} />
+                <Text style={[styles.importButtonText, { color: colors.white }]}>Import</Text>
               </>
             )}
           </LinearGradient>
@@ -219,7 +219,7 @@ export default function AddScreen() {
             key={item.label}
             style={[styles.manualOption, { backgroundColor: colors.backgroundSecondary }]}>
             <View style={[styles.manualIconContainer, { backgroundColor: item.color }]}>
-              <Feather name={item.icon} size={18} color="#FFFFFF" />
+              <Feather name={item.icon} size={18} color={colors.white} />
             </View>
             <Text style={[styles.manualOptionText, { color: colors.textPrimary }]}>
               Add {item.label}

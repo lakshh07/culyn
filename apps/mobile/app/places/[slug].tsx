@@ -1,13 +1,23 @@
-import { BackIcon, HeartFillIcon, HeartIcon } from '@/components/icons'
 import { useThemeColors } from '@/constants/useTheme'
 import { usePlaceBySlug } from '@/hooks/places/usePlaceBySlug'
 import { usePlaceFavorite } from '@/hooks/places/usePlaceFavorite'
 import { Feather } from '@expo/vector-icons'
 import { GlassView } from 'expo-glass-effect'
+import * as Haptics from 'expo-haptics'
 import { LinearGradient } from 'expo-linear-gradient'
 import { useLocalSearchParams, useRouter } from 'expo-router'
-import React from 'react'
-import { Image, Linking, Platform, Pressable, Share, StyleSheet, Text, View } from 'react-native'
+import React, { useRef } from 'react'
+import {
+  Image,
+  Linking,
+  Platform,
+  Pressable,
+  Animated as RNAnimated,
+  Share,
+  StyleSheet,
+  Text,
+  View,
+} from 'react-native'
 import MapView, { Marker } from 'react-native-maps'
 import Animated, {
   FadeInUp,
@@ -36,6 +46,9 @@ export default function PlaceDetailScreen() {
   const { place } = usePlaceBySlug(slug)
   const { addFavorite, removeFavorite } = usePlaceFavorite(slug)
   const scrollY = useSharedValue(0)
+
+  const backScale = useRef(new RNAnimated.Value(1)).current
+  const heartScale = useRef(new RNAnimated.Value(1)).current
 
   const scrollHandler = useAnimatedScrollHandler({
     onScroll: event => {
@@ -74,13 +87,6 @@ export default function PlaceDetailScreen() {
 
   const handleWebsite = () => {
     if (place.website) Linking.openURL(place.website)
-  }
-
-  const handleAskAI = () => {
-    router.push({
-      pathname: '/chat-detail/[id]',
-      params: { id: 'new', contextType: 'PLACE', placeId: place.id },
-    })
   }
 
   const handleShare = async () => {
@@ -133,12 +139,40 @@ export default function PlaceDetailScreen() {
     return null
   })()
 
+  const makePressHandlers = (animValue: RNAnimated.Value, onPress: () => void) => ({
+    onPressIn: () =>
+      RNAnimated.spring(animValue, {
+        toValue: 1.15,
+        useNativeDriver: true,
+        speed: 20,
+        bounciness: 6,
+      }).start(),
+    onPressOut: () =>
+      RNAnimated.spring(animValue, {
+        toValue: 1,
+        useNativeDriver: true,
+        speed: 20,
+        bounciness: 6,
+      }).start(),
+    onPress: () => {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
+      onPress()
+    },
+  })
+
   const tags = place.tags || []
 
   return (
     <SafeAreaView
       style={[styles.container, { backgroundColor: colors.background }]}
       edges={['left', 'right']}>
+      <LinearGradient
+        colors={[colors.gradientStart, colors.gradientEnd]}
+        start={{ x: 0, y: 1 }}
+        end={{ x: 0, y: 0 }}
+        pointerEvents="none"
+        style={[styles.gradientOverlay2]}
+      />
       <Animated.ScrollView
         onScroll={scrollHandler}
         scrollEventThrottle={16}
@@ -146,7 +180,7 @@ export default function PlaceDetailScreen() {
         showsVerticalScrollIndicator={false}
         bounces={false}>
         {/* Hero Image */}
-        <View style={styles.heroContainer}>
+        <View style={[styles.heroContainer, { backgroundColor: colors.black }]}>
           <Animated.View style={[styles.heroImageWrapper, heroAnimatedStyle]}>
             {place.imageUrl ? (
               <Image source={{ uri: place.imageUrl }} style={styles.heroImage} />
@@ -158,26 +192,38 @@ export default function PlaceDetailScreen() {
             )}
           </Animated.View>
           <LinearGradient
-            colors={['transparent', 'rgba(255,255,255,1)']}
+            colors={['transparent', 'rgba(0,0,0,1)']}
             style={styles.heroGradient}
             pointerEvents="none"
           />
         </View>
 
-        <View style={styles.contentContainer}>
+        <View style={[styles.contentContainer, { backgroundColor: colors.background }]}>
           {/* Header Info */}
           <Animated.View entering={FadeInUp.delay(100).duration(500)} style={styles.infoContainer}>
             <Text style={[styles.title, { color: colors.textPrimary }]}>{place.name}</Text>
 
             <View style={styles.metaRow}>
-              <View style={[styles.typeBadge]}>
-                <Text style={styles.typeBadgeText}>{typeLabel}</Text>
+              <View
+                style={[
+                  styles.typeBadge,
+                  { backgroundColor: colors.white, shadowColor: colors.black },
+                ]}>
+                <Text style={[styles.typeBadgeText, { color: colors.black }]}>{typeLabel}</Text>
               </View>
-              {place.cuisine && (
-                <Text style={[styles.metaText, { color: colors.textSecondary }]}>
-                  {place.cuisine}
-                </Text>
-              )}
+
+              {(() => {
+                const cuisine =
+                  typeof place.cuisine === 'string' ? place.cuisine.trim() : place.cuisine
+                const cuisineLower = typeof cuisine === 'string' ? cuisine.toLowerCase() : undefined
+
+                if (!cuisine) return null
+                if (cuisineLower === 'null' || cuisineLower === 'undefined') return null
+
+                return (
+                  <Text style={[styles.metaText, { color: colors.textSecondary }]}>{cuisine}</Text>
+                )
+              })()}
             </View>
 
             {place.description && (
@@ -232,14 +278,14 @@ export default function PlaceDetailScreen() {
                     pitchEnabled={false}>
                     <Marker
                       coordinate={{ latitude: lat, longitude: lng }}
-                      pinColor={colors.categoryPlace}
+                      pinColor={colors.primary}
                     />
                   </MapView>
                   <Pressable
-                    style={[styles.openMapsButton, { backgroundColor: colors.categoryPlace }]}
+                    style={[styles.openMapsButton, { backgroundColor: colors.primary }]}
                     onPress={handleOpenInMaps}>
-                    <Feather name="navigation" size={14} color="#FFFFFF" />
-                    <Text style={styles.openMapsText}>Open in Maps</Text>
+                    <Feather name="navigation" size={14} color={colors.white} />
+                    <Text style={[styles.openMapsText, { color: colors.white }]}>Open in Maps</Text>
                   </Pressable>
                 </View>
               )}
@@ -247,7 +293,7 @@ export default function PlaceDetailScreen() {
               {(place.address || place.city) && (
                 <View
                   style={[styles.locationCard, { backgroundColor: colors.backgroundSecondary }]}>
-                  <Feather name="map-pin" size={18} color={colors.categoryPlace} />
+                  <Feather name="map-pin" size={18} color={colors.primary} />
                   <View style={styles.locationTextContainer}>
                     {place.address && (
                       <Text style={[styles.locationAddress, { color: colors.textPrimary }]}>
@@ -289,7 +335,7 @@ export default function PlaceDetailScreen() {
                   <Pressable
                     onPress={handleCall}
                     style={[styles.contactButton, { backgroundColor: colors.backgroundSecondary }]}>
-                    <Feather name="phone" size={18} color={colors.categoryPlace} />
+                    <Feather name="phone" size={18} color={colors.primary} />
                     <Text style={[styles.contactText, { color: colors.textPrimary }]}>Call</Text>
                   </Pressable>
                 )}
@@ -297,7 +343,7 @@ export default function PlaceDetailScreen() {
                   <Pressable
                     onPress={handleWebsite}
                     style={[styles.contactButton, { backgroundColor: colors.backgroundSecondary }]}>
-                    <Feather name="globe" size={18} color={colors.categoryPlace} />
+                    <Feather name="globe" size={18} color={colors.primary} />
                     <Text style={[styles.contactText, { color: colors.textPrimary }]}>Website</Text>
                   </Pressable>
                 )}
@@ -323,10 +369,8 @@ export default function PlaceDetailScreen() {
                 {tags.map(t => (
                   <View
                     key={t.tag.id}
-                    style={[styles.tagChip, { backgroundColor: colors.categoryPlaceSoft }]}>
-                    <Text style={[styles.tagText, { color: colors.categoryPlace }]}>
-                      {t.tag.name}
-                    </Text>
+                    style={[styles.tagChip, { backgroundColor: colors.chipBackground }]}>
+                    <Text style={[styles.tagText, { color: colors.chipText }]}>{t.tag.name}</Text>
                   </View>
                 ))}
               </View>
@@ -336,30 +380,36 @@ export default function PlaceDetailScreen() {
       </Animated.ScrollView>
 
       {/* Back Button */}
-      <Pressable
-        style={[styles.backButton, { top: insets.top }]}
-        onPress={() => router.back()}
-        hitSlop={8}>
-        <GlassView
-          isInteractive={true}
-          style={[styles.glassButton, { backgroundColor: colors.background }]}>
-          <BackIcon width={22} height={22} />
-        </GlassView>
-      </Pressable>
+      <RNAnimated.View
+        style={[styles.buttonContainer, { top: insets.top, transform: [{ scale: backScale }] }]}>
+        <Pressable {...makePressHandlers(backScale, () => router.back())} hitSlop={8}>
+          <View style={[styles.button, { backgroundColor: colors.white }]}>
+            <Image
+              source={require('@/assets/icons/back.png')}
+              style={styles.icon}
+              resizeMode="contain"
+            />
+          </View>
+        </Pressable>
+      </RNAnimated.View>
 
       {/* Glass Footer Bar */}
       <GlassView style={[styles.footer, { backgroundColor: colors.background }]}>
-        <Pressable onPress={handleToggleFavorite} hitSlop={8} style={styles.footerAction}>
-          {isFavorited ? (
-            <HeartFillIcon width={22} height={22} color="#EF4444" />
-          ) : (
-            <HeartIcon width={22} height={22} />
-          )}
+        <Pressable {...makePressHandlers(heartScale, handleToggleFavorite)} hitSlop={8}>
+          <Image
+            source={
+              isFavorited
+                ? require('@/assets/icons/heart-fill.png')
+                : require('@/assets/icons/heart.png')
+            }
+            style={styles.icon}
+            resizeMode="contain"
+          />
         </Pressable>
 
-        <Pressable onPress={handleAskAI} hitSlop={8} style={styles.footerAction}>
+        {/* <Pressable onPress={handleAskAI} hitSlop={8} style={styles.footerAction}>
           <Feather name="message-circle" size={20} color={colors.textPrimary} />
-        </Pressable>
+        </Pressable> */}
 
         <Pressable onPress={handleShare} hitSlop={8} style={styles.footerAction}>
           <Feather name="share" size={20} color={colors.textPrimary} />
@@ -367,14 +417,10 @@ export default function PlaceDetailScreen() {
 
         {hasCoords && (
           <Pressable onPress={handleOpenInMaps} hitSlop={8}>
-            <LinearGradient
-              colors={[colors.primaryGradientStart, colors.primaryGradientEnd]}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 1 }}
-              style={styles.directionsButton}>
-              <Feather name="navigation" size={16} color="#FFFFFF" />
-              <Text style={styles.directionsText}>Directions</Text>
-            </LinearGradient>
+            <View style={[styles.directionsButton, { backgroundColor: colors.primary }]}>
+              <Feather name="navigation" size={16} color={colors.white} />
+              <Text style={[styles.directionsText, { color: colors.white }]}>Directions</Text>
+            </View>
           </Pressable>
         )}
       </GlassView>
@@ -401,7 +447,7 @@ const styles = StyleSheet.create({
   heroContainer: {
     height: HERO_HEIGHT,
     overflow: 'hidden',
-    backgroundColor: '#000',
+    backgroundColor: '#000000', // overridden inline with colors.black
   },
   heroImageWrapper: {
     position: 'absolute',
@@ -427,12 +473,18 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
-    height: HERO_HEIGHT / 3,
+    opacity: 0.5,
+    height: HERO_HEIGHT / 4,
   },
   contentContainer: {
     paddingHorizontal: 18,
     paddingTop: 20,
     gap: 28,
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    backgroundColor: 'white',
+    marginTop: -20,
+    overflow: 'hidden',
   },
   infoContainer: {
     gap: 12,
@@ -452,7 +504,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     paddingVertical: 4,
     borderRadius: 8,
-    shadowColor: '#000',
+    shadowColor: '#000000',
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.1,
     shadowRadius: 2,
@@ -460,7 +512,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(255, 255, 255, 1)',
   },
   typeBadgeText: {
-    color: '#000',
+    color: '#000000', // overridden inline with colors.black
     fontSize: 11,
     fontFamily: 'Poppins_400Regular',
     fontWeight: '600',
@@ -609,7 +661,7 @@ const styles = StyleSheet.create({
   glassButton: {
     padding: 8,
     borderRadius: 999,
-    shadowColor: '#000',
+    shadowColor: '#000000',
     shadowOpacity: 0.15,
     shadowRadius: 4,
     shadowOffset: { width: 0, height: 2 },
@@ -622,7 +674,7 @@ const styles = StyleSheet.create({
     transform: [{ translateX: '-50%' }],
     borderRadius: 9999,
     zIndex: 9996,
-    shadowColor: '#000',
+    shadowColor: '#000000',
     shadowOpacity: 0.15,
     shadowRadius: 4,
     shadowOffset: { width: 0, height: 2 },
@@ -630,8 +682,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     paddingVertical: 8,
-    paddingHorizontal: 14,
-    gap: 16,
+    paddingLeft: 20,
+    paddingRight: 8,
+    gap: 20,
   },
   footerAction: {
     padding: 4,
@@ -656,6 +709,38 @@ const styles = StyleSheet.create({
     right: 0,
     bottom: 0,
     height: 100,
+    opacity: 0.5,
     pointerEvents: 'none',
+  },
+  gradientOverlay2: {
+    zIndex: 9995,
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    top: 0,
+    height: 100,
+    opacity: 0.5,
+  },
+  buttonContainer: {
+    position: 'absolute',
+    left: 18,
+    zIndex: 9999,
+  },
+  icon: {
+    width: 22,
+    height: 22,
+  },
+  button: {
+    width: 40,
+    height: 40,
+    borderRadius: 15,
+    backgroundColor: 'rgba(255, 255, 255, 1)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    elevation: 3,
+    shadowColor: '#000000',
+    shadowOpacity: 0.15,
+    shadowRadius: 3,
+    shadowOffset: { width: 0, height: 1 },
   },
 })

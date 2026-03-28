@@ -1,31 +1,43 @@
+import { UpgradeSheet } from '@/components/UpgradeSheet'
 import { ErrorState } from '@/components/ui/ErrorState'
 import { ContentCardSkeleton } from '@/components/ui/Skeleton'
 import { useThemeColors } from '@/constants/useTheme'
+import { HomeHeroBlock, HomeSearchBar, HomeTabsRow } from '@/features/home/components/HomeHeader'
+import { PlaceCard } from '@/features/places/components/PlaceCard'
+import { ProductCard } from '@/features/products/components/ProductCard'
+import { RecipeCard } from '@/features/recipes/components/RecipeCard'
 import { SearchOverlay } from '@/features/search/components/SearchOverlay'
 import { useSearchAnimation } from '@/features/search/hooks/useSearchAnimation'
 import { useSearchFilters } from '@/features/search/hooks/useSearchFilters'
 import { ApiFilterParams } from '@/features/search/types'
-import { PlaceCard } from '@/features/places/components/PlaceCard'
-import { ProductCard } from '@/features/products/components/ProductCard'
-import { RecipeCard } from '@/features/recipes/components/RecipeCard'
-import { HomeHeader } from '@/features/home/components/HomeHeader'
-import { useUnifiedContent, UnifiedContentFilters } from '@/hooks/content/useUnifiedContent'
+import { UnifiedContentFilters, useUnifiedContent } from '@/hooks/content/useUnifiedContent'
 import {
   ContentCategory,
-  RecipeListItem,
   PlaceListItem,
   ProductListItem,
+  RecipeListItem,
 } from '@culyn/shared/schemas'
-import { UpgradeSheet } from '@/components/UpgradeSheet'
 import { Feather } from '@expo/vector-icons'
 import * as Haptics from 'expo-haptics'
 import { useLocalSearchParams, useRouter } from 'expo-router'
-import React, { useCallback, useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { ActivityIndicator, FlatList, StatusBar, StyleSheet, Text, View } from 'react-native'
+import Animated from 'react-native-reanimated'
+import { useSafeAreaInsets } from 'react-native-safe-area-context'
+
+type ContentItem = RecipeListItem | PlaceListItem | ProductListItem
+
+type ListRow =
+  | { type: 'tabs'; id: '__tabs__' }
+  | { type: 'row'; id: string; items: ContentItem[] }
+  | { type: 'skeleton'; id: string }
+  | { type: 'empty'; id: '__empty__' }
+  | { type: 'error'; id: '__error__' }
 
 export default function DiscoverScreen() {
   const colors = useThemeColors()
   const router = useRouter()
+  const insets = useSafeAreaInsets()
   const { showUpgrade } = useLocalSearchParams<{ showUpgrade?: string }>()
   const [showUpgradeSheet, setShowUpgradeSheet] = useState(false)
   const [selectedCategory, setSelectedCategory] = useState<ContentCategory>('RECIPE')
@@ -37,8 +49,8 @@ export default function DiscoverScreen() {
       router.setParams({ showUpgrade: undefined })
     }
   }, [showUpgrade, router])
-  const [appliedFilters, setAppliedFilters] = useState<UnifiedContentFilters | null>(null)
 
+  const [appliedFilters, setAppliedFilters] = useState<UnifiedContentFilters | null>(null)
   const { filters, dispatch, clearAll, getApiParams, hasActiveFilters } = useSearchFilters()
 
   const {
@@ -61,13 +73,11 @@ export default function DiscoverScreen() {
 
   const handleSearchClose = useCallback(() => {
     closeAnimation()
-    // Delay state reset so animation can play
     setTimeout(() => setSearchOpen(false), 300)
   }, [closeAnimation])
 
   const handleSearch = useCallback(() => {
     const params = getApiParams(selectedCategory) as ApiFilterParams
-    // Convert to plain object for the unified content hook
     setAppliedFilters(
       Object.keys(params).length > 0 ? (params as unknown as UnifiedContentFilters) : null
     )
@@ -90,97 +100,121 @@ export default function DiscoverScreen() {
     }
   }, [fetchNextPage, hasNextPage, isFetchingNextPage])
 
-  const renderItem = useCallback(
-    ({ item }: { item: RecipeListItem | PlaceListItem | ProductListItem }) => {
+  const listData = useMemo((): ListRow[] => {
+    const rows: ListRow[] = [{ type: 'tabs', id: '__tabs__' }]
+
+    if (isLoading) {
+      for (let i = 0; i < 6; i++) {
+        rows.push({ type: 'skeleton', id: `skeleton-${i}` })
+      }
+    } else if (error) {
+      rows.push({ type: 'error', id: '__error__' })
+    } else if (!items || items.length === 0) {
+      rows.push({ type: 'empty', id: '__empty__' })
+    } else {
+      for (let i = 0; i < items.length; i += 2) {
+        rows.push({
+          type: 'row',
+          id: items[i].id,
+          items: [items[i], items[i + 1]].filter(Boolean),
+        })
+      }
+    }
+
+    return rows
+  }, [isLoading, error, items])
+
+  const renderCardForCategory = useCallback(
+    (item: ContentItem) => {
       if (selectedCategory === 'RECIPE') {
-        const recipeItem = item as RecipeListItem
+        const r = item as RecipeListItem
         return (
-          <View style={styles.gridItem}>
-            <RecipeCard
-              item={recipeItem}
-              onPress={() =>
-                router.push({
-                  pathname: '/recipes/[slug]',
-                  params: { slug: recipeItem.slug },
-                })
-              }
-            />
-          </View>
+          <RecipeCard
+            item={r}
+            onPress={() => router.push({ pathname: '/recipes/[slug]', params: { slug: r.slug } })}
+          />
         )
       }
-
       if (selectedCategory === 'PLACE') {
-        const placeItem = item as PlaceListItem
+        const p = item as PlaceListItem
         return (
-          <View style={styles.gridItem}>
-            <PlaceCard
-              id={placeItem.id}
-              item={placeItem}
-              onPress={() =>
-                router.push({
-                  pathname: '/places/[slug]',
-                  params: { slug: placeItem.slug },
-                })
-              }
-            />
-          </View>
+          <PlaceCard
+            id={p.id}
+            item={p}
+            onPress={() => router.push({ pathname: '/places/[slug]', params: { slug: p.slug } })}
+          />
         )
       }
-
-      if (selectedCategory === 'PRODUCT') {
-        const productItem = item as ProductListItem
-        return (
-          <View style={styles.gridItem}>
-            <ProductCard
-              item={productItem}
-              onPress={() =>
-                router.push({
-                  pathname: '/products/[slug]',
-                  params: { slug: productItem.slug },
-                })
-              }
-            />
-          </View>
-        )
-      }
-
-      return null
+      const p = item as ProductListItem
+      return (
+        <ProductCard
+          item={p}
+          onPress={() => router.push({ pathname: '/products/[slug]', params: { slug: p.slug } })}
+        />
+      )
     },
     [selectedCategory, router]
   )
 
-  const ListEmptyComponent = useCallback(() => {
-    if (isLoading) {
-      return (
-        <View style={styles.contentGrid}>
-          {Array.from({ length: 6 }).map((_, i) => (
-            <View key={i} style={styles.gridItem}>
+  const renderItem = useCallback(
+    ({ item }: { item: ListRow }) => {
+      if (item.type === 'tabs') {
+        return (
+          <View style={{ backgroundColor: colors.headerBackground }}>
+            <HomeTabsRow
+              selectedCategory={selectedCategory}
+              onCategoryChange={handleCategoryChange}
+            />
+          </View>
+        )
+      }
+
+      if (item.type === 'skeleton') {
+        return (
+          <View style={styles.row}>
+            <View style={styles.gridItem}>
               <ContentCardSkeleton />
+            </View>
+            <View style={styles.gridItem}>
+              <ContentCardSkeleton />
+            </View>
+          </View>
+        )
+      }
+
+      if (item.type === 'error') {
+        return (
+          <ErrorState
+            message="Could not load content. Check your connection and try again."
+            onRetry={refetch}
+          />
+        )
+      }
+
+      if (item.type === 'empty') {
+        return (
+          <View style={styles.emptyContainer}>
+            <Feather name="compass" size={44} color={colors.textMuted} />
+            <Text style={[styles.emptyTitle, { color: colors.textPrimary }]}>Nothing here yet</Text>
+            <Text style={[styles.emptyText, { color: colors.textMuted }]}>
+              Import your first recipe, place, or product to get started.
+            </Text>
+          </View>
+        )
+      }
+
+      return (
+        <View style={styles.row}>
+          {item.items.map(c => (
+            <View key={c.id} style={styles.gridItem}>
+              {renderCardForCategory(c)}
             </View>
           ))}
         </View>
       )
-    }
-
-    if (error) {
-      return (
-        <ErrorState
-          message="Could not load content. Check your connection and try again."
-          onRetry={refetch}
-        />
-      )
-    }
-
-    return (
-      <View style={styles.emptyContainer}>
-        <Feather name="compass" size={44} color={colors.textMuted} />
-        <Text style={[styles.emptyTitle, { color: colors.textPrimary }]}>Nothing here yet</Text>
-        <Text style={[styles.emptyText, { color: colors.textMuted }]}>
-          Import your first recipe, place, or product to get started.
-        </Text>
-      </View>
-    )
-  }, [isLoading, error, colors, refetch])
+    },
+    [selectedCategory, handleCategoryChange, renderCardForCategory, colors, refetch]
+  )
 
   const ListFooterComponent = useCallback(() => {
     if (!isFetchingNextPage) return null
@@ -194,28 +228,35 @@ export default function DiscoverScreen() {
   return (
     <View style={[styles.container, { backgroundColor: colors.backgroundSecondary }]}>
       <StatusBar barStyle="dark-content" translucent backgroundColor="transparent" />
-      <HomeHeader
-        selectedCategory={selectedCategory}
-        onCategoryChange={handleCategoryChange}
-        onSearchPress={handleSearchOpen}
-        onMapPress={() => router.push('/places/map')}
-        headerFadeStyle={headerFadeStyle}
-        hasActiveFilters={hasActiveFilters(selectedCategory)}
-      />
-      <FlatList
-        key={selectedCategory}
-        data={items ?? []}
-        numColumns={2}
-        renderItem={renderItem}
-        keyExtractor={item => item.id}
-        onEndReached={handleEndReached}
-        onEndReachedThreshold={0.3}
-        ListEmptyComponent={ListEmptyComponent}
-        ListFooterComponent={ListFooterComponent}
-        contentContainerStyle={styles.listContent}
-        columnWrapperStyle={styles.columnWrapper}
-        showsVerticalScrollIndicator={false}
-      />
+
+      <Animated.View
+        style={[{ backgroundColor: colors.headerBackground, zIndex: 20 }, headerFadeStyle]}>
+        <View style={{ height: insets.top }} />
+        <HomeSearchBar
+          selectedCategory={selectedCategory}
+          onSearchPress={handleSearchOpen}
+          onMapPress={() => router.push('/places/map')}
+          hasActiveFilters={hasActiveFilters(selectedCategory)}
+        />
+      </Animated.View>
+
+      <Animated.View style={[{ flex: 1 }, headerFadeStyle]}>
+        <FlatList
+          key={selectedCategory}
+          bounces={false}
+          overScrollMode="never"
+          ListHeaderComponent={<HomeHeroBlock />}
+          data={listData}
+          keyExtractor={item => item.id}
+          renderItem={renderItem}
+          stickyHeaderIndices={[1]}
+          onEndReached={handleEndReached}
+          onEndReachedThreshold={0.3}
+          ListFooterComponent={ListFooterComponent}
+          contentContainerStyle={styles.listContent}
+          showsVerticalScrollIndicator={false}
+        />
+      </Animated.View>
 
       <SearchOverlay
         isOpen={searchOpen}
@@ -241,18 +282,13 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   listContent: {
-    paddingHorizontal: 12,
     paddingBottom: 86,
-    paddingTop: 12,
   },
-  columnWrapper: {
-    justifyContent: 'space-between',
-    marginBottom: 16,
-  },
-  contentGrid: {
+  row: {
     flexDirection: 'row',
-    flexWrap: 'wrap',
     justifyContent: 'space-between',
+    paddingHorizontal: 12,
+    marginTop: 12,
   },
   gridItem: {
     width: '48%',

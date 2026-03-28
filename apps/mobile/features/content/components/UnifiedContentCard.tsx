@@ -89,7 +89,7 @@ export function UnifiedContentCard({
         <Animated.View
           style={[
             styles.heartButton,
-            { borderColor: colors.backgroundSecondary },
+            { backgroundColor: colors.cardOverlay, borderColor: colors.backgroundSecondary },
             { transform: [{ scale: heartScale }] },
           ]}>
           <Pressable onPress={handleHeartPress} hitSlop={8} style={styles.heartButtonInner}>
@@ -108,7 +108,7 @@ export function UnifiedContentCard({
         </View>
 
         <View style={styles.imageRow}>
-          <View style={styles.imageWrapper}>
+          <View style={[styles.imageWrapper, { backgroundColor: colors.surface }]}>
             {imageUrl ? (
               <Image source={{ uri: imageUrl }} style={styles.image} />
             ) : (
@@ -121,7 +121,9 @@ export function UnifiedContentCard({
 
         <View style={styles.footerRow}>
           <View style={[styles.categoryBadge, { backgroundColor: categoryColor }]}>
-            <Text style={styles.categoryLabel}>{CATEGORY_LABELS[category]}</Text>
+            <Text style={[styles.categoryLabel, { color: colors.white }]}>
+              {CATEGORY_LABELS[category]}
+            </Text>
           </View>
           {metaLine && (
             <View style={styles.footerItem}>
@@ -143,7 +145,7 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     flexDirection: 'column',
     height: 260,
-    shadowColor: '#000',
+    shadowColor: '#000000',
     shadowOpacity: 0.02,
     shadowRadius: 10,
     shadowOffset: { width: 0, height: 4 },
@@ -190,7 +192,7 @@ const styles = StyleSheet.create({
     borderRadius: 75,
     overflow: 'hidden',
     backgroundColor: '#f5f5f5',
-    shadowColor: '#000',
+    shadowColor: '#000000',
     shadowOpacity: 0.08,
     shadowRadius: 10,
     shadowOffset: { width: 0, height: 6 },
