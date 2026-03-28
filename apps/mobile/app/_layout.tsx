@@ -1,3 +1,4 @@
+import { PendingImportProvider } from '@/contexts/PendingImportContext'
 import { ThemeProvider } from '@/contexts/ThemeContext'
 import { useShareImport } from '@/hooks/useShareImport'
 import { setupNotificationResponseHandler } from '@/lib/notifications'
@@ -95,7 +96,9 @@ export default function RootLayout() {
   return (
     <QueryClientProvider client={queryClient}>
       <ThemeProvider>
-        <AppContent />
+        <PendingImportProvider>
+          <AppContent />
+        </PendingImportProvider>
       </ThemeProvider>
     </QueryClientProvider>
   )
