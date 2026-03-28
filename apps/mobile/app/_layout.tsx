@@ -1,6 +1,5 @@
 import { PendingImportProvider } from '@/contexts/PendingImportContext'
 import { ThemeProvider } from '@/contexts/ThemeContext'
-import { useShareImport } from '@/hooks/useShareImport'
 import { setupNotificationResponseHandler } from '@/lib/notifications'
 import { queryClient } from '@/lib/query-client'
 import {
@@ -15,9 +14,6 @@ import { Poppins_400Regular, Poppins_500Medium } from '@expo-google-fonts/poppin
 import { Syne_400Regular, Syne_500Medium, Syne_600SemiBold } from '@expo-google-fonts/syne'
 import { QueryClientProvider } from '@tanstack/react-query'
 import { useFonts } from 'expo-font'
-import * as Linking from 'expo-linking'
-import { useURL } from 'expo-linking'
-
 import { Stack, useRouter } from 'expo-router'
 import * as SplashScreen from 'expo-splash-screen'
 import { useEffect } from 'react'
@@ -26,18 +22,6 @@ import { StatusBar, StyleSheet, View } from 'react-native'
 // Inner component that has access to ThemeProvider
 function AppContent() {
   const router = useRouter()
-  const incomingUrl = useURL()
-  const { triggerImport } = useShareImport()
-
-  // Handle deep links from share extension (culynapp://share?url=...)
-  useEffect(() => {
-    if (incomingUrl) {
-      const parsed = Linking.parse(incomingUrl)
-      if (parsed.path === 'share' && parsed.queryParams?.url) {
-        triggerImport(parsed.queryParams.url as string)
-      }
-    }
-  }, [incomingUrl, triggerImport])
 
   // Handle notification taps → navigate to detail page
   useEffect(() => {
@@ -52,6 +36,7 @@ function AppContent() {
         <Stack.Screen name="(auth)" />
         <Stack.Screen name="(tabs)" />
         <Stack.Screen name="settings" />
+        <Stack.Screen name="share" />
         <Stack.Screen name="recipes/[slug]" />
         <Stack.Screen name="places/[slug]" />
         <Stack.Screen name="places/map" />
