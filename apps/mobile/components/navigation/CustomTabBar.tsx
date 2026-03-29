@@ -1,8 +1,10 @@
+import { ImportSheet } from '@/components/ImportSheet'
+import { UpgradeSheet } from '@/components/UpgradeSheet'
 import { useThemeColors } from '@/constants/useTheme'
 import type { BottomTabBarProps } from '@react-navigation/bottom-tabs'
 import { LinearGradient } from 'expo-linear-gradient'
 import { usePathname } from 'expo-router'
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Image, ImageSourcePropType, Pressable, StyleSheet, Text, View } from 'react-native'
 import Animated, { useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
@@ -68,6 +70,8 @@ export default function CustomTabBar({ state, descriptors, navigation }: BottomT
   const colors = useThemeColors()
   const bottomPadding = Math.min(insets.bottom, 22)
   const pathname = usePathname()
+  const [showImportSheet, setShowImportSheet] = useState(false)
+  const [showUpgradeSheet, setShowUpgradeSheet] = useState(false)
 
   // Hide tab bar on detail pages and profile sub-screens
   const isDetailPage =
@@ -103,6 +107,16 @@ export default function CustomTabBar({ state, descriptors, navigation }: BottomT
         ]}
       />
 
+      <ImportSheet
+        visible={showImportSheet}
+        onClose={() => setShowImportSheet(false)}
+        onShowUpgrade={() => {
+          setShowImportSheet(false)
+          setShowUpgradeSheet(true)
+        }}
+      />
+      <UpgradeSheet visible={showUpgradeSheet} onClose={() => setShowUpgradeSheet(false)} />
+
       <View style={styles.tabBar}>
         {state.routes.map((route, index) => {
           const isFocused = state.index === index
@@ -111,6 +125,11 @@ export default function CustomTabBar({ state, descriptors, navigation }: BottomT
           const config = TAB_CONFIG[route.name] ?? TAB_CONFIG.discover
 
           const onPress = () => {
+            if (route.name === 'add') {
+              setShowImportSheet(true)
+              return
+            }
+
             const event = navigation.emit({
               type: 'tabPress',
               target: route.key,

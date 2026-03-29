@@ -7,7 +7,7 @@ import {
   requestNotificationPermissions,
 } from '@/lib/notifications'
 import { ImportContentResponse } from '@culyn/shared/schemas'
-import axios from 'axios'
+import { isAxiosError } from 'axios'
 import { useRouter } from 'expo-router'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { AppState } from 'react-native'
@@ -35,7 +35,7 @@ export function useShareImport() {
       setJobId(response.data.jobId)
     } catch (err) {
       console.error('[ShareImport] Failed to start import:', err)
-      const isLimitError = axios.isAxiosError(err) && (err as any).response?.status === 403
+      const isLimitError = isAxiosError(err) && (err as any).response?.status === 403
       if (isLimitError) {
         await notifyUpgradeRequired()
       } else {

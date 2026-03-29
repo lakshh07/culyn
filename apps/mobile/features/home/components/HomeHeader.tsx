@@ -172,9 +172,15 @@ interface HomeTabsRowProps {
   selectedCategory: ContentCategory
   onCategoryChange: (category: ContentCategory) => void
   style?: StyleProp<ViewStyle>
+  showIcons?: boolean
 }
 
-export function HomeTabsRow({ selectedCategory, onCategoryChange, style }: HomeTabsRowProps) {
+export function HomeTabsRow({
+  selectedCategory,
+  onCategoryChange,
+  style,
+  showIcons = true,
+}: HomeTabsRowProps) {
   const colors = useThemeColors()
   const underlineX = useSharedValue(0)
   const underlineWidth = useSharedValue(0)
@@ -228,7 +234,7 @@ export function HomeTabsRow({ selectedCategory, onCategoryChange, style }: HomeT
           const isActive = selectedCategory === tab.key
           return (
             <Pressable key={tab.key} style={styles.tab} onPress={() => onCategoryChange(tab.key)}>
-              <TabIcon image={tab.image} isActive={isActive} />
+              {showIcons && <TabIcon image={tab.image} isActive={isActive} />}
               <Text
                 ref={ref => {
                   labelRefs.current[tab.key] = ref
