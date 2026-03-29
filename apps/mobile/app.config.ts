@@ -39,6 +39,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
       },
     ],
     'expo-font',
+    './plugins/withActionExtension',
     [
       'expo-share-extension',
       {
