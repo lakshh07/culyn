@@ -6,7 +6,7 @@ const path = require('path')
 const { getActionExtensionBundleIdentifier, getActionExtensionName } = require('./helpers')
 
 function withActionExtensionTarget(config) {
-  return withXcodeProject(config, async (config) => {
+  return withXcodeProject(config, async config => {
     const xcodeProject = config.modResults
     const targetName = getActionExtensionName(config)
 
@@ -64,7 +64,7 @@ function withActionExtensionTarget(config) {
         },
       ],
       'Release',
-      `Build configuration list for PBXNativeTarget "${targetName}"`,
+      `Build configuration list for PBXNativeTarget "${targetName}"`
     )
 
     // 3. Add product file
@@ -116,7 +116,7 @@ function withActionExtensionTarget(config) {
     const { uuid: pbxGroupUuid } = xcodeProject.addPbxGroup(files, targetName, targetName)
     const groups = xcodeProject.hash.project.objects['PBXGroup']
     if (pbxGroupUuid) {
-      Object.keys(groups).forEach((key) => {
+      Object.keys(groups).forEach(key => {
         if (groups[key].name === undefined && groups[key].path === undefined) {
           xcodeProject.addToPbxGroup(pbxGroupUuid, key)
         }
@@ -133,7 +133,7 @@ function withActionExtensionTarget(config) {
       'Sources',
       targetUuid,
       targetType,
-      buildPath,
+      buildPath
     )
 
     xcodeProject.addBuildPhase(
@@ -142,7 +142,7 @@ function withActionExtensionTarget(config) {
       'Frameworks',
       targetUuid,
       targetType,
-      buildPath,
+      buildPath
     )
 
     xcodeProject.addBuildPhase(
@@ -151,7 +151,7 @@ function withActionExtensionTarget(config) {
       'Resources',
       targetUuid,
       targetType,
-      buildPath,
+      buildPath
     )
 
     // 9. Embed the .appex in the main app
@@ -159,9 +159,9 @@ function withActionExtensionTarget(config) {
     const mainTargetUuid = xcodeProject.getFirstTarget().uuid
     const copyFilePhases = xcodeProject.hash.project.objects['PBXCopyFilesBuildPhase'] ?? {}
     const mainTarget = xcodeProject.pbxNativeTargetSection()[mainTargetUuid]
-    const mainBuildPhaseUuids = (mainTarget?.buildPhases ?? []).map((bp) => bp.value)
+    const mainBuildPhaseUuids = (mainTarget?.buildPhases ?? []).map(bp => bp.value)
 
-    const hasEmbedPhase = mainBuildPhaseUuids.some((uuid) => {
+    const hasEmbedPhase = mainBuildPhaseUuids.some(uuid => {
       const phase = copyFilePhases[uuid]
       return (
         phase &&
@@ -176,7 +176,7 @@ function withActionExtensionTarget(config) {
         'PBXCopyFilesBuildPhase',
         'Embed Foundation Extensions',
         mainTargetUuid,
-        targetType,
+        targetType
       )
     }
 

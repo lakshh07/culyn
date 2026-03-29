@@ -7,13 +7,12 @@ const path = require('path')
 const { getActionExtensionName, getAppGroup } = require('./helpers')
 
 function withActionExtensionEntitlements(config) {
-  return withEntitlementsPlist(config, (config) => {
+  return withEntitlementsPlist(config, config => {
     const targetName = getActionExtensionName(config)
     const targetPath = path.join(config.modRequest.platformProjectRoot, targetName)
     const filePath = path.join(targetPath, `${targetName}.entitlements`)
 
-    const existingAppGroup =
-      config.ios?.entitlements?.['com.apple.security.application-groups']
+    const existingAppGroup = config.ios?.entitlements?.['com.apple.security.application-groups']
 
     const entitlements = {
       'com.apple.security.application-groups': existingAppGroup ?? [getAppGroup(config)],

@@ -7,7 +7,7 @@ const path = require('path')
 const { getActionExtensionName, getAppGroup } = require('./helpers')
 
 function withActionExtensionInfoPlist(config) {
-  return withInfoPlist(config, (config) => {
+  return withInfoPlist(config, config => {
     const targetName = getActionExtensionName(config)
     const targetPath = path.join(config.modRequest.platformProjectRoot, targetName)
     const filePath = path.join(targetPath, 'Info.plist')
