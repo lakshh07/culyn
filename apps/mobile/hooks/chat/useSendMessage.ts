@@ -1,23 +1,36 @@
-import { API_BASE_URL } from '@/lib/api'
+import { API_BASE_URL, apiClient } from '@/lib/api'
 import { authClient } from '@/lib/auth-client'
 import { StreamMessageEvent } from '@culyn/shared/schemas'
 import { useQueryClient } from '@tanstack/react-query'
 import { useCallback, useState } from 'react'
 
-export function useSendMessage(conversationId: string) {
+export function useSendMessage(initialConversationId: string | null = null) {
   const [isStreaming, setIsStreaming] = useState(false)
   const [streamedContent, setStreamedContent] = useState('')
+  const [conversationId, setConversationId] = useState<string | null>(initialConversationId)
   const queryClient = useQueryClient()
 
   const sendMessage = useCallback(
-    async (content: string) => {
+    async (content: string): Promise<string> => {
       setIsStreaming(true)
       setStreamedContent('')
 
+      let activeConversationId = conversationId
+
       try {
+        // Auto-create conversation if none exists
+        if (!activeConversationId) {
+          const response = await apiClient().post('/chat/conversations', {
+            contextType: 'GENERAL',
+          })
+          activeConversationId = response.data.id
+          setConversationId(activeConversationId)
+          queryClient.invalidateQueries({ queryKey: ['v1', 'chat', 'conversations'] })
+        }
+
         const cookies = authClient.getCookie()
         const response = await fetch(
-          `${API_BASE_URL}/v1/chat/conversations/${conversationId}/messages`,
+          `${API_BASE_URL}/v1/chat/conversations/${activeConversationId}/messages`,
           {
             method: 'POST',
             headers: {
@@ -56,8 +69,9 @@ export function useSendMessage(conversationId: string) {
                 setStreamedContent(fullContent)
               } else if (event.type === 'done') {
                 queryClient.invalidateQueries({
-                  queryKey: ['v1', 'chat', 'conversations', conversationId],
+                  queryKey: ['v1', 'chat', 'conversations', activeConversationId],
                 })
+                queryClient.invalidateQueries({ queryKey: ['v1', 'chat', 'conversations'] })
               } else if (event.type === 'error') {
                 throw new Error(event.error || 'Stream error')
               }
@@ -69,13 +83,23 @@ export function useSendMessage(conversationId: string) {
       } finally {
         setIsStreaming(false)
       }
+
+      return activeConversationId!
     },
     [conversationId, queryClient]
   )
+
+  const resetConversation = useCallback(() => {
+    setConversationId(null)
+    setStreamedContent('')
+  }, [])
 
   return {
     sendMessage,
     isStreaming,
     streamedContent,
+    conversationId,
+    setConversationId,
+    resetConversation,
   }
 }

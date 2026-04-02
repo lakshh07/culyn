@@ -41,7 +41,6 @@ function AppContent() {
         <Stack.Screen name="places/[slug]" />
         <Stack.Screen name="places/map" />
         <Stack.Screen name="products/[slug]" />
-        <Stack.Screen name="chat-detail/[id]" />
       </Stack>
     </View>
   )

@@ -1,220 +1,254 @@
-import { ErrorState } from '@/components/ui/ErrorState'
-import { ChatRowSkeleton } from '@/components/ui/Skeleton'
-import { ThemeColors } from '@/constants/colors'
+import { ChatHistorySheet } from '@/components/chat/ChatHistorySheet'
+import { ChatInputBar } from '@/components/chat/ChatInputBar'
 import { useThemeColors } from '@/constants/useTheme'
 import { useChatConversations } from '@/hooks/chat/useChatConversations'
-import { apiClient } from '@/lib/api'
-import { Feather } from '@expo/vector-icons'
-import { LinearGradient } from 'expo-linear-gradient'
+import { authClient } from '@/lib/auth-client'
 import { useRouter } from 'expo-router'
-import React from 'react'
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native'
-import { SafeAreaView } from 'react-native-safe-area-context'
+import React, { useState } from 'react'
+import {
+  KeyboardAvoidingView,
+  Platform,
+  Pressable,
+  StatusBar,
+  StyleSheet,
+  Text,
+  View,
+} from 'react-native'
+import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
-const getContextBadges = (
-  colors: ThemeColors
-): Record<string, { label: string; color: string }> => ({
-  RECIPE: { label: 'Recipe', color: colors.categoryRecipe },
-  PLACE: { label: 'Place', color: colors.categoryPlace },
-  PRODUCT: { label: 'Product', color: colors.categoryProduct },
-  GENERAL: { label: 'General', color: colors.primary },
-})
+const SUGGESTIONS_FULL = [
+  {
+    label: "Suggest a dinner recipe with what's in my fridge.",
+    prompt: "Suggest a dinner recipe with what's in my fridge.",
+  },
+  {
+    label: 'Find a highly-rated restaurant near me to visit.',
+    prompt: 'Find a highly-rated restaurant near me to visit.',
+  },
+  {
+    label: 'What kitchen tools should I add to my collection?',
+    prompt: 'What kitchen tools should I add to my collection?',
+  },
+]
+const SUGGESTIONS_HALF = [
+  { label: "What's in my library?", prompt: 'Show me my saved library.' },
+  { label: 'Inspire me tonight.', prompt: 'Give me inspiration for tonight.' },
+]
+
+function timeAgo(dateStr: string): string {
+  const now = Date.now()
+  const diff = now - new Date(dateStr).getTime()
+  const mins = Math.floor(diff / 60000)
+  if (mins < 1) return 'just now'
+  if (mins < 60) return `${mins}m ago`
+  const hrs = Math.floor(mins / 60)
+  if (hrs < 24) return `${hrs === 1 ? 'an hour' : `${hrs}h`} ago`
+  const days = Math.floor(hrs / 24)
+  if (days < 7) return `${days === 1 ? 'a day' : `${days} days`} ago`
+  const weeks = Math.floor(days / 7)
+  if (weeks < 5) return `${weeks === 1 ? 'a week' : `${weeks} weeks`} ago`
+  const months = Math.floor(days / 30)
+  return `${months === 1 ? 'a month' : `${months} months`} ago`
+}
 
 export default function AiChatScreen() {
   const colors = useThemeColors()
-  const contextBadges = getContextBadges(colors)
+  const insets = useSafeAreaInsets()
   const router = useRouter()
-  const { conversations, isLoading, error, refetch } = useChatConversations()
+  const { data: session } = authClient.useSession()
+  const { conversations } = useChatConversations()
 
-  const handleNewChat = async () => {
-    try {
-      const response = await apiClient().post('/chat/conversations', {
-        contextType: 'GENERAL',
-      })
-      const conversation = response.data
-      router.push({
-        pathname: '/chat-detail/[id]',
-        params: { id: conversation.id },
-      })
-    } catch {
-      // Handle error
-    }
+  const [historyOpen, setHistoryOpen] = useState(false)
+  const [inputText, setInputText] = useState('')
+
+  const firstName = session?.user?.name?.split(' ')[0] ?? 'there'
+  const recentChats = conversations?.slice(0, 4) ?? []
+
+  const navigateToChat = (prompt: string) => {
+    router.push({ pathname: '/ai-chat/[id]', params: { id: 'new', initialMessage: prompt } })
+  }
+
+  const handleSend = () => {
+    if (!inputText.trim()) return
+    const text = inputText.trim()
+    setInputText('')
+    navigateToChat(text)
+  }
+
+  const handleSelectConversation = (id: string) => {
+    router.push({ pathname: '/ai-chat/[id]', params: { id } })
   }
 
   return (
-    <SafeAreaView
-      style={[styles.container, { backgroundColor: colors.background }]}
-      edges={['top', 'left', 'right']}>
-      <View style={styles.header}>
-        <View>
-          <Text style={[styles.title, { color: colors.textPrimary }]}>Chat</Text>
-          <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
-            Ask about recipes, places, or anything.
+    <KeyboardAvoidingView
+      style={[styles.root, { backgroundColor: colors.backgroundSecondary }]}
+      behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+      <StatusBar barStyle="dark-content" translucent backgroundColor="transparent" />
+      <View style={[styles.body, { paddingTop: insets.top + 48 }]}>
+        <View style={styles.greetingBlock}>
+          <Text style={[styles.greetingLine1, { color: colors.textPrimary }]}>
+            Hey, {firstName}!
+          </Text>
+          <Text style={[styles.greetingLine2, { color: colors.textPrimary }]}>
+            What can I help with?
           </Text>
         </View>
-        <Pressable onPress={handleNewChat}>
-          <LinearGradient
-            colors={[colors.primaryGradientStart, colors.primaryGradientEnd]}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 1 }}
-            style={styles.newChatButton}>
-            <Feather name="plus" size={20} color={colors.white} />
-          </LinearGradient>
-        </Pressable>
-      </View>
 
-      {isLoading ? (
-        <View>
-          {Array.from({ length: 5 }).map((_, i) => (
-            <ChatRowSkeleton key={i} />
+        <Text style={[styles.suggestionsLabel, { color: colors.textMuted }]}>Suggestions</Text>
+
+        {SUGGESTIONS_FULL.map(s => (
+          <Pressable
+            key={s.label}
+            style={({ pressed }) => [
+              styles.suggestionChip,
+              { backgroundColor: colors.background },
+              pressed && { opacity: 0.6 },
+            ]}
+            onPress={() => navigateToChat(s.prompt)}>
+            <Text style={[styles.suggestionText, { color: colors.textPrimary }]}>{s.label}</Text>
+          </Pressable>
+        ))}
+
+        <View style={styles.halfRow}>
+          {SUGGESTIONS_HALF.map(s => (
+            <Pressable
+              key={s.label}
+              style={({ pressed }) => [
+                styles.suggestionChip,
+                styles.halfChip,
+                { backgroundColor: colors.background },
+                pressed && { opacity: 0.6 },
+              ]}
+              onPress={() => navigateToChat(s.prompt)}>
+              <Text style={[styles.suggestionText, { color: colors.textPrimary }]}>{s.label}</Text>
+            </Pressable>
           ))}
         </View>
-      ) : error ? (
-        <ErrorState message="Could not load conversations." onRetry={refetch} />
-      ) : conversations && conversations.length > 0 ? (
-        <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.listContent}>
-          {conversations.map(conv => {
-            const badge = contextBadges[conv.contextType] || contextBadges.GENERAL
-            const lastMessage = (conv as any).lastMessage
 
-            return (
+        {recentChats.length > 0 && (
+          <View style={styles.pastChatsSection}>
+            <View style={styles.pastChatsHeader}>
+              <Text style={[styles.pastChatsTitle, { color: colors.textMuted }]}>Past Chats</Text>
+              <Pressable onPress={() => setHistoryOpen(true)} hitSlop={8}>
+                <Text style={[styles.viewAllText, { color: colors.textMuted }]}>View all</Text>
+              </Pressable>
+            </View>
+            {recentChats.map(conv => (
               <Pressable
                 key={conv.id}
-                style={[styles.conversationRow, { borderBottomColor: colors.border }]}
-                onPress={() =>
-                  router.push({
-                    pathname: '/chat-detail/[id]',
-                    params: { id: conv.id },
-                  })
-                }>
-                <View style={styles.conversationInfo}>
-                  <View style={styles.conversationTitleRow}>
-                    <Text
-                      style={[styles.conversationTitle, { color: colors.textPrimary }]}
-                      numberOfLines={1}>
-                      {conv.title || 'New Chat'}
-                    </Text>
-                    <View style={[styles.contextBadge, { backgroundColor: badge.color }]}>
-                      <Text style={[styles.contextBadgeText, { color: colors.white }]}>
-                        {badge.label}
-                      </Text>
-                    </View>
-                  </View>
-                  {lastMessage?.content && (
-                    <Text
-                      style={[styles.conversationPreview, { color: colors.textMuted }]}
-                      numberOfLines={1}>
-                      {lastMessage.content}
-                    </Text>
-                  )}
-                </View>
-                <Feather name="chevron-right" size={18} color={colors.textMuted} />
+                onPress={() => handleSelectConversation(conv.id)}
+                style={({ pressed }) => [styles.pastChatRow, pressed && { opacity: 0.6 }]}>
+                <Text
+                  style={[styles.pastChatTitle, { color: colors.textPrimary }]}
+                  numberOfLines={1}>
+                  {conv.title || 'Untitled'}
+                </Text>
+                <Text style={[styles.pastChatTime, { color: colors.textMuted }]}>
+                  {timeAgo(conv.updatedAt?.toString() ?? conv.createdAt?.toString() ?? '')}
+                </Text>
               </Pressable>
-            )
-          })}
-        </ScrollView>
-      ) : (
-        <View style={styles.emptyContainer}>
-          <Feather name="message-circle" size={48} color={colors.textMuted} />
-          <Text style={[styles.emptyTitle, { color: colors.textPrimary }]}>
-            No conversations yet
-          </Text>
-          <Text style={[styles.emptySubtitle, { color: colors.textMuted }]}>
-            Start a new chat to ask about recipes, places, or products.
-          </Text>
-        </View>
-      )}
-    </SafeAreaView>
+            ))}
+          </View>
+        )}
+      </View>
+
+      <ChatInputBar
+        value={inputText}
+        onChangeText={setInputText}
+        onSend={handleSend}
+        isStreaming={false}
+      />
+
+      <ChatHistorySheet
+        visible={historyOpen}
+        onClose={() => setHistoryOpen(false)}
+        onSelect={handleSelectConversation}
+        onNewChat={() => router.push({ pathname: '/ai-chat/[id]', params: { id: 'new' } })}
+      />
+    </KeyboardAvoidingView>
   )
 }
 
 const styles = StyleSheet.create({
-  container: {
+  root: {
     flex: 1,
   },
-  header: {
-    paddingHorizontal: 20,
-    paddingTop: 12,
-    paddingBottom: 16,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
+  body: {
+    flex: 1,
+    paddingHorizontal: 24,
   },
-  title: {
+  greetingBlock: {
+    marginBottom: 36,
+  },
+  greetingLine1: {
     fontSize: 28,
-    lineHeight: 32,
-    fontFamily: 'EBGaramond_500Medium',
+    fontFamily: 'Syne_600SemiBold',
+    lineHeight: 40,
   },
-  subtitle: {
+  greetingLine2: {
+    fontSize: 28,
+    fontFamily: 'Syne_600SemiBold',
+    lineHeight: 40,
+  },
+  suggestionsLabel: {
     fontSize: 13,
     fontFamily: 'Syne_400Regular',
-    marginTop: 4,
+    marginBottom: 12,
   },
-  newChatButton: {
-    width: 44,
-    height: 44,
-    borderRadius: 14,
-    justifyContent: 'center',
-    alignItems: 'center',
+  suggestionChip: {
+    borderRadius: 28,
+    paddingHorizontal: 18,
+    paddingVertical: 10,
+    marginBottom: 10,
   },
-  listContent: {
-    paddingBottom: 86,
-  },
-  conversationRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingVertical: 16,
-    paddingHorizontal: 20,
-    borderBottomWidth: 1,
-  },
-  conversationInfo: {
-    flex: 1,
-    marginRight: 12,
-    gap: 4,
-  },
-  conversationTitleRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  conversationTitle: {
-    fontSize: 15,
-    fontFamily: 'Syne_500Medium',
-    lineHeight: 20,
-    flexShrink: 1,
-  },
-  contextBadge: {
-    paddingHorizontal: 6,
-    paddingVertical: 2,
-    borderRadius: 6,
-  },
-  contextBadgeText: {
-    color: '#FFFFFF', // overridden inline with colors.white
-    fontSize: 9,
-    fontFamily: 'Poppins_400Regular',
-    fontWeight: '600',
-  },
-  conversationPreview: {
-    fontSize: 13,
-    fontFamily: 'Poppins_400Regular',
-    lineHeight: 18,
-  },
-  emptyContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingHorizontal: 40,
-    gap: 12,
-  },
-  emptyTitle: {
-    fontSize: 18,
-    fontFamily: 'Syne_500Medium',
-  },
-  emptySubtitle: {
+  suggestionText: {
     fontSize: 14,
     fontFamily: 'Syne_400Regular',
-    textAlign: 'center',
     lineHeight: 20,
+  },
+  halfRow: {
+    flexDirection: 'row',
+    gap: 10,
+  },
+  halfChip: {
+    flex: 1,
+    marginBottom: 0,
+  },
+
+  // Past Chats
+  pastChatsSection: {
+    marginTop: 28,
+  },
+  pastChatsHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 12,
+  },
+  pastChatsTitle: {
+    fontSize: 13,
+    fontFamily: 'Syne_400Regular',
+  },
+  viewAllText: {
+    fontSize: 13,
+    fontFamily: 'Syne_400Regular',
+  },
+  pastChatRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    borderRadius: 28,
+    paddingHorizontal: 8,
+    marginBottom: 10,
+  },
+  pastChatTitle: {
+    flex: 1,
+    fontSize: 14,
+    fontFamily: 'Syne_400Regular',
+    lineHeight: 20,
+  },
+  pastChatTime: {
+    fontSize: 13,
+    fontFamily: 'Syne_400Regular',
   },
 })
