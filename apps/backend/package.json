@@ -10,6 +10,7 @@
     "typecheck": "bunx tsc --noEmit",
     "lint": "eslint .",
     "start": "NODE_ENV=production bun run src/index.ts",
+    "start:worker": "NODE_ENV=production bun run src/worker.ts",
     "build": "bunx prisma generate && bunx prisma migrate deploy",
     "format": "prettier --write \"**/*.{js,jsx,ts,tsx,json,css,md,prisma}\"",
     "format:check": "prettier --check \"**/*.{js,jsx,ts,tsx,json,css,md,prisma}\"",

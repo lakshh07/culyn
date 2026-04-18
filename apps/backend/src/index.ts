@@ -28,8 +28,8 @@ app.use(
       }
       // Allow configured origins
       if (corsOrigins.includes(origin)) return origin
-      // Allow all origins in development
-      return process.env.NODE_ENV === 'development' ? origin : corsOrigins[0]
+      // Allow all origins in development, reject in production
+      return process.env.NODE_ENV === 'development' ? origin : null
     },
     allowHeaders: ['Content-Type', 'Authorization'],
     allowMethods: ['POST', 'GET', 'OPTIONS', 'PUT', 'DELETE'],
