@@ -31,6 +31,11 @@ declare module 'bun' {
 
     X_IG_APP_ID: string
     APIFY_API_KEY: string
+
+    APPLE_SERVICE_ID: string
+    APPLE_TEAM_ID: string
+    APPLE_KEY_ID: string
+    APPLE_PRIVATE_KEY: string
   }
 }
 
