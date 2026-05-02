@@ -397,7 +397,10 @@ export default function OnboardingScreen() {
         callbackURL: '/(tabs)/discover',
       })
       if (result?.error) {
-        dispatch({ type: 'SET_ERROR', payload: result.error.message || 'Failed to sign in with Google' })
+        dispatch({
+          type: 'SET_ERROR',
+          payload: result.error.message || 'Failed to sign in with Google',
+        })
         dispatch({ type: 'SET_LOADING', payload: false })
         return
       }
@@ -418,7 +421,10 @@ export default function OnboardingScreen() {
         callbackURL: '/(tabs)/discover',
       })
       if (result?.error) {
-        dispatch({ type: 'SET_ERROR', payload: result.error.message || 'Failed to sign in with Apple' })
+        dispatch({
+          type: 'SET_ERROR',
+          payload: result.error.message || 'Failed to sign in with Apple',
+        })
         dispatch({ type: 'SET_LOADING', payload: false })
         return
       }
