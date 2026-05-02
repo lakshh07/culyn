@@ -392,30 +392,42 @@ export default function OnboardingScreen() {
     dispatch({ type: 'SET_LOADING', payload: true })
 
     try {
-      await authClient.signIn.social({
+      const result = await authClient.signIn.social({
         provider: 'google',
         callbackURL: '/(tabs)/discover',
       })
+      if (result?.error) {
+        dispatch({ type: 'SET_ERROR', payload: result.error.message || 'Failed to sign in with Google' })
+        dispatch({ type: 'SET_LOADING', payload: false })
+        return
+      }
+      router.replace('/(tabs)/discover')
     } catch {
       dispatch({ type: 'SET_ERROR', payload: 'Failed to sign in with Google' })
       dispatch({ type: 'SET_LOADING', payload: false })
     }
-  }, [])
+  }, [router])
 
   const handleAppleSignIn = useCallback(async () => {
     dispatch({ type: 'SET_ERROR', payload: '' })
     dispatch({ type: 'SET_LOADING', payload: true })
 
     try {
-      await authClient.signIn.social({
+      const result = await authClient.signIn.social({
         provider: 'apple',
         callbackURL: '/(tabs)/discover',
       })
+      if (result?.error) {
+        dispatch({ type: 'SET_ERROR', payload: result.error.message || 'Failed to sign in with Apple' })
+        dispatch({ type: 'SET_LOADING', payload: false })
+        return
+      }
+      router.replace('/(tabs)/discover')
     } catch {
       dispatch({ type: 'SET_ERROR', payload: 'Failed to sign in with Apple' })
       dispatch({ type: 'SET_LOADING', payload: false })
     }
-  }, [])
+  }, [router])
 
   const sheetTitle = useMemo(() => {
     if (sheetMode === 'email' || sheetMode === 'checking') return 'Welcome to Culyn'
