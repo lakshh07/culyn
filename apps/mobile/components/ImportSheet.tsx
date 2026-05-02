@@ -4,7 +4,6 @@ import { useContentImport } from '@/hooks/content/useContentImport'
 import { Feather } from '@expo/vector-icons'
 import { isAxiosError } from 'axios'
 import * as Clipboard from 'expo-clipboard'
-import { useRouter } from 'expo-router'
 import React, { useEffect, useRef, useState } from 'react'
 import {
   ActivityIndicator,
@@ -28,7 +27,6 @@ interface ImportSheetProps {
 export function ImportSheet({ visible, onClose, onShowUpgrade }: ImportSheetProps) {
   const colors = useThemeColors()
   const insets = useSafeAreaInsets()
-  const router = useRouter()
   const { setPendingJobId } = usePendingImport()
   const { importAsync, isImporting } = useContentImport()
   const [url, setUrl] = useState('')
@@ -75,7 +73,7 @@ export function ImportSheet({ visible, onClose, onShowUpgrade }: ImportSheetProp
         setPendingJobId(result.jobId)
       }
       setUrl('')
-      animateClose(() => router.replace('/(tabs)/library'))
+      animateClose()
     } catch (err) {
       if (isAxiosError(err) && err.response?.status === 403) {
         animateClose(onShowUpgrade)

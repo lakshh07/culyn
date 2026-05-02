@@ -1,13 +1,11 @@
 import { ErrorState } from '@/components/ui/ErrorState'
 import { ContentCardSkeleton } from '@/components/ui/Skeleton'
 import { useThemeColors } from '@/constants/useTheme'
-import { usePendingImport } from '@/contexts/PendingImportContext'
 import { HomeSearchBar, HomeTabsRow } from '@/features/home/components/HomeHeader'
 import { PlaceCard } from '@/features/places/components/PlaceCard'
 import { ProductCard } from '@/features/products/components/ProductCard'
 import { RecipeCard } from '@/features/recipes/components/RecipeCard'
 import { useLibrary } from '@/hooks/library/useLibrary'
-import { useJobPolling } from '@/hooks/useJobPolling'
 import {
   ContentCategory,
   PlaceListItem,
@@ -17,49 +15,9 @@ import {
 } from '@culyn/shared/schemas'
 import { Feather } from '@expo/vector-icons'
 import { useRouter } from 'expo-router'
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { Animated, FlatList, StatusBar, StyleSheet, Text, View } from 'react-native'
+import React, { useCallback, useMemo, useState } from 'react'
+import { FlatList, StatusBar, StyleSheet, Text, View } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
-
-const BANNER_WIDTH = 280
-const BAR_HIGHLIGHT = 80
-
-function PendingImportBanner() {
-  const colors = useThemeColors()
-  const anim = useRef(new Animated.Value(0)).current
-
-  useEffect(() => {
-    Animated.loop(
-      Animated.timing(anim, { toValue: 1, duration: 1200, useNativeDriver: true })
-    ).start()
-  }, [anim])
-
-  const translateX = anim.interpolate({
-    inputRange: [0, 1],
-    outputRange: [-BAR_HIGHLIGHT, BANNER_WIDTH],
-  })
-
-  return (
-    <View style={[styles.banner, { backgroundColor: colors.headerBackground }]}>
-      <View style={styles.bannerTextRow}>
-        <Text style={[styles.bannerTitle, { color: colors.textPrimary }]}>
-          We&apos;re cooking it
-        </Text>
-        <Text style={[styles.bannerSubtitle, { color: colors.textSecondary }]}>
-          Your content will be ready in a few minutes
-        </Text>
-      </View>
-      <View style={[styles.barTrack, { backgroundColor: colors.border }]}>
-        <Animated.View
-          style={[
-            styles.barHighlight,
-            { backgroundColor: colors.primary, transform: [{ translateX }] },
-          ]}
-        />
-      </View>
-    </View>
-  )
-}
 
 type ListRow =
   | { type: 'tabs'; id: '__tabs__' }
@@ -127,24 +85,7 @@ export default function LibraryScreen() {
   const insets = useSafeAreaInsets()
   const [selectedCategory, setSelectedCategory] = useState<ContentCategory>('RECIPE')
 
-  const { pendingJobId, setPendingJobId } = usePendingImport()
-  const { result: jobResult, error: jobError } = useJobPolling(pendingJobId ?? undefined)
-
   const { items, isLoading, error, refetch } = useLibrary(selectedCategory)
-
-  // When job completes or fails, clear the pending state
-  useEffect(() => {
-    if (jobResult?.success) {
-      setPendingJobId(null)
-      refetch()
-    }
-  }, [jobResult, setPendingJobId, refetch])
-
-  useEffect(() => {
-    if (jobError) {
-      setPendingJobId(null)
-    }
-  }, [jobError, setPendingJobId])
 
   const handleCategoryChange = useCallback((category: ContentCategory) => {
     setSelectedCategory(category)
@@ -159,14 +100,15 @@ export default function LibraryScreen() {
       }
     } else if (error) {
       rows.push({ type: 'error', id: '__error__' })
-    } else if (!items || items.length === 0) {
+    } else if (!items || items.filter(i => i.title).length === 0) {
       rows.push({ type: 'empty', id: '__empty__' })
     } else {
-      for (let i = 0; i < items.length; i += 2) {
+      const filteredItems = items.filter(i => i.title)
+      for (let i = 0; i < filteredItems.length; i += 2) {
         rows.push({
           type: 'row',
-          id: items[i].id,
-          items: [items[i], items[i + 1]].filter(Boolean) as UnifiedContentItem[],
+          id: filteredItems[i].id,
+          items: [filteredItems[i], filteredItems[i + 1]].filter(Boolean) as UnifiedContentItem[],
         })
       }
     }
@@ -284,8 +226,6 @@ export default function LibraryScreen() {
         />
       </View>
 
-      {pendingJobId && <PendingImportBanner />}
-
       <FlatList
         key={selectedCategory}
         bounces={false}
@@ -307,35 +247,6 @@ const styles = StyleSheet.create({
   },
   listContent: {
     paddingBottom: 86,
-  },
-  banner: {
-    paddingHorizontal: 34,
-    paddingVertical: 28,
-    gap: 12,
-  },
-  bannerTextRow: {
-    gap: 4,
-  },
-  bannerTitle: {
-    fontSize: 17,
-    fontFamily: 'EBGaramond_500Medium',
-  },
-  bannerSubtitle: {
-    fontSize: 13,
-    fontFamily: 'Syne_400Regular',
-    lineHeight: 18,
-  },
-  barTrack: {
-    height: 4,
-    borderRadius: 2,
-    overflow: 'hidden',
-    width: BANNER_WIDTH,
-  },
-  barHighlight: {
-    position: 'absolute',
-    height: '100%',
-    width: BAR_HIGHLIGHT,
-    borderRadius: 2,
   },
   row: {
     flexDirection: 'row',

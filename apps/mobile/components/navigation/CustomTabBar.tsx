@@ -1,4 +1,5 @@
 import { ImportSheet } from '@/components/ImportSheet'
+import { ProcessingPopup } from '@/components/ProcessingPopup'
 import { UpgradeSheet } from '@/components/UpgradeSheet'
 import { useThemeColors } from '@/constants/useTheme'
 import type { BottomTabBarProps } from '@react-navigation/bottom-tabs'
@@ -94,6 +95,8 @@ export default function CustomTabBar({ state, descriptors, navigation }: BottomT
           backgroundColor: colors.background,
         },
       ]}>
+      <ProcessingPopup />
+
       <LinearGradient
         colors={[colors.gradientStart, colors.background]}
         start={{ x: 0, y: 0 }}
@@ -102,7 +105,7 @@ export default function CustomTabBar({ state, descriptors, navigation }: BottomT
         style={[
           styles.gradientOverlay,
           {
-            bottom: bottomPadding + TAB_BAR_HEIGHT,
+            top: -GRADIENT_HEIGHT,
           },
         ]}
       />
