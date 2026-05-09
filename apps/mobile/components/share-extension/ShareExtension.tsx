@@ -71,7 +71,7 @@ export default function ShareExtension({ url, text }: InitialProps) {
         console.log('[ShareExtension] jobId written to shared keychain')
 
         setStatus('success')
-        setTimeout(close, 1500)
+        setTimeout(close, 2000)
       } catch (err) {
         console.log('[ShareExtension] Error:', err)
         setErrorMsg('Something went wrong. Please try again.')

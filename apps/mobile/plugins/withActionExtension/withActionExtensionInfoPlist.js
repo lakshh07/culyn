@@ -28,9 +28,7 @@ function withActionExtensionInfoPlist(config) {
       HostAppScheme: config.scheme,
       NSExtension: {
         NSExtensionAttributes: {
-          NSExtensionActivationRule: {
-            NSExtensionActivationSupportsWebURLWithMaxCount: 1,
-          },
+          NSExtensionActivationRule: 'FALSEPREDICATE',
           NSExtensionServiceRoleType: 'NSExtensionServiceRoleTypeEditor',
         },
         NSExtensionPointIdentifier: 'com.apple.ui-services',
