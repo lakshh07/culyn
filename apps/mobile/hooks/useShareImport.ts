@@ -1,4 +1,5 @@
 import { apiClient } from '@/lib/api'
+import { usePendingImport } from '@/contexts/PendingImportContext'
 import {
   notifyProcessingComplete,
   notifyProcessingFailed,
@@ -16,11 +17,19 @@ import { useJobPolling } from './useJobPolling'
 
 export function useShareImport() {
   const router = useRouter()
+  const { setPendingJobId } = usePendingImport()
   const [pendingUrl, setPendingUrl] = useState<string | null>(null)
   const [jobId, setJobId] = useState<string | undefined>(undefined)
   const isProcessing = useRef(false)
 
   const { status, result, error, reset: resetPolling } = useJobPolling(jobId)
+
+  const resumeImport = useCallback((jobId: string) => {
+    if (isProcessing.current) return
+    isProcessing.current = true
+    setJobId(jobId)
+    setPendingJobId(jobId)
+  }, [setPendingJobId])
 
   const handleShareUrl = useCallback(async (url: string) => {
     if (isProcessing.current) return
@@ -33,6 +42,7 @@ export function useShareImport() {
       const response = await apiClient().post<ImportContentResponse>('/content/import', { url })
 
       setJobId(response.data.jobId)
+      setPendingJobId(response.data.jobId)
     } catch (err) {
       console.error('[ShareImport] Failed to start import:', err)
       const isLimitError = isAxiosError(err) && (err as any).response?.status === 403
@@ -76,6 +86,7 @@ export function useShareImport() {
 
       // Reset state
       setJobId(undefined)
+      setPendingJobId(null)
       resetPolling()
       isProcessing.current = false
     }
@@ -86,6 +97,7 @@ export function useShareImport() {
     if (status === 'FAILED' || status === 'CANCELLED') {
       notifyProcessingFailed()
       setJobId(undefined)
+      setPendingJobId(null)
       resetPolling()
       isProcessing.current = false
     }
@@ -93,6 +105,7 @@ export function useShareImport() {
 
   return {
     triggerImport: setPendingUrl,
+    resumeImport,
     isProcessing: isProcessing.current,
   }
 }

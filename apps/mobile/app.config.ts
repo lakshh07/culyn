@@ -40,6 +40,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     ],
     'expo-font',
     './plugins/withActionExtension',
+    './plugins/withSharedKeychain',
     [
       'expo-share-extension',
       {
@@ -51,10 +52,10 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
         ],
         height: 150,
         backgroundColor: {
-          red: 0,
-          green: 0,
-          blue: 0,
-          alpha: 0.95,
+          red: 1,
+          green: 1,
+          blue: 1,
+          alpha: 1,
         },
         excludedPackages: ['expo-dev-client', 'expo-splash-screen', 'expo-font'],
       },
