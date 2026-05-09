@@ -34,7 +34,10 @@ module.exports = function withSharedKeychain(config) {
       const existing = plist.default.parse(fs.readFileSync(shareExtPath, 'utf8'))
       existing['keychain-access-groups'] = KEYCHAIN_ACCESS_GROUPS
       fs.writeFileSync(shareExtPath, plist.default.build(existing))
-      console.log('[withSharedKeychain] keychain-access-groups added to', shareExtName + '.entitlements')
+      console.log(
+        '[withSharedKeychain] keychain-access-groups added to',
+        shareExtName + '.entitlements'
+      )
     } else {
       console.warn('[withSharedKeychain] Share extension entitlements not found:', shareExtPath)
     }

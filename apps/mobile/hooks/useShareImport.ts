@@ -1,5 +1,5 @@
-import { apiClient } from '@/lib/api'
 import { usePendingImport } from '@/contexts/PendingImportContext'
+import { apiClient } from '@/lib/api'
 import {
   notifyProcessingComplete,
   notifyProcessingFailed,
@@ -24,36 +24,42 @@ export function useShareImport() {
 
   const { status, result, error, reset: resetPolling } = useJobPolling(jobId)
 
-  const resumeImport = useCallback((jobId: string) => {
-    if (isProcessing.current) return
-    isProcessing.current = true
-    setJobId(jobId)
-    setPendingJobId(jobId)
-  }, [setPendingJobId])
+  const resumeImport = useCallback(
+    (jobId: string) => {
+      if (isProcessing.current) return
+      isProcessing.current = true
+      setJobId(jobId)
+      setPendingJobId(jobId)
+    },
+    [setPendingJobId]
+  )
 
-  const handleShareUrl = useCallback(async (url: string) => {
-    if (isProcessing.current) return
-    isProcessing.current = true
+  const handleShareUrl = useCallback(
+    async (url: string) => {
+      if (isProcessing.current) return
+      isProcessing.current = true
 
-    try {
-      await requestNotificationPermissions()
-      await notifyProcessingStarted(url)
+      try {
+        await requestNotificationPermissions()
+        await notifyProcessingStarted(url)
 
-      const response = await apiClient().post<ImportContentResponse>('/content/import', { url })
+        const response = await apiClient().post<ImportContentResponse>('/content/import', { url })
 
-      setJobId(response.data.jobId)
-      setPendingJobId(response.data.jobId)
-    } catch (err) {
-      console.error('[ShareImport] Failed to start import:', err)
-      const isLimitError = isAxiosError(err) && (err as any).response?.status === 403
-      if (isLimitError) {
-        await notifyUpgradeRequired()
-      } else {
-        await notifyProcessingFailed()
+        setJobId(response.data.jobId)
+        setPendingJobId(response.data.jobId)
+      } catch (err) {
+        console.error('[ShareImport] Failed to start import:', err)
+        const isLimitError = isAxiosError(err) && (err as any).response?.status === 403
+        if (isLimitError) {
+          await notifyUpgradeRequired()
+        } else {
+          await notifyProcessingFailed()
+        }
+        isProcessing.current = false
       }
-      isProcessing.current = false
-    }
-  }, [])
+    },
+    [setPendingJobId]
+  )
 
   // Process pending URL
   useEffect(() => {
@@ -90,7 +96,7 @@ export function useShareImport() {
       resetPolling()
       isProcessing.current = false
     }
-  }, [status, result, router, resetPolling])
+  }, [status, result, router, resetPolling, setPendingJobId])
 
   // Handle job failure
   useEffect(() => {
@@ -101,7 +107,7 @@ export function useShareImport() {
       resetPolling()
       isProcessing.current = false
     }
-  }, [status, error, resetPolling])
+  }, [status, error, resetPolling, setPendingJobId])
 
   return {
     triggerImport: setPendingUrl,

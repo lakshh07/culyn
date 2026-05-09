@@ -21,65 +21,66 @@ export default function ShareExtension({ url, text }: InitialProps) {
       friction: 9,
       useNativeDriver: true,
     }).start()
-    runImport()
-  }, [])
 
-  async function runImport() {
-    const sharedUrl = url || extractUrl(text)
-    console.log('[ShareExtension] URL received:', sharedUrl)
+    async function runImport() {
+      const sharedUrl = url || extractUrl(text)
+      console.log('[ShareExtension] URL received:', sharedUrl)
 
-    if (!sharedUrl) {
-      console.log('[ShareExtension] No URL found')
-      setErrorMsg('No link found to import.')
-      setStatus('error')
-      return
-    }
-
-    console.log('[ShareExtension] Reading cookie from shared keychain...')
-    const cookie = await SecureStore.getItemAsync(SHARED_KEY_COOKIE, {
-      accessGroup: SHARED_KEYCHAIN_GROUP,
-    })
-    console.log('[ShareExtension] Cookie found:', !!cookie)
-
-    if (!cookie) {
-      setErrorMsg('Open the Culyn app and log in first.')
-      setStatus('error')
-      return
-    }
-
-    try {
-      console.log('[ShareExtension] Calling /content/import...')
-      const response = await fetch(`${API_URL}/v1/content/import`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Cookie: cookie,
-        },
-        body: JSON.stringify({ url: sharedUrl }),
-      })
-
-      console.log('[ShareExtension] Response status:', response.status)
-
-      if (!response.ok) {
-        throw new Error(`HTTP ${response.status}`)
+      if (!sharedUrl) {
+        console.log('[ShareExtension] No URL found')
+        setErrorMsg('No link found to import.')
+        setStatus('error')
+        return
       }
 
-      const data = await response.json()
-      console.log('[ShareExtension] jobId received:', data.jobId)
-
-      await SecureStore.setItemAsync(SHARED_KEY_JOB_ID, data.jobId, {
+      console.log('[ShareExtension] Reading cookie from shared keychain...')
+      const cookie = await SecureStore.getItemAsync(SHARED_KEY_COOKIE, {
         accessGroup: SHARED_KEYCHAIN_GROUP,
       })
-      console.log('[ShareExtension] jobId written to shared keychain')
+      console.log('[ShareExtension] Cookie found:', !!cookie)
 
-      setStatus('success')
-      setTimeout(close, 1500)
-    } catch (err) {
-      console.log('[ShareExtension] Error:', err)
-      setErrorMsg('Something went wrong. Please try again.')
-      setStatus('error')
+      if (!cookie) {
+        setErrorMsg('Open the Culyn app and log in first.')
+        setStatus('error')
+        return
+      }
+
+      try {
+        console.log('[ShareExtension] Calling /content/import...')
+        const response = await fetch(`${API_URL}/v1/content/import`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Cookie: cookie,
+          },
+          body: JSON.stringify({ url: sharedUrl }),
+        })
+
+        console.log('[ShareExtension] Response status:', response.status)
+
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}`)
+        }
+
+        const data = await response.json()
+        console.log('[ShareExtension] jobId received:', data.jobId)
+
+        await SecureStore.setItemAsync(SHARED_KEY_JOB_ID, data.jobId, {
+          accessGroup: SHARED_KEYCHAIN_GROUP,
+        })
+        console.log('[ShareExtension] jobId written to shared keychain')
+
+        setStatus('success')
+        setTimeout(close, 1500)
+      } catch (err) {
+        console.log('[ShareExtension] Error:', err)
+        setErrorMsg('Something went wrong. Please try again.')
+        setStatus('error')
+      }
     }
-  }
+
+    runImport()
+  }, [animValue, url, text])
 
   const opacity = animValue
   const scale = animValue.interpolate({
