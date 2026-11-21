@@ -10,15 +10,15 @@ written below.
 
 You MAY NOT, without prior written permission from the copyright holder:
 
-  1. Copy, reproduce, or download the Software for any purpose other than
-     viewing it on GitHub;
-  2. Modify, adapt, translate, or create derivative works from the Software;
-  3. Distribute, publish, sublicense, sell, rent, or otherwise make the
-     Software, or any part of it, available to anyone else;
-  4. Use the Software, or any part of it, in any product or service,
-     commercial or non-commercial;
-  5. Use the Software to train, fine-tune, or evaluate machine-learning
-     models.
+1. Copy, reproduce, or download the Software for any purpose other than
+   viewing it on GitHub;
+2. Modify, adapt, translate, or create derivative works from the Software;
+3. Distribute, publish, sublicense, sell, rent, or otherwise make the
+   Software, or any part of it, available to anyone else;
+4. Use the Software, or any part of it, in any product or service,
+   commercial or non-commercial;
+5. Use the Software to train, fine-tune, or evaluate machine-learning
+   models.
 
 Forking this repository on GitHub, as permitted by GitHub's Terms of Service,
 does not grant you any of the rights above.

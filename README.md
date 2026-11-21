@@ -53,16 +53,16 @@ You save food reels all the time and never look at them again. Culyn turns them 
 
 ## Tech stack
 
-| Area           | Tools                                                                                     |
-| -------------- | ----------------------------------------------------------------------------------------- |
-| **Monorepo**   | Bun workspaces, shared TypeScript package (`@culyn/shared`)                               |
-| **Mobile**     | Expo 54, React Native 0.81, Expo Router, NativeWind, TanStack Query, Zustand, iOS share extension |
-| **Web**        | Next.js 16, React 19, Tailwind CSS 4, Radix UI, Motion                                    |
-| **Backend**    | Bun, Hono, Prisma 7, PostgreSQL, BullMQ + Redis, Zod                                      |
-| **AI**         | Google Gemini 2.5 Flash (extraction and images), OpenAI GPT-4o-mini (chat), Vercel AI SDK |
-| **Auth**       | Better Auth: Google, Apple, passkeys, API keys                                            |
-| **Payments**   | Razorpay subscriptions                                                                    |
-| **Infra**      | Docker, Railway (API and worker), Vercel (web), EAS (mobile), S3-compatible storage       |
+| Area         | Tools                                                                                             |
+| ------------ | ------------------------------------------------------------------------------------------------- |
+| **Monorepo** | Bun workspaces, shared TypeScript package (`@culyn/shared`)                                       |
+| **Mobile**   | Expo 54, React Native 0.81, Expo Router, NativeWind, TanStack Query, Zustand, iOS share extension |
+| **Web**      | Next.js 16, React 19, Tailwind CSS 4, Radix UI, Motion                                            |
+| **Backend**  | Bun, Hono, Prisma 7, PostgreSQL, BullMQ + Redis, Zod                                              |
+| **AI**       | Google Gemini 2.5 Flash (extraction and images), OpenAI GPT-4o-mini (chat), Vercel AI SDK         |
+| **Auth**     | Better Auth: Google, Apple, passkeys, API keys                                                    |
+| **Payments** | Razorpay subscriptions                                                                            |
+| **Infra**    | Docker, Railway (API and worker), Vercel (web), EAS (mobile), S3-compatible storage               |
 
 ## Project structure
 
@@ -161,13 +161,13 @@ bun run dev:mobile:ios        # Expo dev build on iOS
 
 ## Scripts
 
-| Command             | Description                        |
-| ------------------- | ---------------------------------- |
-| `bun run dev`       | Start every app in parallel        |
-| `bun run build`     | Build every app                    |
-| `bun run typecheck` | Type-check every workspace         |
-| `bun run lint`      | Lint every workspace               |
-| `bun run format`    | Format with Prettier               |
+| Command             | Description                 |
+| ------------------- | --------------------------- |
+| `bun run dev`       | Start every app in parallel |
+| `bun run build`     | Build every app             |
+| `bun run typecheck` | Type-check every workspace  |
+| `bun run lint`      | Lint every workspace        |
+| `bun run format`    | Format with Prettier        |
 
 ## Deployment
 
